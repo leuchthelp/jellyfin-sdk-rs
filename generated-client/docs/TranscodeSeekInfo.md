@@ -1,0 +1,13 @@
+# TranscodeSeekInfo
+
+## Enum Variants
+
+| Name | Value |
+|---- | -----|
+| Auto | Auto |
+| Bytes | Bytes |
+
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

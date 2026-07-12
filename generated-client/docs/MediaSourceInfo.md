@@ -1,0 +1,55 @@
+# MediaSourceInfo
+
+## Properties
+
+Name | Type | Description | Notes
+------------ | ------------- | ------------- | -------------
+**protocol** | Option<[**models::MediaProtocol**](MediaProtocol.md)> |  | [optional]
+**id** | Option<**String**> |  | [optional]
+**path** | Option<**String**> |  | [optional]
+**encoder_path** | Option<**String**> |  | [optional]
+**encoder_protocol** | Option<[**models::MediaProtocol**](MediaProtocol.md)> |  | [optional]
+**r#type** | Option<[**models::MediaSourceType**](MediaSourceType.md)> |  | [optional]
+**container** | Option<**String**> |  | [optional]
+**size** | Option<**i64**> |  | [optional]
+**name** | Option<**String**> |  | [optional]
+**is_remote** | Option<**bool**> | Gets or sets a value indicating whether the media is remote. Differentiate internet url vs local network. | [optional]
+**e_tag** | Option<**String**> |  | [optional]
+**run_time_ticks** | Option<**i64**> |  | [optional]
+**read_at_native_framerate** | Option<**bool**> |  | [optional]
+**ignore_dts** | Option<**bool**> |  | [optional]
+**ignore_index** | Option<**bool**> |  | [optional]
+**gen_pts_input** | Option<**bool**> |  | [optional]
+**supports_transcoding** | Option<**bool**> |  | [optional]
+**supports_direct_stream** | Option<**bool**> |  | [optional]
+**supports_direct_play** | Option<**bool**> |  | [optional]
+**is_infinite_stream** | Option<**bool**> |  | [optional]
+**use_most_compatible_transcoding_profile** | Option<**bool**> |  | [optional][default to false]
+**requires_opening** | Option<**bool**> |  | [optional]
+**open_token** | Option<**String**> |  | [optional]
+**requires_closing** | Option<**bool**> |  | [optional]
+**live_stream_id** | Option<**String**> |  | [optional]
+**buffer_ms** | Option<**i32**> |  | [optional]
+**requires_looping** | Option<**bool**> |  | [optional]
+**supports_probing** | Option<**bool**> |  | [optional]
+**video_type** | Option<[**models::VideoType**](VideoType.md)> |  | [optional]
+**iso_type** | Option<[**models::IsoType**](IsoType.md)> |  | [optional]
+**video3_d_format** | Option<[**models::Video3DFormat**](Video3DFormat.md)> |  | [optional]
+**media_streams** | Option<[**Vec<models::MediaStream>**](MediaStream.md)> |  | [optional]
+**media_attachments** | Option<[**Vec<models::MediaAttachment>**](MediaAttachment.md)> |  | [optional]
+**formats** | Option<**Vec<String>**> |  | [optional]
+**bitrate** | Option<**i32**> |  | [optional]
+**fallback_max_streaming_bitrate** | Option<**i32**> |  | [optional]
+**timestamp** | Option<[**models::TransportStreamTimestamp**](TransportStreamTimestamp.md)> |  | [optional]
+**required_http_headers** | Option<**std::collections::HashMap<String, String>**> |  | [optional]
+**transcoding_url** | Option<**String**> |  | [optional]
+**transcoding_sub_protocol** | Option<[**models::MediaStreamProtocol**](MediaStreamProtocol.md)> | Media streaming protocol. Lowercase for backwards compatibility. | [optional]
+**transcoding_container** | Option<**String**> |  | [optional]
+**analyze_duration_ms** | Option<**i32**> |  | [optional]
+**default_audio_stream_index** | Option<**i32**> |  | [optional]
+**default_subtitle_stream_index** | Option<**i32**> |  | [optional]
+**has_segments** | Option<**bool**> |  | [optional]
+
+[[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
+
+

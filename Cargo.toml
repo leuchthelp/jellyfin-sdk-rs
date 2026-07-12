@@ -1,0 +1,12 @@
+[package]
+name = "jellyfin-sdk-rs"
+version = "0.1.0"
+edition = "2024"
+authors = ["leuchthelp"]
+description = "jellyfin rust sdk"
+readme = "README.md"
+repository = "https://github.com/leuchthelp/jellyfin-sdk-rs"
+license-file = "LICENSE"
+
+[dependencies]
+openapi = { path = "generated-client" }

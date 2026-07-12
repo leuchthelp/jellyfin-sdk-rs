@@ -1,0 +1,40 @@
+version = 1
+revision = 3
+requires-python = ">=3.14"
+
+[[package]]
+name = "jdk4py"
+version = "25.0.2.1"
+source = { registry = "https://pypi.org/simple" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/97/c3/3883815de1ecb3dca14f6ada6b38c6e9bb7fc7c3585b2b1924970d4d33fc/jdk4py-25.0.2.1-py3-none-macosx_10_9_x86_64.whl", hash = "sha256:5df67e2f6a5277f39fb97584eb64ee8d7265770fd42425ec2f11fc4e72c82c6c", size = 31516775, upload-time = "2026-04-23T18:35:28.427Z" },
+    { url = "https://files.pythonhosted.org/packages/95/b8/398b8cff51b1109cdaa424dc4e62ef60acb89e5eb8041fb16a40bc005b49/jdk4py-25.0.2.1-py3-none-macosx_11_0_arm64.whl", hash = "sha256:eda21f14d7d56c7e1ee0f2beb55bfc19f311a8653bdb00217f0cc013c2f2c587", size = 30141372, upload-time = "2026-04-23T18:35:37.948Z" },
+    { url = "https://files.pythonhosted.org/packages/52/fe/e382f79e1fc1f7dfa04c4a7df765203f780590221c26ddff79a1e56aec76/jdk4py-25.0.2.1-py3-none-manylinux_2_17_aarch64.whl", hash = "sha256:b7246170d605dd7b65340994fedea2615737e63955f0b95389202e0ab4a166ac", size = 34514613, upload-time = "2026-04-23T18:35:31.382Z" },
+    { url = "https://files.pythonhosted.org/packages/02/5a/b572f441714a420d65805cbf8806d9b78a8ab70060ed251310661c0b934c/jdk4py-25.0.2.1-py3-none-manylinux_2_17_x86_64.whl", hash = "sha256:383d71d8639d072752d2eaafc84944e0d8de7f1c45d30c28f6dfef8a4a65543c", size = 35411575, upload-time = "2026-04-23T18:35:34.772Z" },
+    { url = "https://files.pythonhosted.org/packages/74/42/4517e3d5b75f52d330acb5816c387d28d58f1689e3ab91c48639fcde3483/jdk4py-25.0.2.1-py3-none-win_amd64.whl", hash = "sha256:5f0ad2e8f7ad3b40eef8af75062d830afd3feccca62fc03db611b2e9a5fa9824", size = 30982993, upload-time = "2026-04-23T18:35:40.652Z" },
+]
+
+[[package]]
+name = "jellyfin-sdk-rs"
+version = "0.1.0"
+source = { virtual = "." }
+dependencies = [
+    { name = "openapi-generator-cli", extra = ["jdk4py"] },
+]
+
+[package.metadata]
+requires-dist = [{ name = "openapi-generator-cli", extras = ["jdk4py"], specifier = ">=7.23.0" }]
+
+[[package]]
+name = "openapi-generator-cli"
+version = "7.23.0"
+source = { registry = "https://pypi.org/simple" }
+sdist = { url = "https://files.pythonhosted.org/packages/a1/4d/ea82fdfb536a8323aad4227ba89876cbfabee637f583aea530c1e0f73262/openapi_generator_cli-7.23.0.tar.gz", hash = "sha256:6af02de4dd2bbd052da2495cc792580bc9f8b245ad1620c2d5d06daaf440ff1a", size = 28423717, upload-time = "2026-06-10T03:51:13.579Z" }
+wheels = [
+    { url = "https://files.pythonhosted.org/packages/e2/d3/b3225ef2c75f70e538c89919ebaddb5a623a07718fca08a19cecd9656107/openapi_generator_cli-7.23.0-py3-none-any.whl", hash = "sha256:4ff9547eff66b74a9349345164df3d8c1c524a378c14700ac202d2f678520b54", size = 28437930, upload-time = "2026-06-10T03:51:09.043Z" },
+]
+
+[package.optional-dependencies]
+jdk4py = [
+    { name = "jdk4py" },
+]
