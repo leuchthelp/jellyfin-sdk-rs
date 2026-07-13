@@ -1,10 +1,10 @@
-use crate::models::{ClientInfo, DeviceInfo};
+use crate::required::{ClientInfo, DeviceInfo};
 use std::fmt::Write as _;
 
 pub fn get_authorization_header(
-    client_info: ClientInfo,
+    client_info: &ClientInfo,
     device_info: &DeviceInfo,
-    access_token: Option<String>,
+    access_token: &Option<String>,
 ) -> Result<String, Box<dyn std::error::Error>> {
     let mut header = String::from("MediaBrowser ");
 
