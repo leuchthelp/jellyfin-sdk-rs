@@ -13,7 +13,7 @@ uv run openapi-generator-cli generate -i jellyfin-openapi-<version>.json -g rust
 simply use the sdk with:
 
 ```rs
-use jellyfin-sdk-rs::<option>
+use jellyfin_sdk_rs::<option>
 ```
 
 the sdk reexports the `apis` & `models` found in the [generated-client](generated-client) and adds simple helper function as:
