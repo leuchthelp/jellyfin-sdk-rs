@@ -1,4 +1,4 @@
 pub struct ClientInfo {
-    name: String,
-    version: String,
+    pub name: String,
+    pub version: String,
 }

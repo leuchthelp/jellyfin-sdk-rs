@@ -1,4 +1,6 @@
+#[derive(Debug, Clone)]
 pub struct DeviceInfo {
-    id: String,
-    name: String,
+    pub id: String,
+    pub name: String,
+    pub languages: Option<Vec<String>>,
 }
