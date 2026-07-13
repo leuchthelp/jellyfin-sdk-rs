@@ -8,4 +8,41 @@ to regenerate run:
 uv run openapi-generator-cli generate -i jellyfin-openapi-<version>.json -g rust -o generated-client
 ```
 
-this closely mirrors the official [jellyfin-sdk-typescript](https://github.com/jellyfin/jellyfin-sdk-typescript) and therefore might include "unrustlike" concepts due to my inexperience with rust
+## Usage
+
+simply use the sdk with:
+
+```rs
+use jellyfin-sdk-rs::<option>
+```
+
+the sdk reexports the `apis` & `models` found in the [generated-client](generated-client) and adds simple helper function as:
+
+```rs
+use jellyfin_sdk_rs::configure;
+
+fn config() {
+    let config = configure(
+            base_url,
+            client_info,
+            device_info,
+            access_token,
+            basic_auth,
+            oauth_access_token,
+            bearer_access_token,
+            api_key,
+        );
+}
+```
+
+which can then be used to authenticate with the server:
+
+```rs
+use jellyfin_sdk_rs::apis::authentication_api::authenticate_user_by_name;
+
+fn auth() {
+    authenticate_user_by_name(config, authenticate_user_by_name)
+}
+```
+
+After you authenticate with the server & retrieve your `auth_token` from the [reqwest response](https://docs.rs/reqwest/latest/reqwest/struct.Response.html) you will have to create a new configuration as a [reqwest client](https://docs.rs/reqwest/latest/reqwest/struct.Client.html) is immutable after creation & headers cannot be added to the default client configuration after the fact.
