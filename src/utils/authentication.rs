@@ -1,6 +1,7 @@
 use crate::required::{ClientInfo, DeviceInfo};
 use std::fmt::Write as _;
 
+#[bon::builder]
 pub fn get_authorization_header(
     client_info: &ClientInfo,
     device_info: &DeviceInfo,

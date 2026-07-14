@@ -8,6 +8,7 @@ use crate::{
     utils::authentication::get_authorization_header,
 };
 
+#[bon::builder]
 pub fn configure(
     base_url: Url,
     client_info: &ClientInfo,
@@ -20,7 +21,12 @@ pub fn configure(
 ) -> Result<Configuration, Box<dyn std::error::Error>> {
     let user_agent = format!("{}: {}", client_info.name, client_info.version);
 
-    let auth_header = get_authorization_header(client_info, &device_info, access_token).unwrap();
+    let auth_header = get_authorization_header()
+        .client_info(client_info)
+        .device_info(device_info)
+        .access_token(access_token)
+        .call()
+        .unwrap();
 
     let mut headers = HeaderMap::new();
     headers.append(AUTHORIZATION_HEADER, HeaderValue::from_str(&auth_header)?);
