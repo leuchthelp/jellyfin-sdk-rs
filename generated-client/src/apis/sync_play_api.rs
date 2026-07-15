@@ -9,252 +9,124 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait SyncPlayApi: Send + Sync {
-
-    /// POST /SyncPlay/Buffering
-    ///
-    /// 
-    async fn sync_play_buffering(&self,  params: SyncPlayBufferingParams ) -> Result<(), Error<SyncPlayBufferingError>>;
-
-    /// POST /SyncPlay/New
-    ///
-    /// 
-    async fn sync_play_create_group(&self,  params: SyncPlayCreateGroupParams ) -> Result<models::GroupInfoDto, Error<SyncPlayCreateGroupError>>;
-
-    /// GET /SyncPlay/{id}
-    ///
-    /// 
-    async fn sync_play_get_group(&self,  params: SyncPlayGetGroupParams ) -> Result<models::GroupInfoDto, Error<SyncPlayGetGroupError>>;
-
-    /// GET /SyncPlay/List
-    ///
-    /// 
-    async fn sync_play_get_groups(&self, ) -> Result<Vec<models::GroupInfoDto>, Error<SyncPlayGetGroupsError>>;
-
-    /// POST /SyncPlay/Join
-    ///
-    /// 
-    async fn sync_play_join_group(&self,  params: SyncPlayJoinGroupParams ) -> Result<(), Error<SyncPlayJoinGroupError>>;
-
-    /// POST /SyncPlay/Leave
-    ///
-    /// 
-    async fn sync_play_leave_group(&self, ) -> Result<(), Error<SyncPlayLeaveGroupError>>;
-
-    /// POST /SyncPlay/MovePlaylistItem
-    ///
-    /// 
-    async fn sync_play_move_playlist_item(&self,  params: SyncPlayMovePlaylistItemParams ) -> Result<(), Error<SyncPlayMovePlaylistItemError>>;
-
-    /// POST /SyncPlay/NextItem
-    ///
-    /// 
-    async fn sync_play_next_item(&self,  params: SyncPlayNextItemParams ) -> Result<(), Error<SyncPlayNextItemError>>;
-
-    /// POST /SyncPlay/Pause
-    ///
-    /// 
-    async fn sync_play_pause(&self, ) -> Result<(), Error<SyncPlayPauseError>>;
-
-    /// POST /SyncPlay/Ping
-    ///
-    /// 
-    async fn sync_play_ping(&self,  params: SyncPlayPingParams ) -> Result<(), Error<SyncPlayPingError>>;
-
-    /// POST /SyncPlay/PreviousItem
-    ///
-    /// 
-    async fn sync_play_previous_item(&self,  params: SyncPlayPreviousItemParams ) -> Result<(), Error<SyncPlayPreviousItemError>>;
-
-    /// POST /SyncPlay/Queue
-    ///
-    /// 
-    async fn sync_play_queue(&self,  params: SyncPlayQueueParams ) -> Result<(), Error<SyncPlayQueueError>>;
-
-    /// POST /SyncPlay/Ready
-    ///
-    /// 
-    async fn sync_play_ready(&self,  params: SyncPlayReadyParams ) -> Result<(), Error<SyncPlayReadyError>>;
-
-    /// POST /SyncPlay/RemoveFromPlaylist
-    ///
-    /// 
-    async fn sync_play_remove_from_playlist(&self,  params: SyncPlayRemoveFromPlaylistParams ) -> Result<(), Error<SyncPlayRemoveFromPlaylistError>>;
-
-    /// POST /SyncPlay/Seek
-    ///
-    /// 
-    async fn sync_play_seek(&self,  params: SyncPlaySeekParams ) -> Result<(), Error<SyncPlaySeekError>>;
-
-    /// POST /SyncPlay/SetIgnoreWait
-    ///
-    /// 
-    async fn sync_play_set_ignore_wait(&self,  params: SyncPlaySetIgnoreWaitParams ) -> Result<(), Error<SyncPlaySetIgnoreWaitError>>;
-
-    /// POST /SyncPlay/SetNewQueue
-    ///
-    /// 
-    async fn sync_play_set_new_queue(&self,  params: SyncPlaySetNewQueueParams ) -> Result<(), Error<SyncPlaySetNewQueueError>>;
-
-    /// POST /SyncPlay/SetPlaylistItem
-    ///
-    /// 
-    async fn sync_play_set_playlist_item(&self,  params: SyncPlaySetPlaylistItemParams ) -> Result<(), Error<SyncPlaySetPlaylistItemError>>;
-
-    /// POST /SyncPlay/SetRepeatMode
-    ///
-    /// 
-    async fn sync_play_set_repeat_mode(&self,  params: SyncPlaySetRepeatModeParams ) -> Result<(), Error<SyncPlaySetRepeatModeError>>;
-
-    /// POST /SyncPlay/SetShuffleMode
-    ///
-    /// 
-    async fn sync_play_set_shuffle_mode(&self,  params: SyncPlaySetShuffleModeParams ) -> Result<(), Error<SyncPlaySetShuffleModeError>>;
-
-    /// POST /SyncPlay/Stop
-    ///
-    /// 
-    async fn sync_play_stop(&self, ) -> Result<(), Error<SyncPlayStopError>>;
-
-    /// POST /SyncPlay/Unpause
-    ///
-    /// 
-    async fn sync_play_unpause(&self, ) -> Result<(), Error<SyncPlayUnpauseError>>;
-}
-
-pub struct SyncPlayApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl SyncPlayApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_buffering`]
+/// struct for passing parameters to the method [`sync_play_buffering`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayBufferingParams {
     /// The player status.
     pub buffer_request_dto: models::BufferRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_create_group`]
+/// struct for passing parameters to the method [`sync_play_create_group`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayCreateGroupParams {
     /// The settings of the new group.
     pub new_group_request_dto: models::NewGroupRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_get_group`]
+/// struct for passing parameters to the method [`sync_play_get_group`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayGetGroupParams {
     /// The id of the group.
     pub id: String
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_join_group`]
+/// struct for passing parameters to the method [`sync_play_join_group`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayJoinGroupParams {
     /// The group to join.
     pub join_group_request_dto: models::JoinGroupRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_move_playlist_item`]
+/// struct for passing parameters to the method [`sync_play_move_playlist_item`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayMovePlaylistItemParams {
     /// The new position for the item.
     pub move_playlist_item_request_dto: models::MovePlaylistItemRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_next_item`]
+/// struct for passing parameters to the method [`sync_play_next_item`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayNextItemParams {
     /// The current item information.
     pub next_item_request_dto: models::NextItemRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_ping`]
+/// struct for passing parameters to the method [`sync_play_ping`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayPingParams {
     /// The new ping.
     pub ping_request_dto: models::PingRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_previous_item`]
+/// struct for passing parameters to the method [`sync_play_previous_item`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayPreviousItemParams {
     /// The current item information.
     pub previous_item_request_dto: models::PreviousItemRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_queue`]
+/// struct for passing parameters to the method [`sync_play_queue`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayQueueParams {
     /// The items to add.
     pub queue_request_dto: models::QueueRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_ready`]
+/// struct for passing parameters to the method [`sync_play_ready`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayReadyParams {
     /// The player status.
     pub ready_request_dto: models::ReadyRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_remove_from_playlist`]
+/// struct for passing parameters to the method [`sync_play_remove_from_playlist`]
 #[derive(Clone, Debug)]
 pub struct SyncPlayRemoveFromPlaylistParams {
     /// The items to remove.
     pub remove_from_playlist_request_dto: models::RemoveFromPlaylistRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_seek`]
+/// struct for passing parameters to the method [`sync_play_seek`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySeekParams {
     /// The new playback position.
     pub seek_request_dto: models::SeekRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_set_ignore_wait`]
+/// struct for passing parameters to the method [`sync_play_set_ignore_wait`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySetIgnoreWaitParams {
     /// The settings to set.
     pub ignore_wait_request_dto: models::IgnoreWaitRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_set_new_queue`]
+/// struct for passing parameters to the method [`sync_play_set_new_queue`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySetNewQueueParams {
     /// The new playlist to play in the group.
     pub play_request_dto: models::PlayRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_set_playlist_item`]
+/// struct for passing parameters to the method [`sync_play_set_playlist_item`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySetPlaylistItemParams {
     /// The new item to play.
     pub set_playlist_item_request_dto: models::SetPlaylistItemRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_set_repeat_mode`]
+/// struct for passing parameters to the method [`sync_play_set_repeat_mode`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySetRepeatModeParams {
     /// The new repeat mode.
     pub set_repeat_mode_request_dto: models::SetRepeatModeRequestDto
 }
 
-/// struct for passing parameters to the method [`SyncPlayApi::sync_play_set_shuffle_mode`]
+/// struct for passing parameters to the method [`sync_play_set_shuffle_mode`]
 #[derive(Clone, Debug)]
 pub struct SyncPlaySetShuffleModeParams {
     /// The new shuffle mode.
@@ -262,939 +134,7 @@ pub struct SyncPlaySetShuffleModeParams {
 }
 
 
-#[async_trait]
-impl SyncPlayApi for SyncPlayApiClient {
-    async fn sync_play_buffering(&self,  params: SyncPlayBufferingParams ) -> Result<(), Error<SyncPlayBufferingError>> {
-        
-        let SyncPlayBufferingParams {
-            buffer_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Buffering", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&buffer_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayBufferingError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_create_group(&self,  params: SyncPlayCreateGroupParams ) -> Result<models::GroupInfoDto, Error<SyncPlayCreateGroupError>> {
-        
-        let SyncPlayCreateGroupParams {
-            new_group_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/New", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&new_group_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GroupInfoDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::GroupInfoDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<SyncPlayCreateGroupError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_get_group(&self,  params: SyncPlayGetGroupParams ) -> Result<models::GroupInfoDto, Error<SyncPlayGetGroupError>> {
-        
-        let SyncPlayGetGroupParams {
-            id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/{id}", local_var_configuration.base_path, id=crate::apis::urlencode(id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GroupInfoDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::GroupInfoDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<SyncPlayGetGroupError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_get_groups(&self, ) -> Result<Vec<models::GroupInfoDto>, Error<SyncPlayGetGroupsError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/List", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::GroupInfoDto&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::GroupInfoDto&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<SyncPlayGetGroupsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_join_group(&self,  params: SyncPlayJoinGroupParams ) -> Result<(), Error<SyncPlayJoinGroupError>> {
-        
-        let SyncPlayJoinGroupParams {
-            join_group_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Join", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&join_group_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayJoinGroupError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_leave_group(&self, ) -> Result<(), Error<SyncPlayLeaveGroupError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Leave", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayLeaveGroupError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_move_playlist_item(&self,  params: SyncPlayMovePlaylistItemParams ) -> Result<(), Error<SyncPlayMovePlaylistItemError>> {
-        
-        let SyncPlayMovePlaylistItemParams {
-            move_playlist_item_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/MovePlaylistItem", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&move_playlist_item_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayMovePlaylistItemError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_next_item(&self,  params: SyncPlayNextItemParams ) -> Result<(), Error<SyncPlayNextItemError>> {
-        
-        let SyncPlayNextItemParams {
-            next_item_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/NextItem", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&next_item_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayNextItemError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_pause(&self, ) -> Result<(), Error<SyncPlayPauseError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Pause", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayPauseError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_ping(&self,  params: SyncPlayPingParams ) -> Result<(), Error<SyncPlayPingError>> {
-        
-        let SyncPlayPingParams {
-            ping_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Ping", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&ping_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayPingError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_previous_item(&self,  params: SyncPlayPreviousItemParams ) -> Result<(), Error<SyncPlayPreviousItemError>> {
-        
-        let SyncPlayPreviousItemParams {
-            previous_item_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/PreviousItem", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&previous_item_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayPreviousItemError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_queue(&self,  params: SyncPlayQueueParams ) -> Result<(), Error<SyncPlayQueueError>> {
-        
-        let SyncPlayQueueParams {
-            queue_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Queue", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&queue_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayQueueError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_ready(&self,  params: SyncPlayReadyParams ) -> Result<(), Error<SyncPlayReadyError>> {
-        
-        let SyncPlayReadyParams {
-            ready_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Ready", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&ready_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayReadyError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_remove_from_playlist(&self,  params: SyncPlayRemoveFromPlaylistParams ) -> Result<(), Error<SyncPlayRemoveFromPlaylistError>> {
-        
-        let SyncPlayRemoveFromPlaylistParams {
-            remove_from_playlist_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/RemoveFromPlaylist", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&remove_from_playlist_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayRemoveFromPlaylistError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_seek(&self,  params: SyncPlaySeekParams ) -> Result<(), Error<SyncPlaySeekError>> {
-        
-        let SyncPlaySeekParams {
-            seek_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Seek", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&seek_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySeekError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_set_ignore_wait(&self,  params: SyncPlaySetIgnoreWaitParams ) -> Result<(), Error<SyncPlaySetIgnoreWaitError>> {
-        
-        let SyncPlaySetIgnoreWaitParams {
-            ignore_wait_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/SetIgnoreWait", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&ignore_wait_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySetIgnoreWaitError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_set_new_queue(&self,  params: SyncPlaySetNewQueueParams ) -> Result<(), Error<SyncPlaySetNewQueueError>> {
-        
-        let SyncPlaySetNewQueueParams {
-            play_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/SetNewQueue", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&play_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySetNewQueueError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_set_playlist_item(&self,  params: SyncPlaySetPlaylistItemParams ) -> Result<(), Error<SyncPlaySetPlaylistItemError>> {
-        
-        let SyncPlaySetPlaylistItemParams {
-            set_playlist_item_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/SetPlaylistItem", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&set_playlist_item_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySetPlaylistItemError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_set_repeat_mode(&self,  params: SyncPlaySetRepeatModeParams ) -> Result<(), Error<SyncPlaySetRepeatModeError>> {
-        
-        let SyncPlaySetRepeatModeParams {
-            set_repeat_mode_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/SetRepeatMode", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&set_repeat_mode_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySetRepeatModeError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_set_shuffle_mode(&self,  params: SyncPlaySetShuffleModeParams ) -> Result<(), Error<SyncPlaySetShuffleModeError>> {
-        
-        let SyncPlaySetShuffleModeParams {
-            set_shuffle_mode_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/SetShuffleMode", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&set_shuffle_mode_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlaySetShuffleModeError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_stop(&self, ) -> Result<(), Error<SyncPlayStopError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Stop", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayStopError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn sync_play_unpause(&self, ) -> Result<(), Error<SyncPlayUnpauseError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/SyncPlay/Unpause", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<SyncPlayUnpauseError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`SyncPlayApi::sync_play_buffering`]
+/// struct for typed errors of method [`sync_play_buffering`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayBufferingError {
@@ -1204,7 +144,7 @@ pub enum SyncPlayBufferingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_create_group`]
+/// struct for typed errors of method [`sync_play_create_group`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayCreateGroupError {
@@ -1214,7 +154,7 @@ pub enum SyncPlayCreateGroupError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_get_group`]
+/// struct for typed errors of method [`sync_play_get_group`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayGetGroupError {
@@ -1225,7 +165,7 @@ pub enum SyncPlayGetGroupError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_get_groups`]
+/// struct for typed errors of method [`sync_play_get_groups`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayGetGroupsError {
@@ -1235,7 +175,7 @@ pub enum SyncPlayGetGroupsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_join_group`]
+/// struct for typed errors of method [`sync_play_join_group`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayJoinGroupError {
@@ -1245,7 +185,7 @@ pub enum SyncPlayJoinGroupError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_leave_group`]
+/// struct for typed errors of method [`sync_play_leave_group`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayLeaveGroupError {
@@ -1255,7 +195,7 @@ pub enum SyncPlayLeaveGroupError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_move_playlist_item`]
+/// struct for typed errors of method [`sync_play_move_playlist_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayMovePlaylistItemError {
@@ -1265,7 +205,7 @@ pub enum SyncPlayMovePlaylistItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_next_item`]
+/// struct for typed errors of method [`sync_play_next_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayNextItemError {
@@ -1275,7 +215,7 @@ pub enum SyncPlayNextItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_pause`]
+/// struct for typed errors of method [`sync_play_pause`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayPauseError {
@@ -1285,7 +225,7 @@ pub enum SyncPlayPauseError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_ping`]
+/// struct for typed errors of method [`sync_play_ping`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayPingError {
@@ -1295,7 +235,7 @@ pub enum SyncPlayPingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_previous_item`]
+/// struct for typed errors of method [`sync_play_previous_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayPreviousItemError {
@@ -1305,7 +245,7 @@ pub enum SyncPlayPreviousItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_queue`]
+/// struct for typed errors of method [`sync_play_queue`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayQueueError {
@@ -1315,7 +255,7 @@ pub enum SyncPlayQueueError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_ready`]
+/// struct for typed errors of method [`sync_play_ready`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayReadyError {
@@ -1325,7 +265,7 @@ pub enum SyncPlayReadyError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_remove_from_playlist`]
+/// struct for typed errors of method [`sync_play_remove_from_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayRemoveFromPlaylistError {
@@ -1335,7 +275,7 @@ pub enum SyncPlayRemoveFromPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_seek`]
+/// struct for typed errors of method [`sync_play_seek`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySeekError {
@@ -1345,7 +285,7 @@ pub enum SyncPlaySeekError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_set_ignore_wait`]
+/// struct for typed errors of method [`sync_play_set_ignore_wait`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySetIgnoreWaitError {
@@ -1355,7 +295,7 @@ pub enum SyncPlaySetIgnoreWaitError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_set_new_queue`]
+/// struct for typed errors of method [`sync_play_set_new_queue`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySetNewQueueError {
@@ -1365,7 +305,7 @@ pub enum SyncPlaySetNewQueueError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_set_playlist_item`]
+/// struct for typed errors of method [`sync_play_set_playlist_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySetPlaylistItemError {
@@ -1375,7 +315,7 @@ pub enum SyncPlaySetPlaylistItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_set_repeat_mode`]
+/// struct for typed errors of method [`sync_play_set_repeat_mode`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySetRepeatModeError {
@@ -1385,7 +325,7 @@ pub enum SyncPlaySetRepeatModeError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_set_shuffle_mode`]
+/// struct for typed errors of method [`sync_play_set_shuffle_mode`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlaySetShuffleModeError {
@@ -1395,7 +335,7 @@ pub enum SyncPlaySetShuffleModeError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_stop`]
+/// struct for typed errors of method [`sync_play_stop`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayStopError {
@@ -1405,7 +345,7 @@ pub enum SyncPlayStopError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`SyncPlayApi::sync_play_unpause`]
+/// struct for typed errors of method [`sync_play_unpause`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SyncPlayUnpauseError {
@@ -1413,5 +353,737 @@ pub enum SyncPlayUnpauseError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn sync_play_buffering(configuration: &configuration::Configuration, params: SyncPlayBufferingParams) -> Result<(), Error<SyncPlayBufferingError>> {
+
+    let uri_str = format!("{}/SyncPlay/Buffering", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.buffer_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayBufferingError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_create_group(configuration: &configuration::Configuration, params: SyncPlayCreateGroupParams) -> Result<models::GroupInfoDto, Error<SyncPlayCreateGroupError>> {
+
+    let uri_str = format!("{}/SyncPlay/New", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.new_group_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GroupInfoDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GroupInfoDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayCreateGroupError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_get_group(configuration: &configuration::Configuration, params: SyncPlayGetGroupParams) -> Result<models::GroupInfoDto, Error<SyncPlayGetGroupError>> {
+
+    let uri_str = format!("{}/SyncPlay/{id}", configuration.base_path, id=crate::apis::urlencode(params.id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GroupInfoDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GroupInfoDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayGetGroupError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_get_groups(configuration: &configuration::Configuration) -> Result<Vec<models::GroupInfoDto>, Error<SyncPlayGetGroupsError>> {
+
+    let uri_str = format!("{}/SyncPlay/List", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::GroupInfoDto&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::GroupInfoDto&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayGetGroupsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_join_group(configuration: &configuration::Configuration, params: SyncPlayJoinGroupParams) -> Result<(), Error<SyncPlayJoinGroupError>> {
+
+    let uri_str = format!("{}/SyncPlay/Join", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.join_group_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayJoinGroupError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_leave_group(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayLeaveGroupError>> {
+
+    let uri_str = format!("{}/SyncPlay/Leave", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayLeaveGroupError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_move_playlist_item(configuration: &configuration::Configuration, params: SyncPlayMovePlaylistItemParams) -> Result<(), Error<SyncPlayMovePlaylistItemError>> {
+
+    let uri_str = format!("{}/SyncPlay/MovePlaylistItem", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.move_playlist_item_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayMovePlaylistItemError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_next_item(configuration: &configuration::Configuration, params: SyncPlayNextItemParams) -> Result<(), Error<SyncPlayNextItemError>> {
+
+    let uri_str = format!("{}/SyncPlay/NextItem", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.next_item_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayNextItemError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_pause(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayPauseError>> {
+
+    let uri_str = format!("{}/SyncPlay/Pause", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayPauseError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_ping(configuration: &configuration::Configuration, params: SyncPlayPingParams) -> Result<(), Error<SyncPlayPingError>> {
+
+    let uri_str = format!("{}/SyncPlay/Ping", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.ping_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayPingError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_previous_item(configuration: &configuration::Configuration, params: SyncPlayPreviousItemParams) -> Result<(), Error<SyncPlayPreviousItemError>> {
+
+    let uri_str = format!("{}/SyncPlay/PreviousItem", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.previous_item_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayPreviousItemError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_queue(configuration: &configuration::Configuration, params: SyncPlayQueueParams) -> Result<(), Error<SyncPlayQueueError>> {
+
+    let uri_str = format!("{}/SyncPlay/Queue", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.queue_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayQueueError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_ready(configuration: &configuration::Configuration, params: SyncPlayReadyParams) -> Result<(), Error<SyncPlayReadyError>> {
+
+    let uri_str = format!("{}/SyncPlay/Ready", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.ready_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayReadyError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_remove_from_playlist(configuration: &configuration::Configuration, params: SyncPlayRemoveFromPlaylistParams) -> Result<(), Error<SyncPlayRemoveFromPlaylistError>> {
+
+    let uri_str = format!("{}/SyncPlay/RemoveFromPlaylist", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.remove_from_playlist_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayRemoveFromPlaylistError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_seek(configuration: &configuration::Configuration, params: SyncPlaySeekParams) -> Result<(), Error<SyncPlaySeekError>> {
+
+    let uri_str = format!("{}/SyncPlay/Seek", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.seek_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySeekError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_set_ignore_wait(configuration: &configuration::Configuration, params: SyncPlaySetIgnoreWaitParams) -> Result<(), Error<SyncPlaySetIgnoreWaitError>> {
+
+    let uri_str = format!("{}/SyncPlay/SetIgnoreWait", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.ignore_wait_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySetIgnoreWaitError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_set_new_queue(configuration: &configuration::Configuration, params: SyncPlaySetNewQueueParams) -> Result<(), Error<SyncPlaySetNewQueueError>> {
+
+    let uri_str = format!("{}/SyncPlay/SetNewQueue", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.play_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySetNewQueueError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_set_playlist_item(configuration: &configuration::Configuration, params: SyncPlaySetPlaylistItemParams) -> Result<(), Error<SyncPlaySetPlaylistItemError>> {
+
+    let uri_str = format!("{}/SyncPlay/SetPlaylistItem", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.set_playlist_item_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySetPlaylistItemError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_set_repeat_mode(configuration: &configuration::Configuration, params: SyncPlaySetRepeatModeParams) -> Result<(), Error<SyncPlaySetRepeatModeError>> {
+
+    let uri_str = format!("{}/SyncPlay/SetRepeatMode", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.set_repeat_mode_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySetRepeatModeError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_set_shuffle_mode(configuration: &configuration::Configuration, params: SyncPlaySetShuffleModeParams) -> Result<(), Error<SyncPlaySetShuffleModeError>> {
+
+    let uri_str = format!("{}/SyncPlay/SetShuffleMode", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.set_shuffle_mode_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlaySetShuffleModeError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_stop(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayStopError>> {
+
+    let uri_str = format!("{}/SyncPlay/Stop", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayStopError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn sync_play_unpause(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayUnpauseError>> {
+
+    let uri_str = format!("{}/SyncPlay/Unpause", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SyncPlayUnpauseError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

@@ -9,47 +9,19 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait UserViewApi: Send + Sync {
-
-    /// GET /UserViews/GroupingOptions
-    ///
-    /// 
-    async fn get_grouping_options(&self,  params: GetGroupingOptionsParams ) -> Result<Vec<models::SpecialViewOptionDto>, Error<GetGroupingOptionsError>>;
-
-    /// GET /UserViews
-    ///
-    /// 
-    async fn get_user_views(&self,  params: GetUserViewsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetUserViewsError>>;
-}
-
-pub struct UserViewApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl UserViewApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`UserViewApi::get_grouping_options`]
+/// struct for passing parameters to the method [`get_grouping_options`]
 #[derive(Clone, Debug)]
 pub struct GetGroupingOptionsParams {
     /// User id.
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`UserViewApi::get_user_views`]
+/// struct for passing parameters to the method [`get_user_views`]
 #[derive(Clone, Debug)]
 pub struct GetUserViewsParams {
     /// User id.
@@ -63,134 +35,7 @@ pub struct GetUserViewsParams {
 }
 
 
-#[async_trait]
-impl UserViewApi for UserViewApiClient {
-    async fn get_grouping_options(&self,  params: GetGroupingOptionsParams ) -> Result<Vec<models::SpecialViewOptionDto>, Error<GetGroupingOptionsError>> {
-        
-        let GetGroupingOptionsParams {
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/UserViews/GroupingOptions", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::SpecialViewOptionDto&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::SpecialViewOptionDto&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetGroupingOptionsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_user_views(&self,  params: GetUserViewsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetUserViewsError>> {
-        
-        let GetUserViewsParams {
-            user_id,
-            include_external_content,
-            preset_views,
-            include_hidden,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/UserViews", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = include_external_content {
-            local_var_req_builder = local_var_req_builder.query(&[("includeExternalContent", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = preset_views {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("presetViews".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("presetViews", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = include_hidden {
-            local_var_req_builder = local_var_req_builder.query(&[("includeHidden", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetUserViewsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`UserViewApi::get_grouping_options`]
+/// struct for typed errors of method [`get_grouping_options`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGroupingOptionsError {
@@ -201,7 +46,7 @@ pub enum GetGroupingOptionsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`UserViewApi::get_user_views`]
+/// struct for typed errors of method [`get_user_views`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetUserViewsError {
@@ -209,5 +54,108 @@ pub enum GetUserViewsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn get_grouping_options(configuration: &configuration::Configuration, params: GetGroupingOptionsParams) -> Result<Vec<models::SpecialViewOptionDto>, Error<GetGroupingOptionsError>> {
+
+    let uri_str = format!("{}/UserViews/GroupingOptions", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::SpecialViewOptionDto&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::SpecialViewOptionDto&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetGroupingOptionsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_user_views(configuration: &configuration::Configuration, params: GetUserViewsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetUserViewsError>> {
+
+    let uri_str = format!("{}/UserViews", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.include_external_content {
+        req_builder = req_builder.query(&[("includeExternalContent", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.preset_views {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("presetViews".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("presetViews", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.include_hidden {
+        req_builder = req_builder.query(&[("includeHidden", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetUserViewsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

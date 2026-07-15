@@ -9,45 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait RemoteImageApi: Send + Sync {
-
-    /// POST /Items/{itemId}/RemoteImages/Download
-    ///
-    /// 
-    async fn download_remote_image(&self,  params: DownloadRemoteImageParams ) -> Result<(), Error<DownloadRemoteImageError>>;
-
-    /// GET /Items/{itemId}/RemoteImages/Providers
-    ///
-    /// 
-    async fn get_remote_image_providers(&self,  params: GetRemoteImageProvidersParams ) -> Result<Vec<models::ImageProviderInfo>, Error<GetRemoteImageProvidersError>>;
-
-    /// GET /Items/{itemId}/RemoteImages
-    ///
-    /// 
-    async fn get_remote_images(&self,  params: GetRemoteImagesParams ) -> Result<models::RemoteImageResult, Error<GetRemoteImagesError>>;
-}
-
-pub struct RemoteImageApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl RemoteImageApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`RemoteImageApi::download_remote_image`]
+/// struct for passing parameters to the method [`download_remote_image`]
 #[derive(Clone, Debug)]
 pub struct DownloadRemoteImageParams {
     /// Item Id.
@@ -58,14 +25,14 @@ pub struct DownloadRemoteImageParams {
     pub image_url: Option<String>
 }
 
-/// struct for passing parameters to the method [`RemoteImageApi::get_remote_image_providers`]
+/// struct for passing parameters to the method [`get_remote_image_providers`]
 #[derive(Clone, Debug)]
 pub struct GetRemoteImageProvidersParams {
     /// Item Id.
     pub item_id: String
 }
 
-/// struct for passing parameters to the method [`RemoteImageApi::get_remote_images`]
+/// struct for passing parameters to the method [`get_remote_images`]
 #[derive(Clone, Debug)]
 pub struct GetRemoteImagesParams {
     /// Item Id.
@@ -83,180 +50,7 @@ pub struct GetRemoteImagesParams {
 }
 
 
-#[async_trait]
-impl RemoteImageApi for RemoteImageApiClient {
-    async fn download_remote_image(&self,  params: DownloadRemoteImageParams ) -> Result<(), Error<DownloadRemoteImageError>> {
-        
-        let DownloadRemoteImageParams {
-            item_id,
-            r#type,
-            image_url,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/RemoteImages/Download", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("type", &r#type.to_string())]);
-        if let Some(ref param_value) = image_url {
-            local_var_req_builder = local_var_req_builder.query(&[("imageUrl", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<DownloadRemoteImageError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_remote_image_providers(&self,  params: GetRemoteImageProvidersParams ) -> Result<Vec<models::ImageProviderInfo>, Error<GetRemoteImageProvidersError>> {
-        
-        let GetRemoteImageProvidersParams {
-            item_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/RemoteImages/Providers", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ImageProviderInfo&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::ImageProviderInfo&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRemoteImageProvidersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_remote_images(&self,  params: GetRemoteImagesParams ) -> Result<models::RemoteImageResult, Error<GetRemoteImagesError>> {
-        
-        let GetRemoteImagesParams {
-            item_id,
-            r#type,
-            start_index,
-            limit,
-            provider_name,
-            include_all_languages,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/RemoteImages", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = r#type {
-            local_var_req_builder = local_var_req_builder.query(&[("type", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = provider_name {
-            local_var_req_builder = local_var_req_builder.query(&[("providerName", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = include_all_languages {
-            local_var_req_builder = local_var_req_builder.query(&[("includeAllLanguages", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::RemoteImageResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::RemoteImageResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRemoteImagesError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`RemoteImageApi::download_remote_image`]
+/// struct for typed errors of method [`download_remote_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DownloadRemoteImageError {
@@ -267,7 +61,7 @@ pub enum DownloadRemoteImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`RemoteImageApi::get_remote_image_providers`]
+/// struct for typed errors of method [`get_remote_image_providers`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRemoteImageProvidersError {
@@ -278,7 +72,7 @@ pub enum GetRemoteImageProvidersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`RemoteImageApi::get_remote_images`]
+/// struct for typed errors of method [`get_remote_images`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRemoteImagesError {
@@ -287,5 +81,140 @@ pub enum GetRemoteImagesError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn download_remote_image(configuration: &configuration::Configuration, params: DownloadRemoteImageParams) -> Result<(), Error<DownloadRemoteImageError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Download", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    req_builder = req_builder.query(&[("type", &params.r#type.to_string())]);
+    if let Some(ref param_value) = params.image_url {
+        req_builder = req_builder.query(&[("imageUrl", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DownloadRemoteImageError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_remote_image_providers(configuration: &configuration::Configuration, params: GetRemoteImageProvidersParams) -> Result<Vec<models::ImageProviderInfo>, Error<GetRemoteImageProvidersError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Providers", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ImageProviderInfo&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::ImageProviderInfo&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRemoteImageProvidersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_remote_images(configuration: &configuration::Configuration, params: GetRemoteImagesParams) -> Result<models::RemoteImageResult, Error<GetRemoteImagesError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.r#type {
+        req_builder = req_builder.query(&[("type", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.provider_name {
+        req_builder = req_builder.query(&[("providerName", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.include_all_languages {
+        req_builder = req_builder.query(&[("includeAllLanguages", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::RemoteImageResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::RemoteImageResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRemoteImagesError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

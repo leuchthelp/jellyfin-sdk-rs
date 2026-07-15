@@ -9,69 +9,26 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait MediaInfoApi: Send + Sync {
-
-    /// POST /LiveStreams/Close
-    ///
-    /// 
-    async fn close_live_stream(&self,  params: CloseLiveStreamParams ) -> Result<(), Error<CloseLiveStreamError>>;
-
-    /// GET /Playback/BitrateTest
-    ///
-    /// 
-    async fn get_bitrate_test_bytes(&self,  params: GetBitrateTestBytesParams ) -> Result<std::path::PathBuf, Error<GetBitrateTestBytesError>>;
-
-    /// GET /Items/{itemId}/PlaybackInfo
-    ///
-    /// 
-    async fn get_playback_info(&self,  params: GetPlaybackInfoParams ) -> Result<models::PlaybackInfoResponse, Error<GetPlaybackInfoError>>;
-
-    /// POST /Items/{itemId}/PlaybackInfo
-    ///
-    /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
-    async fn get_posted_playback_info(&self,  params: GetPostedPlaybackInfoParams ) -> Result<models::PlaybackInfoResponse, Error<GetPostedPlaybackInfoError>>;
-
-    /// POST /LiveStreams/Open
-    ///
-    /// 
-    async fn open_live_stream(&self,  params: OpenLiveStreamParams ) -> Result<models::LiveStreamResponse, Error<OpenLiveStreamError>>;
-}
-
-pub struct MediaInfoApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl MediaInfoApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`MediaInfoApi::close_live_stream`]
+/// struct for passing parameters to the method [`close_live_stream`]
 #[derive(Clone, Debug)]
 pub struct CloseLiveStreamParams {
     /// The livestream id.
     pub live_stream_id: String
 }
 
-/// struct for passing parameters to the method [`MediaInfoApi::get_bitrate_test_bytes`]
+/// struct for passing parameters to the method [`get_bitrate_test_bytes`]
 #[derive(Clone, Debug)]
 pub struct GetBitrateTestBytesParams {
     /// The bitrate. Defaults to 102400.
     pub size: Option<i32>
 }
 
-/// struct for passing parameters to the method [`MediaInfoApi::get_playback_info`]
+/// struct for passing parameters to the method [`get_playback_info`]
 #[derive(Clone, Debug)]
 pub struct GetPlaybackInfoParams {
     /// The item id.
@@ -80,7 +37,7 @@ pub struct GetPlaybackInfoParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`MediaInfoApi::get_posted_playback_info`]
+/// struct for passing parameters to the method [`get_posted_playback_info`]
 #[derive(Clone, Debug)]
 pub struct GetPostedPlaybackInfoParams {
     /// The item id.
@@ -117,7 +74,7 @@ pub struct GetPostedPlaybackInfoParams {
     pub playback_info_dto: Option<models::PlaybackInfoDto>
 }
 
-/// struct for passing parameters to the method [`MediaInfoApi::open_live_stream`]
+/// struct for passing parameters to the method [`open_live_stream`]
 #[derive(Clone, Debug)]
 pub struct OpenLiveStreamParams {
     /// The open token.
@@ -149,372 +106,7 @@ pub struct OpenLiveStreamParams {
 }
 
 
-#[async_trait]
-impl MediaInfoApi for MediaInfoApiClient {
-    async fn close_live_stream(&self,  params: CloseLiveStreamParams ) -> Result<(), Error<CloseLiveStreamError>> {
-        
-        let CloseLiveStreamParams {
-            live_stream_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveStreams/Close", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &live_stream_id.to_string())]);
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CloseLiveStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_bitrate_test_bytes(&self,  params: GetBitrateTestBytesParams ) -> Result<std::path::PathBuf, Error<GetBitrateTestBytesError>> {
-        
-        let GetBitrateTestBytesParams {
-            size,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Playback/BitrateTest", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = size {
-            local_var_req_builder = local_var_req_builder.query(&[("size", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetBitrateTestBytesError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_playback_info(&self,  params: GetPlaybackInfoParams ) -> Result<models::PlaybackInfoResponse, Error<GetPlaybackInfoError>> {
-        
-        let GetPlaybackInfoParams {
-            item_id,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/PlaybackInfo", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaybackInfoResponse`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PlaybackInfoResponse`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetPlaybackInfoError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
-    async fn get_posted_playback_info(&self,  params: GetPostedPlaybackInfoParams ) -> Result<models::PlaybackInfoResponse, Error<GetPostedPlaybackInfoError>> {
-        
-        let GetPostedPlaybackInfoParams {
-            item_id,
-            user_id,
-            max_streaming_bitrate,
-            start_time_ticks,
-            audio_stream_index,
-            subtitle_stream_index,
-            max_audio_channels,
-            media_source_id,
-            live_stream_id,
-            auto_open_live_stream,
-            enable_direct_play,
-            enable_direct_stream,
-            enable_transcoding,
-            allow_video_stream_copy,
-            allow_audio_stream_copy,
-            playback_info_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/PlaybackInfo", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_streaming_bitrate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = live_stream_id {
-            local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = auto_open_live_stream {
-            local_var_req_builder = local_var_req_builder.query(&[("autoOpenLiveStream", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_direct_play {
-            local_var_req_builder = local_var_req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_direct_stream {
-            local_var_req_builder = local_var_req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_transcoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTranscoding", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_video_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_audio_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&playback_info_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaybackInfoResponse`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PlaybackInfoResponse`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetPostedPlaybackInfoError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn open_live_stream(&self,  params: OpenLiveStreamParams ) -> Result<models::LiveStreamResponse, Error<OpenLiveStreamError>> {
-        
-        let OpenLiveStreamParams {
-            open_token,
-            user_id,
-            play_session_id,
-            max_streaming_bitrate,
-            start_time_ticks,
-            audio_stream_index,
-            subtitle_stream_index,
-            max_audio_channels,
-            item_id,
-            enable_direct_play,
-            enable_direct_stream,
-            always_burn_in_subtitle_when_transcoding,
-            open_live_stream_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveStreams/Open", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = open_token {
-            local_var_req_builder = local_var_req_builder.query(&[("openToken", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = play_session_id {
-            local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_streaming_bitrate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = item_id {
-            local_var_req_builder = local_var_req_builder.query(&[("itemId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_direct_play {
-            local_var_req_builder = local_var_req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_direct_stream {
-            local_var_req_builder = local_var_req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = always_burn_in_subtitle_when_transcoding {
-            local_var_req_builder = local_var_req_builder.query(&[("alwaysBurnInSubtitleWhenTranscoding", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&open_live_stream_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LiveStreamResponse`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LiveStreamResponse`")))),
-            }
-        } else {
-            let local_var_entity: Option<OpenLiveStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`MediaInfoApi::close_live_stream`]
+/// struct for typed errors of method [`close_live_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CloseLiveStreamError {
@@ -524,7 +116,7 @@ pub enum CloseLiveStreamError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`MediaInfoApi::get_bitrate_test_bytes`]
+/// struct for typed errors of method [`get_bitrate_test_bytes`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetBitrateTestBytesError {
@@ -534,7 +126,7 @@ pub enum GetBitrateTestBytesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`MediaInfoApi::get_playback_info`]
+/// struct for typed errors of method [`get_playback_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPlaybackInfoError {
@@ -545,7 +137,7 @@ pub enum GetPlaybackInfoError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`MediaInfoApi::get_posted_playback_info`]
+/// struct for typed errors of method [`get_posted_playback_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPostedPlaybackInfoError {
@@ -556,7 +148,7 @@ pub enum GetPostedPlaybackInfoError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`MediaInfoApi::open_live_stream`]
+/// struct for typed errors of method [`open_live_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum OpenLiveStreamError {
@@ -564,5 +156,282 @@ pub enum OpenLiveStreamError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn close_live_stream(configuration: &configuration::Configuration, params: CloseLiveStreamParams) -> Result<(), Error<CloseLiveStreamError>> {
+
+    let uri_str = format!("{}/LiveStreams/Close", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    req_builder = req_builder.query(&[("liveStreamId", &params.live_stream_id.to_string())]);
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CloseLiveStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_bitrate_test_bytes(configuration: &configuration::Configuration, params: GetBitrateTestBytesParams) -> Result<reqwest::Response, Error<GetBitrateTestBytesError>> {
+
+    let uri_str = format!("{}/Playback/BitrateTest", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.size {
+        req_builder = req_builder.query(&[("size", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetBitrateTestBytesError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_playback_info(configuration: &configuration::Configuration, params: GetPlaybackInfoParams) -> Result<models::PlaybackInfoResponse, Error<GetPlaybackInfoError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaybackInfoResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PlaybackInfoResponse`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetPlaybackInfoError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+/// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
+pub async fn get_posted_playback_info(configuration: &configuration::Configuration, params: GetPostedPlaybackInfoParams) -> Result<models::PlaybackInfoResponse, Error<GetPostedPlaybackInfoError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_streaming_bitrate {
+        req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.live_stream_id {
+        req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.auto_open_live_stream {
+        req_builder = req_builder.query(&[("autoOpenLiveStream", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_direct_play {
+        req_builder = req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_direct_stream {
+        req_builder = req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_transcoding {
+        req_builder = req_builder.query(&[("enableTranscoding", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_video_stream_copy {
+        req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_audio_stream_copy {
+        req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.playback_info_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaybackInfoResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PlaybackInfoResponse`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetPostedPlaybackInfoError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn open_live_stream(configuration: &configuration::Configuration, params: OpenLiveStreamParams) -> Result<models::LiveStreamResponse, Error<OpenLiveStreamError>> {
+
+    let uri_str = format!("{}/LiveStreams/Open", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.open_token {
+        req_builder = req_builder.query(&[("openToken", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.play_session_id {
+        req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_streaming_bitrate {
+        req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.item_id {
+        req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_direct_play {
+        req_builder = req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_direct_stream {
+        req_builder = req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.always_burn_in_subtitle_when_transcoding {
+        req_builder = req_builder.query(&[("alwaysBurnInSubtitleWhenTranscoding", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.open_live_stream_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LiveStreamResponse`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LiveStreamResponse`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<OpenLiveStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

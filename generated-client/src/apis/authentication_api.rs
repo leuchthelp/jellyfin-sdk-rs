@@ -9,109 +9,26 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait AuthenticationApi: Send + Sync {
-
-    /// POST /Users/AuthenticateByName
-    ///
-    /// 
-    async fn authenticate_user_by_name(&self,  params: AuthenticateUserByNameParams ) -> Result<models::AuthenticationResult, Error<AuthenticateUserByNameError>>;
-
-    /// POST /Users/AuthenticateWithQuickConnect
-    ///
-    /// 
-    async fn authenticate_with_quick_connect(&self,  params: AuthenticateWithQuickConnectParams ) -> Result<models::AuthenticationResult, Error<AuthenticateWithQuickConnectError>>;
-
-    /// POST /QuickConnect/Authorize
-    ///
-    /// 
-    async fn authorize_quick_connect(&self,  params: AuthorizeQuickConnectParams ) -> Result<bool, Error<AuthorizeQuickConnectError>>;
-
-    /// POST /Auth/Keys
-    ///
-    /// 
-    async fn create_key(&self,  params: CreateKeyParams ) -> Result<(), Error<CreateKeyError>>;
-
-    /// POST /Users/ForgotPassword
-    ///
-    /// 
-    async fn forgot_password(&self,  params: ForgotPasswordParams ) -> Result<models::ForgotPasswordResult, Error<ForgotPasswordError>>;
-
-    /// POST /Users/ForgotPassword/Pin
-    ///
-    /// 
-    async fn forgot_password_pin(&self,  params: ForgotPasswordPinParams ) -> Result<models::PinRedeemResult, Error<ForgotPasswordPinError>>;
-
-    /// GET /Auth/Providers
-    ///
-    /// 
-    async fn get_auth_providers(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetAuthProvidersError>>;
-
-    /// GET /Auth/Keys
-    ///
-    /// 
-    async fn get_keys(&self, ) -> Result<models::AuthenticationInfoQueryResult, Error<GetKeysError>>;
-
-    /// GET /Auth/PasswordResetProviders
-    ///
-    /// 
-    async fn get_password_reset_providers(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetPasswordResetProvidersError>>;
-
-    /// GET /QuickConnect/Enabled
-    ///
-    /// 
-    async fn get_quick_connect_enabled(&self, ) -> Result<bool, Error<GetQuickConnectEnabledError>>;
-
-    /// GET /QuickConnect/Connect
-    ///
-    /// 
-    async fn get_quick_connect_state(&self,  params: GetQuickConnectStateParams ) -> Result<models::QuickConnectResult, Error<GetQuickConnectStateError>>;
-
-    /// POST /QuickConnect/Initiate
-    ///
-    /// 
-    async fn initiate_quick_connect(&self, ) -> Result<models::QuickConnectResult, Error<InitiateQuickConnectError>>;
-
-    /// DELETE /Auth/Keys/{key}
-    ///
-    /// 
-    async fn revoke_key(&self,  params: RevokeKeyParams ) -> Result<(), Error<RevokeKeyError>>;
-}
-
-pub struct AuthenticationApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl AuthenticationApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`AuthenticationApi::authenticate_user_by_name`]
+/// struct for passing parameters to the method [`authenticate_user_by_name`]
 #[derive(Clone, Debug)]
 pub struct AuthenticateUserByNameParams {
     /// The M:Jellyfin.Api.Controllers.UserController.AuthenticateUserByName(Jellyfin.Api.Models.UserDtos.AuthenticateUserByName) request.
     pub authenticate_user_by_name: models::AuthenticateUserByName
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::authenticate_with_quick_connect`]
+/// struct for passing parameters to the method [`authenticate_with_quick_connect`]
 #[derive(Clone, Debug)]
 pub struct AuthenticateWithQuickConnectParams {
     /// The Jellyfin.Api.Models.UserDtos.QuickConnectDto request.
     pub quick_connect_dto: models::QuickConnectDto
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::authorize_quick_connect`]
+/// struct for passing parameters to the method [`authorize_quick_connect`]
 #[derive(Clone, Debug)]
 pub struct AuthorizeQuickConnectParams {
     /// Quick connect code to authorize.
@@ -120,35 +37,35 @@ pub struct AuthorizeQuickConnectParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::create_key`]
+/// struct for passing parameters to the method [`create_key`]
 #[derive(Clone, Debug)]
 pub struct CreateKeyParams {
     /// Name of the app using the authentication key.
     pub app: String
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::forgot_password`]
+/// struct for passing parameters to the method [`forgot_password`]
 #[derive(Clone, Debug)]
 pub struct ForgotPasswordParams {
     /// The forgot password request containing the entered username.
     pub forgot_password_dto: models::ForgotPasswordDto
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::forgot_password_pin`]
+/// struct for passing parameters to the method [`forgot_password_pin`]
 #[derive(Clone, Debug)]
 pub struct ForgotPasswordPinParams {
     /// The forgot password pin request containing the entered pin.
     pub forgot_password_pin_dto: models::ForgotPasswordPinDto
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::get_quick_connect_state`]
+/// struct for passing parameters to the method [`get_quick_connect_state`]
 #[derive(Clone, Debug)]
 pub struct GetQuickConnectStateParams {
     /// Secret previously returned from the Initiate endpoint.
     pub secret: String
 }
 
-/// struct for passing parameters to the method [`AuthenticationApi::revoke_key`]
+/// struct for passing parameters to the method [`revoke_key`]
 #[derive(Clone, Debug)]
 pub struct RevokeKeyParams {
     /// The access token to delete.
@@ -156,589 +73,7 @@ pub struct RevokeKeyParams {
 }
 
 
-#[async_trait]
-impl AuthenticationApi for AuthenticationApiClient {
-    async fn authenticate_user_by_name(&self,  params: AuthenticateUserByNameParams ) -> Result<models::AuthenticationResult, Error<AuthenticateUserByNameError>> {
-        
-        let AuthenticateUserByNameParams {
-            authenticate_user_by_name,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Users/AuthenticateByName", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        local_var_req_builder = local_var_req_builder.json(&authenticate_user_by_name);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::AuthenticationResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<AuthenticateUserByNameError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn authenticate_with_quick_connect(&self,  params: AuthenticateWithQuickConnectParams ) -> Result<models::AuthenticationResult, Error<AuthenticateWithQuickConnectError>> {
-        
-        let AuthenticateWithQuickConnectParams {
-            quick_connect_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Users/AuthenticateWithQuickConnect", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        local_var_req_builder = local_var_req_builder.json(&quick_connect_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::AuthenticationResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<AuthenticateWithQuickConnectError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn authorize_quick_connect(&self,  params: AuthorizeQuickConnectParams ) -> Result<bool, Error<AuthorizeQuickConnectError>> {
-        
-        let AuthorizeQuickConnectParams {
-            code,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/QuickConnect/Authorize", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("code", &code.to_string())]);
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `bool`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `bool`")))),
-            }
-        } else {
-            let local_var_entity: Option<AuthorizeQuickConnectError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn create_key(&self,  params: CreateKeyParams ) -> Result<(), Error<CreateKeyError>> {
-        
-        let CreateKeyParams {
-            app,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Auth/Keys", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("app", &app.to_string())]);
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CreateKeyError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn forgot_password(&self,  params: ForgotPasswordParams ) -> Result<models::ForgotPasswordResult, Error<ForgotPasswordError>> {
-        
-        let ForgotPasswordParams {
-            forgot_password_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Users/ForgotPassword", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        local_var_req_builder = local_var_req_builder.json(&forgot_password_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ForgotPasswordResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::ForgotPasswordResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<ForgotPasswordError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn forgot_password_pin(&self,  params: ForgotPasswordPinParams ) -> Result<models::PinRedeemResult, Error<ForgotPasswordPinError>> {
-        
-        let ForgotPasswordPinParams {
-            forgot_password_pin_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Users/ForgotPassword/Pin", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        local_var_req_builder = local_var_req_builder.json(&forgot_password_pin_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PinRedeemResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PinRedeemResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<ForgotPasswordPinError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_auth_providers(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetAuthProvidersError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Auth/Providers", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetAuthProvidersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_keys(&self, ) -> Result<models::AuthenticationInfoQueryResult, Error<GetKeysError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Auth/Keys", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationInfoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::AuthenticationInfoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetKeysError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_password_reset_providers(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetPasswordResetProvidersError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Auth/PasswordResetProviders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetPasswordResetProvidersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_quick_connect_enabled(&self, ) -> Result<bool, Error<GetQuickConnectEnabledError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/QuickConnect/Enabled", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `bool`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `bool`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetQuickConnectEnabledError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_quick_connect_state(&self,  params: GetQuickConnectStateParams ) -> Result<models::QuickConnectResult, Error<GetQuickConnectStateError>> {
-        
-        let GetQuickConnectStateParams {
-            secret,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/QuickConnect/Connect", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("secret", &secret.to_string())]);
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QuickConnectResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::QuickConnectResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetQuickConnectStateError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn initiate_quick_connect(&self, ) -> Result<models::QuickConnectResult, Error<InitiateQuickConnectError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/QuickConnect/Initiate", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QuickConnectResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::QuickConnectResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<InitiateQuickConnectError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn revoke_key(&self,  params: RevokeKeyParams ) -> Result<(), Error<RevokeKeyError>> {
-        
-        let RevokeKeyParams {
-            key,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Auth/Keys/{key}", local_var_configuration.base_path, key=crate::apis::urlencode(key));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<RevokeKeyError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`AuthenticationApi::authenticate_user_by_name`]
+/// struct for typed errors of method [`authenticate_user_by_name`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AuthenticateUserByNameError {
@@ -746,7 +81,7 @@ pub enum AuthenticateUserByNameError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::authenticate_with_quick_connect`]
+/// struct for typed errors of method [`authenticate_with_quick_connect`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AuthenticateWithQuickConnectError {
@@ -755,7 +90,7 @@ pub enum AuthenticateWithQuickConnectError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::authorize_quick_connect`]
+/// struct for typed errors of method [`authorize_quick_connect`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AuthorizeQuickConnectError {
@@ -765,7 +100,7 @@ pub enum AuthorizeQuickConnectError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::create_key`]
+/// struct for typed errors of method [`create_key`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreateKeyError {
@@ -775,7 +110,7 @@ pub enum CreateKeyError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::forgot_password`]
+/// struct for typed errors of method [`forgot_password`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ForgotPasswordError {
@@ -783,7 +118,7 @@ pub enum ForgotPasswordError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::forgot_password_pin`]
+/// struct for typed errors of method [`forgot_password_pin`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ForgotPasswordPinError {
@@ -791,7 +126,7 @@ pub enum ForgotPasswordPinError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::get_auth_providers`]
+/// struct for typed errors of method [`get_auth_providers`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetAuthProvidersError {
@@ -801,7 +136,7 @@ pub enum GetAuthProvidersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::get_keys`]
+/// struct for typed errors of method [`get_keys`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetKeysError {
@@ -811,7 +146,7 @@ pub enum GetKeysError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::get_password_reset_providers`]
+/// struct for typed errors of method [`get_password_reset_providers`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPasswordResetProvidersError {
@@ -821,7 +156,7 @@ pub enum GetPasswordResetProvidersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::get_quick_connect_enabled`]
+/// struct for typed errors of method [`get_quick_connect_enabled`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetQuickConnectEnabledError {
@@ -829,7 +164,7 @@ pub enum GetQuickConnectEnabledError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::get_quick_connect_state`]
+/// struct for typed errors of method [`get_quick_connect_state`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetQuickConnectStateError {
@@ -838,7 +173,7 @@ pub enum GetQuickConnectStateError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::initiate_quick_connect`]
+/// struct for typed errors of method [`initiate_quick_connect`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InitiateQuickConnectError {
@@ -847,7 +182,7 @@ pub enum InitiateQuickConnectError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AuthenticationApi::revoke_key`]
+/// struct for typed errors of method [`revoke_key`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RevokeKeyError {
@@ -855,5 +190,484 @@ pub enum RevokeKeyError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn authenticate_user_by_name(configuration: &configuration::Configuration, params: AuthenticateUserByNameParams) -> Result<models::AuthenticationResult, Error<AuthenticateUserByNameError>> {
+
+    let uri_str = format!("{}/Users/AuthenticateByName", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    req_builder = req_builder.json(&params.authenticate_user_by_name);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::AuthenticationResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AuthenticateUserByNameError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn authenticate_with_quick_connect(configuration: &configuration::Configuration, params: AuthenticateWithQuickConnectParams) -> Result<models::AuthenticationResult, Error<AuthenticateWithQuickConnectError>> {
+
+    let uri_str = format!("{}/Users/AuthenticateWithQuickConnect", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    req_builder = req_builder.json(&params.quick_connect_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::AuthenticationResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AuthenticateWithQuickConnectError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn authorize_quick_connect(configuration: &configuration::Configuration, params: AuthorizeQuickConnectParams) -> Result<bool, Error<AuthorizeQuickConnectError>> {
+
+    let uri_str = format!("{}/QuickConnect/Authorize", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    req_builder = req_builder.query(&[("code", &params.code.to_string())]);
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `bool`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `bool`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AuthorizeQuickConnectError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn create_key(configuration: &configuration::Configuration, params: CreateKeyParams) -> Result<(), Error<CreateKeyError>> {
+
+    let uri_str = format!("{}/Auth/Keys", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    req_builder = req_builder.query(&[("app", &params.app.to_string())]);
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CreateKeyError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn forgot_password(configuration: &configuration::Configuration, params: ForgotPasswordParams) -> Result<models::ForgotPasswordResult, Error<ForgotPasswordError>> {
+
+    let uri_str = format!("{}/Users/ForgotPassword", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    req_builder = req_builder.json(&params.forgot_password_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ForgotPasswordResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ForgotPasswordResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ForgotPasswordError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn forgot_password_pin(configuration: &configuration::Configuration, params: ForgotPasswordPinParams) -> Result<models::PinRedeemResult, Error<ForgotPasswordPinError>> {
+
+    let uri_str = format!("{}/Users/ForgotPassword/Pin", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    req_builder = req_builder.json(&params.forgot_password_pin_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PinRedeemResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PinRedeemResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ForgotPasswordPinError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_auth_providers(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetAuthProvidersError>> {
+
+    let uri_str = format!("{}/Auth/Providers", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetAuthProvidersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_keys(configuration: &configuration::Configuration) -> Result<models::AuthenticationInfoQueryResult, Error<GetKeysError>> {
+
+    let uri_str = format!("{}/Auth/Keys", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::AuthenticationInfoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::AuthenticationInfoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetKeysError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_password_reset_providers(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetPasswordResetProvidersError>> {
+
+    let uri_str = format!("{}/Auth/PasswordResetProviders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetPasswordResetProvidersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_quick_connect_enabled(configuration: &configuration::Configuration) -> Result<bool, Error<GetQuickConnectEnabledError>> {
+
+    let uri_str = format!("{}/QuickConnect/Enabled", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `bool`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `bool`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetQuickConnectEnabledError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_quick_connect_state(configuration: &configuration::Configuration, params: GetQuickConnectStateParams) -> Result<models::QuickConnectResult, Error<GetQuickConnectStateError>> {
+
+    let uri_str = format!("{}/QuickConnect/Connect", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    req_builder = req_builder.query(&[("secret", &params.secret.to_string())]);
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QuickConnectResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::QuickConnectResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetQuickConnectStateError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn initiate_quick_connect(configuration: &configuration::Configuration) -> Result<models::QuickConnectResult, Error<InitiateQuickConnectError>> {
+
+    let uri_str = format!("{}/QuickConnect/Initiate", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QuickConnectResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::QuickConnectResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<InitiateQuickConnectError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn revoke_key(configuration: &configuration::Configuration, params: RevokeKeyParams) -> Result<(), Error<RevokeKeyError>> {
+
+    let uri_str = format!("{}/Auth/Keys/{key}", configuration.base_path, key=crate::apis::urlencode(params.key));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<RevokeKeyError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

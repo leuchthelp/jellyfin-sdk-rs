@@ -9,70 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait LibraryStructureApi: Send + Sync {
-
-    /// POST /Library/VirtualFolders/Paths
-    ///
-    /// 
-    async fn add_media_path(&self,  params: AddMediaPathParams ) -> Result<(), Error<AddMediaPathError>>;
-
-    /// POST /Library/VirtualFolders
-    ///
-    /// 
-    async fn add_virtual_folder(&self,  params: AddVirtualFolderParams ) -> Result<(), Error<AddVirtualFolderError>>;
-
-    /// GET /Library/VirtualFolders
-    ///
-    /// 
-    async fn get_virtual_folders(&self, ) -> Result<Vec<models::VirtualFolderInfo>, Error<GetVirtualFoldersError>>;
-
-    /// DELETE /Library/VirtualFolders/Paths
-    ///
-    /// 
-    async fn remove_media_path(&self,  params: RemoveMediaPathParams ) -> Result<(), Error<RemoveMediaPathError>>;
-
-    /// DELETE /Library/VirtualFolders
-    ///
-    /// 
-    async fn remove_virtual_folder(&self,  params: RemoveVirtualFolderParams ) -> Result<(), Error<RemoveVirtualFolderError>>;
-
-    /// POST /Library/VirtualFolders/Name
-    ///
-    /// 
-    async fn rename_virtual_folder(&self,  params: RenameVirtualFolderParams ) -> Result<(), Error<RenameVirtualFolderError>>;
-
-    /// POST /Library/VirtualFolders/LibraryOptions
-    ///
-    /// 
-    async fn update_library_options(&self,  params: UpdateLibraryOptionsParams ) -> Result<(), Error<UpdateLibraryOptionsError>>;
-
-    /// POST /Library/VirtualFolders/Paths/Update
-    ///
-    /// 
-    async fn update_media_path(&self,  params: UpdateMediaPathParams ) -> Result<(), Error<UpdateMediaPathError>>;
-}
-
-pub struct LibraryStructureApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl LibraryStructureApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`LibraryStructureApi::add_media_path`]
+/// struct for passing parameters to the method [`add_media_path`]
 #[derive(Clone, Debug)]
 pub struct AddMediaPathParams {
     /// The media path dto.
@@ -81,7 +23,7 @@ pub struct AddMediaPathParams {
     pub refresh_library: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::add_virtual_folder`]
+/// struct for passing parameters to the method [`add_virtual_folder`]
 #[derive(Clone, Debug)]
 pub struct AddVirtualFolderParams {
     /// The name of the virtual folder.
@@ -96,7 +38,7 @@ pub struct AddVirtualFolderParams {
     pub add_virtual_folder_dto: Option<models::AddVirtualFolderDto>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::remove_media_path`]
+/// struct for passing parameters to the method [`remove_media_path`]
 #[derive(Clone, Debug)]
 pub struct RemoveMediaPathParams {
     /// The name of the library.
@@ -107,7 +49,7 @@ pub struct RemoveMediaPathParams {
     pub refresh_library: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::remove_virtual_folder`]
+/// struct for passing parameters to the method [`remove_virtual_folder`]
 #[derive(Clone, Debug)]
 pub struct RemoveVirtualFolderParams {
     /// The name of the folder.
@@ -116,7 +58,7 @@ pub struct RemoveVirtualFolderParams {
     pub refresh_library: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::rename_virtual_folder`]
+/// struct for passing parameters to the method [`rename_virtual_folder`]
 #[derive(Clone, Debug)]
 pub struct RenameVirtualFolderParams {
     /// The name of the virtual folder.
@@ -127,14 +69,14 @@ pub struct RenameVirtualFolderParams {
     pub refresh_library: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::update_library_options`]
+/// struct for passing parameters to the method [`update_library_options`]
 #[derive(Clone, Debug)]
 pub struct UpdateLibraryOptionsParams {
     /// The library name and options.
     pub update_library_options_dto: Option<models::UpdateLibraryOptionsDto>
 }
 
-/// struct for passing parameters to the method [`LibraryStructureApi::update_media_path`]
+/// struct for passing parameters to the method [`update_media_path`]
 #[derive(Clone, Debug)]
 pub struct UpdateMediaPathParams {
     /// The name of the library and path infos.
@@ -142,401 +84,7 @@ pub struct UpdateMediaPathParams {
 }
 
 
-#[async_trait]
-impl LibraryStructureApi for LibraryStructureApiClient {
-    async fn add_media_path(&self,  params: AddMediaPathParams ) -> Result<(), Error<AddMediaPathError>> {
-        
-        let AddMediaPathParams {
-            media_path_dto,
-            refresh_library,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders/Paths", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = refresh_library {
-            local_var_req_builder = local_var_req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&media_path_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<AddMediaPathError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn add_virtual_folder(&self,  params: AddVirtualFolderParams ) -> Result<(), Error<AddVirtualFolderError>> {
-        
-        let AddVirtualFolderParams {
-            name,
-            collection_type,
-            paths,
-            refresh_library,
-            add_virtual_folder_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = name {
-            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = collection_type {
-            local_var_req_builder = local_var_req_builder.query(&[("collectionType", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = paths {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("paths".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("paths", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = refresh_library {
-            local_var_req_builder = local_var_req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&add_virtual_folder_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<AddVirtualFolderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_virtual_folders(&self, ) -> Result<Vec<models::VirtualFolderInfo>, Error<GetVirtualFoldersError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::VirtualFolderInfo&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::VirtualFolderInfo&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetVirtualFoldersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn remove_media_path(&self,  params: RemoveMediaPathParams ) -> Result<(), Error<RemoveMediaPathError>> {
-        
-        let RemoveMediaPathParams {
-            name,
-            path,
-            refresh_library,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders/Paths", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = name {
-            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = path {
-            local_var_req_builder = local_var_req_builder.query(&[("path", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = refresh_library {
-            local_var_req_builder = local_var_req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<RemoveMediaPathError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn remove_virtual_folder(&self,  params: RemoveVirtualFolderParams ) -> Result<(), Error<RemoveVirtualFolderError>> {
-        
-        let RemoveVirtualFolderParams {
-            name,
-            refresh_library,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = name {
-            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = refresh_library {
-            local_var_req_builder = local_var_req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<RemoveVirtualFolderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn rename_virtual_folder(&self,  params: RenameVirtualFolderParams ) -> Result<(), Error<RenameVirtualFolderError>> {
-        
-        let RenameVirtualFolderParams {
-            name,
-            new_name,
-            refresh_library,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders/Name", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = name {
-            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = new_name {
-            local_var_req_builder = local_var_req_builder.query(&[("newName", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = refresh_library {
-            local_var_req_builder = local_var_req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<RenameVirtualFolderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn update_library_options(&self,  params: UpdateLibraryOptionsParams ) -> Result<(), Error<UpdateLibraryOptionsError>> {
-        
-        let UpdateLibraryOptionsParams {
-            update_library_options_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders/LibraryOptions", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&update_library_options_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<UpdateLibraryOptionsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn update_media_path(&self,  params: UpdateMediaPathParams ) -> Result<(), Error<UpdateMediaPathError>> {
-        
-        let UpdateMediaPathParams {
-            update_media_path_request_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Library/VirtualFolders/Paths/Update", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&update_media_path_request_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<UpdateMediaPathError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`LibraryStructureApi::add_media_path`]
+/// struct for typed errors of method [`add_media_path`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddMediaPathError {
@@ -546,7 +94,7 @@ pub enum AddMediaPathError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::add_virtual_folder`]
+/// struct for typed errors of method [`add_virtual_folder`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddVirtualFolderError {
@@ -556,7 +104,7 @@ pub enum AddVirtualFolderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::get_virtual_folders`]
+/// struct for typed errors of method [`get_virtual_folders`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetVirtualFoldersError {
@@ -566,7 +114,7 @@ pub enum GetVirtualFoldersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::remove_media_path`]
+/// struct for typed errors of method [`remove_media_path`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RemoveMediaPathError {
@@ -576,7 +124,7 @@ pub enum RemoveMediaPathError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::remove_virtual_folder`]
+/// struct for typed errors of method [`remove_virtual_folder`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RemoveVirtualFolderError {
@@ -587,7 +135,7 @@ pub enum RemoveVirtualFolderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::rename_virtual_folder`]
+/// struct for typed errors of method [`rename_virtual_folder`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RenameVirtualFolderError {
@@ -599,7 +147,7 @@ pub enum RenameVirtualFolderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::update_library_options`]
+/// struct for typed errors of method [`update_library_options`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateLibraryOptionsError {
@@ -610,7 +158,7 @@ pub enum UpdateLibraryOptionsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LibraryStructureApi::update_media_path`]
+/// struct for typed errors of method [`update_media_path`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateMediaPathError {
@@ -618,5 +166,311 @@ pub enum UpdateMediaPathError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn add_media_path(configuration: &configuration::Configuration, params: AddMediaPathParams) -> Result<(), Error<AddMediaPathError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders/Paths", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.refresh_library {
+        req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.media_path_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AddMediaPathError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn add_virtual_folder(configuration: &configuration::Configuration, params: AddVirtualFolderParams) -> Result<(), Error<AddVirtualFolderError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.name {
+        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.collection_type {
+        req_builder = req_builder.query(&[("collectionType", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.paths {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("paths".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("paths", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.refresh_library {
+        req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.add_virtual_folder_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AddVirtualFolderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_virtual_folders(configuration: &configuration::Configuration) -> Result<Vec<models::VirtualFolderInfo>, Error<GetVirtualFoldersError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::VirtualFolderInfo&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::VirtualFolderInfo&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetVirtualFoldersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn remove_media_path(configuration: &configuration::Configuration, params: RemoveMediaPathParams) -> Result<(), Error<RemoveMediaPathError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders/Paths", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref param_value) = params.name {
+        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.path {
+        req_builder = req_builder.query(&[("path", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.refresh_library {
+        req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<RemoveMediaPathError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn remove_virtual_folder(configuration: &configuration::Configuration, params: RemoveVirtualFolderParams) -> Result<(), Error<RemoveVirtualFolderError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref param_value) = params.name {
+        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.refresh_library {
+        req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<RemoveVirtualFolderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn rename_virtual_folder(configuration: &configuration::Configuration, params: RenameVirtualFolderParams) -> Result<(), Error<RenameVirtualFolderError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders/Name", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.name {
+        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.new_name {
+        req_builder = req_builder.query(&[("newName", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.refresh_library {
+        req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<RenameVirtualFolderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn update_library_options(configuration: &configuration::Configuration, params: UpdateLibraryOptionsParams) -> Result<(), Error<UpdateLibraryOptionsError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders/LibraryOptions", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.update_library_options_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UpdateLibraryOptionsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn update_media_path(configuration: &configuration::Configuration, params: UpdateMediaPathParams) -> Result<(), Error<UpdateMediaPathError>> {
+
+    let uri_str = format!("{}/Library/VirtualFolders/Paths/Update", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.update_media_path_request_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UpdateMediaPathError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

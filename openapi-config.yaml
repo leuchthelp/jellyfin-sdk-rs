@@ -1,5 +1,4 @@
 additionalProperties:
-  library: reqwest-trait
   packageName: jellyfin-generated-client
   packageVersion: 0.1.0
   useSingleRequestParameter: True

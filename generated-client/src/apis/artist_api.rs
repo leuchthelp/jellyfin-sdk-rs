@@ -9,45 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait ArtistApi: Send + Sync {
-
-    /// GET /Artists/AlbumArtists
-    ///
-    /// 
-    async fn get_album_artists(&self,  params: GetAlbumArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetAlbumArtistsError>>;
-
-    /// GET /Artists/{name}
-    ///
-    /// 
-    async fn get_artist_by_name(&self,  params: GetArtistByNameParams ) -> Result<models::BaseItemDto, Error<GetArtistByNameError>>;
-
-    /// GET /Artists
-    ///
-    /// 
-    async fn get_artists(&self,  params: GetArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetArtistsError>>;
-}
-
-pub struct ArtistApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl ArtistApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`ArtistApi::get_album_artists`]
+/// struct for passing parameters to the method [`get_album_artists`]
 #[derive(Clone, Debug)]
 pub struct GetAlbumArtistsParams {
     /// Optional filter by minimum community rating.
@@ -116,7 +83,7 @@ pub struct GetAlbumArtistsParams {
     pub enable_total_record_count: Option<bool>
 }
 
-/// struct for passing parameters to the method [`ArtistApi::get_artist_by_name`]
+/// struct for passing parameters to the method [`get_artist_by_name`]
 #[derive(Clone, Debug)]
 pub struct GetArtistByNameParams {
     /// Studio name.
@@ -125,7 +92,7 @@ pub struct GetArtistByNameParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`ArtistApi::get_artists`]
+/// struct for passing parameters to the method [`get_artists`]
 #[derive(Clone, Debug)]
 pub struct GetArtistsParams {
     /// Optional filter by minimum community rating.
@@ -195,524 +162,7 @@ pub struct GetArtistsParams {
 }
 
 
-#[async_trait]
-impl ArtistApi for ArtistApiClient {
-    async fn get_album_artists(&self,  params: GetAlbumArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetAlbumArtistsError>> {
-        
-        let GetAlbumArtistsParams {
-            min_community_rating,
-            start_index,
-            limit,
-            search_term,
-            parent_id,
-            fields,
-            exclude_item_types,
-            include_item_types,
-            filters,
-            is_favorite,
-            media_types,
-            genres,
-            genre_ids,
-            official_ratings,
-            tags,
-            years,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-            person,
-            person_ids,
-            person_types,
-            studios,
-            studio_ids,
-            user_id,
-            name_starts_with_or_greater,
-            name_starts_with,
-            name_less_than,
-            sort_by,
-            sort_order,
-            enable_images,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Artists/AlbumArtists", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = min_community_rating {
-            local_var_req_builder = local_var_req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = search_term {
-            local_var_req_builder = local_var_req_builder.query(&[("searchTerm", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = parent_id {
-            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = exclude_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = include_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = filters {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = is_favorite {
-            local_var_req_builder = local_var_req_builder.query(&[("isFavorite", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genres {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genre_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = official_ratings {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = tags {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = years {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = person {
-            local_var_req_builder = local_var_req_builder.query(&[("person", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = person_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = person_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = studios {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = studio_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with_or_greater {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_less_than {
-            local_var_req_builder = local_var_req_builder.query(&[("nameLessThan", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetAlbumArtistsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_artist_by_name(&self,  params: GetArtistByNameParams ) -> Result<models::BaseItemDto, Error<GetArtistByNameError>> {
-        
-        let GetArtistByNameParams {
-            name,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Artists/{name}", local_var_configuration.base_path, name=crate::apis::urlencode(name));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetArtistByNameError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_artists(&self,  params: GetArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetArtistsError>> {
-        
-        let GetArtistsParams {
-            min_community_rating,
-            start_index,
-            limit,
-            search_term,
-            parent_id,
-            fields,
-            exclude_item_types,
-            include_item_types,
-            filters,
-            is_favorite,
-            media_types,
-            genres,
-            genre_ids,
-            official_ratings,
-            tags,
-            years,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-            person,
-            person_ids,
-            person_types,
-            studios,
-            studio_ids,
-            user_id,
-            name_starts_with_or_greater,
-            name_starts_with,
-            name_less_than,
-            sort_by,
-            sort_order,
-            enable_images,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Artists", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = min_community_rating {
-            local_var_req_builder = local_var_req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = search_term {
-            local_var_req_builder = local_var_req_builder.query(&[("searchTerm", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = parent_id {
-            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = exclude_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = include_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = filters {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = is_favorite {
-            local_var_req_builder = local_var_req_builder.query(&[("isFavorite", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genres {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genre_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = official_ratings {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = tags {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = years {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = person {
-            local_var_req_builder = local_var_req_builder.query(&[("person", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = person_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = person_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = studios {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = studio_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with_or_greater {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_less_than {
-            local_var_req_builder = local_var_req_builder.query(&[("nameLessThan", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetArtistsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`ArtistApi::get_album_artists`]
+/// struct for typed errors of method [`get_album_artists`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetAlbumArtistsError {
@@ -722,7 +172,7 @@ pub enum GetAlbumArtistsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ArtistApi::get_artist_by_name`]
+/// struct for typed errors of method [`get_artist_by_name`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetArtistByNameError {
@@ -732,7 +182,7 @@ pub enum GetArtistByNameError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ArtistApi::get_artists`]
+/// struct for typed errors of method [`get_artists`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetArtistsError {
@@ -740,5 +190,432 @@ pub enum GetArtistsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+#[deprecated]
+pub async fn get_album_artists(configuration: &configuration::Configuration, params: GetAlbumArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetAlbumArtistsError>> {
+
+    let uri_str = format!("{}/Artists/AlbumArtists", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.min_community_rating {
+        req_builder = req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.search_term {
+        req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.parent_id {
+        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.exclude_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.include_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.filters {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.is_favorite {
+        req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genres {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genre_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.official_ratings {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.tags {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.years {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.person {
+        req_builder = req_builder.query(&[("person", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.person_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.person_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.studios {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.studio_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with_or_greater {
+        req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with {
+        req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_less_than {
+        req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetAlbumArtistsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+#[deprecated]
+pub async fn get_artist_by_name(configuration: &configuration::Configuration, params: GetArtistByNameParams) -> Result<models::BaseItemDto, Error<GetArtistByNameError>> {
+
+    let uri_str = format!("{}/Artists/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetArtistByNameError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+#[deprecated]
+pub async fn get_artists(configuration: &configuration::Configuration, params: GetArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetArtistsError>> {
+
+    let uri_str = format!("{}/Artists", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.min_community_rating {
+        req_builder = req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.search_term {
+        req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.parent_id {
+        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.exclude_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.include_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.filters {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.is_favorite {
+        req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genres {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genre_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.official_ratings {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.tags {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.years {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.person {
+        req_builder = req_builder.query(&[("person", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.person_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.person_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.studios {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.studio_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with_or_greater {
+        req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with {
+        req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_less_than {
+        req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetArtistsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

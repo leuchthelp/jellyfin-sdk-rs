@@ -9,67 +9,21 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
+use tokio::fs::File as TokioFile;
+use tokio_util::codec::{BytesCodec, FramedRead};
 
-#[async_trait]
-pub trait LyricApi: Send + Sync {
-
-    /// DELETE /Audio/{itemId}/Lyrics
-    ///
-    /// 
-    async fn delete_lyrics(&self,  params: DeleteLyricsParams ) -> Result<(), Error<DeleteLyricsError>>;
-
-    /// POST /Audio/{itemId}/RemoteSearch/Lyrics/{lyricId}
-    ///
-    /// 
-    async fn download_remote_lyrics(&self,  params: DownloadRemoteLyricsParams ) -> Result<models::LyricDto, Error<DownloadRemoteLyricsError>>;
-
-    /// GET /Audio/{itemId}/Lyrics
-    ///
-    /// 
-    async fn get_lyrics(&self,  params: GetLyricsParams ) -> Result<models::LyricDto, Error<GetLyricsError>>;
-
-    /// GET /Providers/Lyrics/{lyricId}
-    ///
-    /// 
-    async fn get_remote_lyrics(&self,  params: GetRemoteLyricsParams ) -> Result<models::LyricDto, Error<GetRemoteLyricsError>>;
-
-    /// GET /Audio/{itemId}/RemoteSearch/Lyrics
-    ///
-    /// 
-    async fn search_remote_lyrics(&self,  params: SearchRemoteLyricsParams ) -> Result<Vec<models::RemoteLyricInfoDto>, Error<SearchRemoteLyricsError>>;
-
-    /// POST /Audio/{itemId}/Lyrics
-    ///
-    /// 
-    async fn upload_lyrics(&self,  params: UploadLyricsParams ) -> Result<models::LyricDto, Error<UploadLyricsError>>;
-}
-
-pub struct LyricApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl LyricApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`LyricApi::delete_lyrics`]
+/// struct for passing parameters to the method [`delete_lyrics`]
 #[derive(Clone, Debug)]
 pub struct DeleteLyricsParams {
     /// The item id.
     pub item_id: String
 }
 
-/// struct for passing parameters to the method [`LyricApi::download_remote_lyrics`]
+/// struct for passing parameters to the method [`download_remote_lyrics`]
 #[derive(Clone, Debug)]
 pub struct DownloadRemoteLyricsParams {
     /// The item id.
@@ -78,28 +32,28 @@ pub struct DownloadRemoteLyricsParams {
     pub lyric_id: String
 }
 
-/// struct for passing parameters to the method [`LyricApi::get_lyrics`]
+/// struct for passing parameters to the method [`get_lyrics`]
 #[derive(Clone, Debug)]
 pub struct GetLyricsParams {
     /// Item id.
     pub item_id: String
 }
 
-/// struct for passing parameters to the method [`LyricApi::get_remote_lyrics`]
+/// struct for passing parameters to the method [`get_remote_lyrics`]
 #[derive(Clone, Debug)]
 pub struct GetRemoteLyricsParams {
     /// The remote provider item id.
     pub lyric_id: String
 }
 
-/// struct for passing parameters to the method [`LyricApi::search_remote_lyrics`]
+/// struct for passing parameters to the method [`search_remote_lyrics`]
 #[derive(Clone, Debug)]
 pub struct SearchRemoteLyricsParams {
     /// The item id.
     pub item_id: String
 }
 
-/// struct for passing parameters to the method [`LyricApi::upload_lyrics`]
+/// struct for passing parameters to the method [`upload_lyrics`]
 #[derive(Clone, Debug)]
 pub struct UploadLyricsParams {
     /// The item the lyric belongs to.
@@ -110,312 +64,7 @@ pub struct UploadLyricsParams {
 }
 
 
-#[async_trait]
-impl LyricApi for LyricApiClient {
-    async fn delete_lyrics(&self,  params: DeleteLyricsParams ) -> Result<(), Error<DeleteLyricsError>> {
-        
-        let DeleteLyricsParams {
-            item_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/Lyrics", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<DeleteLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn download_remote_lyrics(&self,  params: DownloadRemoteLyricsParams ) -> Result<models::LyricDto, Error<DownloadRemoteLyricsError>> {
-        
-        let DownloadRemoteLyricsParams {
-            item_id,
-            lyric_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics/{lyricId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), lyricId=crate::apis::urlencode(lyric_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<DownloadRemoteLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_lyrics(&self,  params: GetLyricsParams ) -> Result<models::LyricDto, Error<GetLyricsError>> {
-        
-        let GetLyricsParams {
-            item_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/Lyrics", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_remote_lyrics(&self,  params: GetRemoteLyricsParams ) -> Result<models::LyricDto, Error<GetRemoteLyricsError>> {
-        
-        let GetRemoteLyricsParams {
-            lyric_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Providers/Lyrics/{lyricId}", local_var_configuration.base_path, lyricId=crate::apis::urlencode(lyric_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRemoteLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn search_remote_lyrics(&self,  params: SearchRemoteLyricsParams ) -> Result<Vec<models::RemoteLyricInfoDto>, Error<SearchRemoteLyricsError>> {
-        
-        let SearchRemoteLyricsParams {
-            item_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteLyricInfoDto&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteLyricInfoDto&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<SearchRemoteLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn upload_lyrics(&self,  params: UploadLyricsParams ) -> Result<models::LyricDto, Error<UploadLyricsError>> {
-        
-        let UploadLyricsParams {
-            item_id,
-            file_name,
-            body,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/Lyrics", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("fileName", &file_name.to_string())]);
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&body);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<UploadLyricsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`LyricApi::delete_lyrics`]
+/// struct for typed errors of method [`delete_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteLyricsError {
@@ -426,7 +75,7 @@ pub enum DeleteLyricsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LyricApi::download_remote_lyrics`]
+/// struct for typed errors of method [`download_remote_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DownloadRemoteLyricsError {
@@ -437,7 +86,7 @@ pub enum DownloadRemoteLyricsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LyricApi::get_lyrics`]
+/// struct for typed errors of method [`get_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLyricsError {
@@ -448,7 +97,7 @@ pub enum GetLyricsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LyricApi::get_remote_lyrics`]
+/// struct for typed errors of method [`get_remote_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRemoteLyricsError {
@@ -459,7 +108,7 @@ pub enum GetRemoteLyricsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LyricApi::search_remote_lyrics`]
+/// struct for typed errors of method [`search_remote_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SearchRemoteLyricsError {
@@ -470,7 +119,7 @@ pub enum SearchRemoteLyricsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LyricApi::upload_lyrics`]
+/// struct for typed errors of method [`upload_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UploadLyricsError {
@@ -480,5 +129,253 @@ pub enum UploadLyricsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn delete_lyrics(configuration: &configuration::Configuration, params: DeleteLyricsParams) -> Result<(), Error<DeleteLyricsError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DeleteLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn download_remote_lyrics(configuration: &configuration::Configuration, params: DownloadRemoteLyricsParams) -> Result<models::LyricDto, Error<DownloadRemoteLyricsError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics/{lyricId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), lyricId=crate::apis::urlencode(params.lyric_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DownloadRemoteLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_lyrics(configuration: &configuration::Configuration, params: GetLyricsParams) -> Result<models::LyricDto, Error<GetLyricsError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_remote_lyrics(configuration: &configuration::Configuration, params: GetRemoteLyricsParams) -> Result<models::LyricDto, Error<GetRemoteLyricsError>> {
+
+    let uri_str = format!("{}/Providers/Lyrics/{lyricId}", configuration.base_path, lyricId=crate::apis::urlencode(params.lyric_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRemoteLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn search_remote_lyrics(configuration: &configuration::Configuration, params: SearchRemoteLyricsParams) -> Result<Vec<models::RemoteLyricInfoDto>, Error<SearchRemoteLyricsError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteLyricInfoDto&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteLyricInfoDto&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SearchRemoteLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn upload_lyrics(configuration: &configuration::Configuration, params: UploadLyricsParams) -> Result<models::LyricDto, Error<UploadLyricsError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    req_builder = req_builder.query(&[("fileName", &params.file_name.to_string())]);
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    if let Some(param_value) = params.body {
+        let file = TokioFile::open(param_value).await?;
+        let stream = FramedRead::new(file, BytesCodec::new());
+        req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LyricDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LyricDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UploadLyricsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

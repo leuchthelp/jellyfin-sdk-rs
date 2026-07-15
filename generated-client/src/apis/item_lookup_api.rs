@@ -9,85 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait ItemLookupApi: Send + Sync {
-
-    /// POST /Items/RemoteSearch/Apply/{itemId}
-    ///
-    /// 
-    async fn apply_search_criteria(&self,  params: ApplySearchCriteriaParams ) -> Result<(), Error<ApplySearchCriteriaError>>;
-
-    /// POST /Items/RemoteSearch/Book
-    ///
-    /// 
-    async fn get_book_remote_search_results(&self,  params: GetBookRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetBookRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/BoxSet
-    ///
-    /// 
-    async fn get_box_set_remote_search_results(&self,  params: GetBoxSetRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetBoxSetRemoteSearchResultsError>>;
-
-    /// GET /Items/{itemId}/ExternalIdInfos
-    ///
-    /// 
-    async fn get_external_id_infos(&self,  params: GetExternalIdInfosParams ) -> Result<Vec<models::ExternalIdInfo>, Error<GetExternalIdInfosError>>;
-
-    /// POST /Items/RemoteSearch/Movie
-    ///
-    /// 
-    async fn get_movie_remote_search_results(&self,  params: GetMovieRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMovieRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/MusicAlbum
-    ///
-    /// 
-    async fn get_music_album_remote_search_results(&self,  params: GetMusicAlbumRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicAlbumRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/MusicArtist
-    ///
-    /// 
-    async fn get_music_artist_remote_search_results(&self,  params: GetMusicArtistRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicArtistRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/MusicVideo
-    ///
-    /// 
-    async fn get_music_video_remote_search_results(&self,  params: GetMusicVideoRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicVideoRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/Person
-    ///
-    /// 
-    async fn get_person_remote_search_results(&self,  params: GetPersonRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetPersonRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/Series
-    ///
-    /// 
-    async fn get_series_remote_search_results(&self,  params: GetSeriesRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetSeriesRemoteSearchResultsError>>;
-
-    /// POST /Items/RemoteSearch/Trailer
-    ///
-    /// 
-    async fn get_trailer_remote_search_results(&self,  params: GetTrailerRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetTrailerRemoteSearchResultsError>>;
-}
-
-pub struct ItemLookupApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl ItemLookupApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`ItemLookupApi::apply_search_criteria`]
+/// struct for passing parameters to the method [`apply_search_criteria`]
 #[derive(Clone, Debug)]
 pub struct ApplySearchCriteriaParams {
     /// Item id.
@@ -98,70 +25,70 @@ pub struct ApplySearchCriteriaParams {
     pub replace_all_images: Option<bool>
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_book_remote_search_results`]
+/// struct for passing parameters to the method [`get_book_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetBookRemoteSearchResultsParams {
     /// Remote search query.
     pub book_info_remote_search_query: models::BookInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_box_set_remote_search_results`]
+/// struct for passing parameters to the method [`get_box_set_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetBoxSetRemoteSearchResultsParams {
     /// Remote search query.
     pub box_set_info_remote_search_query: models::BoxSetInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_external_id_infos`]
+/// struct for passing parameters to the method [`get_external_id_infos`]
 #[derive(Clone, Debug)]
 pub struct GetExternalIdInfosParams {
     /// Item id.
     pub item_id: String
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_movie_remote_search_results`]
+/// struct for passing parameters to the method [`get_movie_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetMovieRemoteSearchResultsParams {
     /// Remote search query.
     pub movie_info_remote_search_query: models::MovieInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_music_album_remote_search_results`]
+/// struct for passing parameters to the method [`get_music_album_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetMusicAlbumRemoteSearchResultsParams {
     /// Remote search query.
     pub album_info_remote_search_query: models::AlbumInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_music_artist_remote_search_results`]
+/// struct for passing parameters to the method [`get_music_artist_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetMusicArtistRemoteSearchResultsParams {
     /// Remote search query.
     pub artist_info_remote_search_query: models::ArtistInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_music_video_remote_search_results`]
+/// struct for passing parameters to the method [`get_music_video_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetMusicVideoRemoteSearchResultsParams {
     /// Remote search query.
     pub music_video_info_remote_search_query: models::MusicVideoInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_person_remote_search_results`]
+/// struct for passing parameters to the method [`get_person_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetPersonRemoteSearchResultsParams {
     /// Remote search query.
     pub person_lookup_info_remote_search_query: models::PersonLookupInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_series_remote_search_results`]
+/// struct for passing parameters to the method [`get_series_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetSeriesRemoteSearchResultsParams {
     /// Remote search query.
     pub series_info_remote_search_query: models::SeriesInfoRemoteSearchQuery
 }
 
-/// struct for passing parameters to the method [`ItemLookupApi::get_trailer_remote_search_results`]
+/// struct for passing parameters to the method [`get_trailer_remote_search_results`]
 #[derive(Clone, Debug)]
 pub struct GetTrailerRemoteSearchResultsParams {
     /// Remote search query.
@@ -169,577 +96,7 @@ pub struct GetTrailerRemoteSearchResultsParams {
 }
 
 
-#[async_trait]
-impl ItemLookupApi for ItemLookupApiClient {
-    async fn apply_search_criteria(&self,  params: ApplySearchCriteriaParams ) -> Result<(), Error<ApplySearchCriteriaError>> {
-        
-        let ApplySearchCriteriaParams {
-            item_id,
-            remote_search_result,
-            replace_all_images,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Apply/{itemId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = replace_all_images {
-            local_var_req_builder = local_var_req_builder.query(&[("replaceAllImages", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&remote_search_result);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<ApplySearchCriteriaError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_book_remote_search_results(&self,  params: GetBookRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetBookRemoteSearchResultsError>> {
-        
-        let GetBookRemoteSearchResultsParams {
-            book_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Book", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&book_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetBookRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_box_set_remote_search_results(&self,  params: GetBoxSetRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetBoxSetRemoteSearchResultsError>> {
-        
-        let GetBoxSetRemoteSearchResultsParams {
-            box_set_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/BoxSet", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&box_set_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetBoxSetRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_external_id_infos(&self,  params: GetExternalIdInfosParams ) -> Result<Vec<models::ExternalIdInfo>, Error<GetExternalIdInfosError>> {
-        
-        let GetExternalIdInfosParams {
-            item_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/ExternalIdInfos", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ExternalIdInfo&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::ExternalIdInfo&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetExternalIdInfosError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_movie_remote_search_results(&self,  params: GetMovieRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMovieRemoteSearchResultsError>> {
-        
-        let GetMovieRemoteSearchResultsParams {
-            movie_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Movie", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&movie_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetMovieRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_music_album_remote_search_results(&self,  params: GetMusicAlbumRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicAlbumRemoteSearchResultsError>> {
-        
-        let GetMusicAlbumRemoteSearchResultsParams {
-            album_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/MusicAlbum", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&album_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetMusicAlbumRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_music_artist_remote_search_results(&self,  params: GetMusicArtistRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicArtistRemoteSearchResultsError>> {
-        
-        let GetMusicArtistRemoteSearchResultsParams {
-            artist_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/MusicArtist", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&artist_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetMusicArtistRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_music_video_remote_search_results(&self,  params: GetMusicVideoRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicVideoRemoteSearchResultsError>> {
-        
-        let GetMusicVideoRemoteSearchResultsParams {
-            music_video_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/MusicVideo", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&music_video_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetMusicVideoRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_person_remote_search_results(&self,  params: GetPersonRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetPersonRemoteSearchResultsError>> {
-        
-        let GetPersonRemoteSearchResultsParams {
-            person_lookup_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Person", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&person_lookup_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetPersonRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_series_remote_search_results(&self,  params: GetSeriesRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetSeriesRemoteSearchResultsError>> {
-        
-        let GetSeriesRemoteSearchResultsParams {
-            series_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Series", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&series_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetSeriesRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_trailer_remote_search_results(&self,  params: GetTrailerRemoteSearchResultsParams ) -> Result<Vec<models::RemoteSearchResult>, Error<GetTrailerRemoteSearchResultsError>> {
-        
-        let GetTrailerRemoteSearchResultsParams {
-            trailer_info_remote_search_query,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/RemoteSearch/Trailer", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&trailer_info_remote_search_query);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTrailerRemoteSearchResultsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`ItemLookupApi::apply_search_criteria`]
+/// struct for typed errors of method [`apply_search_criteria`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ApplySearchCriteriaError {
@@ -750,7 +107,7 @@ pub enum ApplySearchCriteriaError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_book_remote_search_results`]
+/// struct for typed errors of method [`get_book_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetBookRemoteSearchResultsError {
@@ -760,7 +117,7 @@ pub enum GetBookRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_box_set_remote_search_results`]
+/// struct for typed errors of method [`get_box_set_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetBoxSetRemoteSearchResultsError {
@@ -770,7 +127,7 @@ pub enum GetBoxSetRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_external_id_infos`]
+/// struct for typed errors of method [`get_external_id_infos`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetExternalIdInfosError {
@@ -781,7 +138,7 @@ pub enum GetExternalIdInfosError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_movie_remote_search_results`]
+/// struct for typed errors of method [`get_movie_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMovieRemoteSearchResultsError {
@@ -791,7 +148,7 @@ pub enum GetMovieRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_music_album_remote_search_results`]
+/// struct for typed errors of method [`get_music_album_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMusicAlbumRemoteSearchResultsError {
@@ -801,7 +158,7 @@ pub enum GetMusicAlbumRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_music_artist_remote_search_results`]
+/// struct for typed errors of method [`get_music_artist_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMusicArtistRemoteSearchResultsError {
@@ -811,7 +168,7 @@ pub enum GetMusicArtistRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_music_video_remote_search_results`]
+/// struct for typed errors of method [`get_music_video_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMusicVideoRemoteSearchResultsError {
@@ -821,7 +178,7 @@ pub enum GetMusicVideoRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_person_remote_search_results`]
+/// struct for typed errors of method [`get_person_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPersonRemoteSearchResultsError {
@@ -831,7 +188,7 @@ pub enum GetPersonRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_series_remote_search_results`]
+/// struct for typed errors of method [`get_series_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSeriesRemoteSearchResultsError {
@@ -841,7 +198,7 @@ pub enum GetSeriesRemoteSearchResultsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ItemLookupApi::get_trailer_remote_search_results`]
+/// struct for typed errors of method [`get_trailer_remote_search_results`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTrailerRemoteSearchResultsError {
@@ -849,5 +206,470 @@ pub enum GetTrailerRemoteSearchResultsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn apply_search_criteria(configuration: &configuration::Configuration, params: ApplySearchCriteriaParams) -> Result<(), Error<ApplySearchCriteriaError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Apply/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.replace_all_images {
+        req_builder = req_builder.query(&[("replaceAllImages", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.remote_search_result);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ApplySearchCriteriaError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_book_remote_search_results(configuration: &configuration::Configuration, params: GetBookRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetBookRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Book", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.book_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetBookRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_box_set_remote_search_results(configuration: &configuration::Configuration, params: GetBoxSetRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetBoxSetRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/BoxSet", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.box_set_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetBoxSetRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_external_id_infos(configuration: &configuration::Configuration, params: GetExternalIdInfosParams) -> Result<Vec<models::ExternalIdInfo>, Error<GetExternalIdInfosError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/ExternalIdInfos", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ExternalIdInfo&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::ExternalIdInfo&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetExternalIdInfosError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_movie_remote_search_results(configuration: &configuration::Configuration, params: GetMovieRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMovieRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Movie", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.movie_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetMovieRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_music_album_remote_search_results(configuration: &configuration::Configuration, params: GetMusicAlbumRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicAlbumRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/MusicAlbum", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.album_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetMusicAlbumRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_music_artist_remote_search_results(configuration: &configuration::Configuration, params: GetMusicArtistRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicArtistRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/MusicArtist", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.artist_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetMusicArtistRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_music_video_remote_search_results(configuration: &configuration::Configuration, params: GetMusicVideoRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicVideoRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/MusicVideo", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.music_video_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetMusicVideoRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_person_remote_search_results(configuration: &configuration::Configuration, params: GetPersonRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetPersonRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Person", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.person_lookup_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetPersonRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_series_remote_search_results(configuration: &configuration::Configuration, params: GetSeriesRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetSeriesRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Series", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.series_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetSeriesRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_trailer_remote_search_results(configuration: &configuration::Configuration, params: GetTrailerRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetTrailerRemoteSearchResultsError>> {
+
+    let uri_str = format!("{}/Items/RemoteSearch/Trailer", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.trailer_info_remote_search_query);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSearchResult&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTrailerRemoteSearchResultsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

@@ -9,40 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait TrickPlayApi: Send + Sync {
-
-    /// GET /Videos/{itemId}/Trickplay/{width}/tiles.m3u8
-    ///
-    /// 
-    async fn get_trickplay_hls_playlist(&self,  params: GetTrickplayHlsPlaylistParams ) -> Result<std::path::PathBuf, Error<GetTrickplayHlsPlaylistError>>;
-
-    /// GET /Videos/{itemId}/Trickplay/{width}/{index}.jpg
-    ///
-    /// 
-    async fn get_trickplay_tile_image(&self,  params: GetTrickplayTileImageParams ) -> Result<std::path::PathBuf, Error<GetTrickplayTileImageError>>;
-}
-
-pub struct TrickPlayApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl TrickPlayApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`TrickPlayApi::get_trickplay_hls_playlist`]
+/// struct for passing parameters to the method [`get_trickplay_hls_playlist`]
 #[derive(Clone, Debug)]
 pub struct GetTrickplayHlsPlaylistParams {
     /// The item id.
@@ -53,7 +25,7 @@ pub struct GetTrickplayHlsPlaylistParams {
     pub media_source_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`TrickPlayApi::get_trickplay_tile_image`]
+/// struct for passing parameters to the method [`get_trickplay_tile_image`]
 #[derive(Clone, Debug)]
 pub struct GetTrickplayTileImageParams {
     /// The item id.
@@ -67,124 +39,7 @@ pub struct GetTrickplayTileImageParams {
 }
 
 
-#[async_trait]
-impl TrickPlayApi for TrickPlayApiClient {
-    async fn get_trickplay_hls_playlist(&self,  params: GetTrickplayHlsPlaylistParams ) -> Result<std::path::PathBuf, Error<GetTrickplayHlsPlaylistError>> {
-        
-        let GetTrickplayHlsPlaylistParams {
-            item_id,
-            width,
-            media_source_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/tiles.m3u8", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), width=width);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTrickplayHlsPlaylistError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_trickplay_tile_image(&self,  params: GetTrickplayTileImageParams ) -> Result<std::path::PathBuf, Error<GetTrickplayTileImageError>> {
-        
-        let GetTrickplayTileImageParams {
-            item_id,
-            width,
-            index,
-            media_source_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/{index}.jpg", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), width=width, index=index);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTrickplayTileImageError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`TrickPlayApi::get_trickplay_hls_playlist`]
+/// struct for typed errors of method [`get_trickplay_hls_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTrickplayHlsPlaylistError {
@@ -195,7 +50,7 @@ pub enum GetTrickplayHlsPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`TrickPlayApi::get_trickplay_tile_image`]
+/// struct for typed errors of method [`get_trickplay_tile_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTrickplayTileImageError {
@@ -204,5 +59,74 @@ pub enum GetTrickplayTileImageError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn get_trickplay_hls_playlist(configuration: &configuration::Configuration, params: GetTrickplayHlsPlaylistParams) -> Result<reqwest::Response, Error<GetTrickplayHlsPlaylistError>> {
+
+    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/tiles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), width=params.width);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTrickplayHlsPlaylistError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_trickplay_tile_image(configuration: &configuration::Configuration, params: GetTrickplayTileImageParams) -> Result<reqwest::Response, Error<GetTrickplayTileImageError>> {
+
+    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/{index}.jpg", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), width=params.width, index=params.index);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTrickplayTileImageError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

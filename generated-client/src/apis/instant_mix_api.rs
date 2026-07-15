@@ -9,65 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait InstantMixApi: Send + Sync {
-
-    /// GET /Albums/{itemId}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_album(&self,  params: GetInstantMixFromAlbumParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromAlbumError>>;
-
-    /// GET /Artists/{itemId}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_artists(&self,  params: GetInstantMixFromArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromArtistsError>>;
-
-    /// GET /Items/{itemId}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_item(&self,  params: GetInstantMixFromItemParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromItemError>>;
-
-    /// GET /MusicGenres/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_music_genre_by_id(&self,  params: GetInstantMixFromMusicGenreByIdParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByIdError>>;
-
-    /// GET /MusicGenres/{name}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_music_genre_by_name(&self,  params: GetInstantMixFromMusicGenreByNameParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByNameError>>;
-
-    /// GET /Playlists/{itemId}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_playlist(&self,  params: GetInstantMixFromPlaylistParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromPlaylistError>>;
-
-    /// GET /Songs/{itemId}/InstantMix
-    ///
-    /// 
-    async fn get_instant_mix_from_song(&self,  params: GetInstantMixFromSongParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromSongError>>;
-}
-
-pub struct InstantMixApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl InstantMixApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_album`]
+/// struct for passing parameters to the method [`get_instant_mix_from_album`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromAlbumParams {
     /// The item id.
@@ -88,7 +35,7 @@ pub struct GetInstantMixFromAlbumParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_artists`]
+/// struct for passing parameters to the method [`get_instant_mix_from_artists`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromArtistsParams {
     /// The item id.
@@ -109,7 +56,7 @@ pub struct GetInstantMixFromArtistsParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_item`]
+/// struct for passing parameters to the method [`get_instant_mix_from_item`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromItemParams {
     /// The item id.
@@ -130,7 +77,7 @@ pub struct GetInstantMixFromItemParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_music_genre_by_id`]
+/// struct for passing parameters to the method [`get_instant_mix_from_music_genre_by_id`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromMusicGenreByIdParams {
     /// The item id.
@@ -151,7 +98,7 @@ pub struct GetInstantMixFromMusicGenreByIdParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_music_genre_by_name`]
+/// struct for passing parameters to the method [`get_instant_mix_from_music_genre_by_name`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromMusicGenreByNameParams {
     /// The genre name.
@@ -172,7 +119,7 @@ pub struct GetInstantMixFromMusicGenreByNameParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_playlist`]
+/// struct for passing parameters to the method [`get_instant_mix_from_playlist`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromPlaylistParams {
     /// The item id.
@@ -193,7 +140,7 @@ pub struct GetInstantMixFromPlaylistParams {
     pub enable_image_types: Option<Vec<models::ImageType>>
 }
 
-/// struct for passing parameters to the method [`InstantMixApi::get_instant_mix_from_song`]
+/// struct for passing parameters to the method [`get_instant_mix_from_song`]
 #[derive(Clone, Debug)]
 pub struct GetInstantMixFromSongParams {
     /// The item id.
@@ -215,607 +162,7 @@ pub struct GetInstantMixFromSongParams {
 }
 
 
-#[async_trait]
-impl InstantMixApi for InstantMixApiClient {
-    async fn get_instant_mix_from_album(&self,  params: GetInstantMixFromAlbumParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromAlbumError>> {
-        
-        let GetInstantMixFromAlbumParams {
-            item_id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Albums/{itemId}/InstantMix", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromAlbumError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_artists(&self,  params: GetInstantMixFromArtistsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromArtistsError>> {
-        
-        let GetInstantMixFromArtistsParams {
-            item_id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Artists/{itemId}/InstantMix", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromArtistsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_item(&self,  params: GetInstantMixFromItemParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromItemError>> {
-        
-        let GetInstantMixFromItemParams {
-            item_id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Items/{itemId}/InstantMix", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromItemError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_music_genre_by_id(&self,  params: GetInstantMixFromMusicGenreByIdParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByIdError>> {
-        
-        let GetInstantMixFromMusicGenreByIdParams {
-            id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/MusicGenres/InstantMix", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        local_var_req_builder = local_var_req_builder.query(&[("id", &id.to_string())]);
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromMusicGenreByIdError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_music_genre_by_name(&self,  params: GetInstantMixFromMusicGenreByNameParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByNameError>> {
-        
-        let GetInstantMixFromMusicGenreByNameParams {
-            name,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/MusicGenres/{name}/InstantMix", local_var_configuration.base_path, name=crate::apis::urlencode(name));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromMusicGenreByNameError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_playlist(&self,  params: GetInstantMixFromPlaylistParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromPlaylistError>> {
-        
-        let GetInstantMixFromPlaylistParams {
-            item_id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Playlists/{itemId}/InstantMix", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromPlaylistError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_instant_mix_from_song(&self,  params: GetInstantMixFromSongParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromSongError>> {
-        
-        let GetInstantMixFromSongParams {
-            item_id,
-            user_id,
-            limit,
-            fields,
-            enable_images,
-            enable_user_data,
-            image_type_limit,
-            enable_image_types,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Songs/{itemId}/InstantMix", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetInstantMixFromSongError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_album`]
+/// struct for typed errors of method [`get_instant_mix_from_album`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromAlbumError {
@@ -826,7 +173,7 @@ pub enum GetInstantMixFromAlbumError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_artists`]
+/// struct for typed errors of method [`get_instant_mix_from_artists`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromArtistsError {
@@ -837,7 +184,7 @@ pub enum GetInstantMixFromArtistsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_item`]
+/// struct for typed errors of method [`get_instant_mix_from_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromItemError {
@@ -848,7 +195,7 @@ pub enum GetInstantMixFromItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_music_genre_by_id`]
+/// struct for typed errors of method [`get_instant_mix_from_music_genre_by_id`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromMusicGenreByIdError {
@@ -859,7 +206,7 @@ pub enum GetInstantMixFromMusicGenreByIdError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_music_genre_by_name`]
+/// struct for typed errors of method [`get_instant_mix_from_music_genre_by_name`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromMusicGenreByNameError {
@@ -869,7 +216,7 @@ pub enum GetInstantMixFromMusicGenreByNameError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_playlist`]
+/// struct for typed errors of method [`get_instant_mix_from_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromPlaylistError {
@@ -880,7 +227,7 @@ pub enum GetInstantMixFromPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`InstantMixApi::get_instant_mix_from_song`]
+/// struct for typed errors of method [`get_instant_mix_from_song`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetInstantMixFromSongError {
@@ -889,5 +236,492 @@ pub enum GetInstantMixFromSongError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn get_instant_mix_from_album(configuration: &configuration::Configuration, params: GetInstantMixFromAlbumParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromAlbumError>> {
+
+    let uri_str = format!("{}/Albums/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromAlbumError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_instant_mix_from_artists(configuration: &configuration::Configuration, params: GetInstantMixFromArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromArtistsError>> {
+
+    let uri_str = format!("{}/Artists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromArtistsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_instant_mix_from_item(configuration: &configuration::Configuration, params: GetInstantMixFromItemParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromItemError>> {
+
+    let uri_str = format!("{}/Items/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromItemError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+#[deprecated]
+pub async fn get_instant_mix_from_music_genre_by_id(configuration: &configuration::Configuration, params: GetInstantMixFromMusicGenreByIdParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByIdError>> {
+
+    let uri_str = format!("{}/MusicGenres/InstantMix", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    req_builder = req_builder.query(&[("id", &params.id.to_string())]);
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromMusicGenreByIdError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+#[deprecated]
+pub async fn get_instant_mix_from_music_genre_by_name(configuration: &configuration::Configuration, params: GetInstantMixFromMusicGenreByNameParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByNameError>> {
+
+    let uri_str = format!("{}/MusicGenres/{name}/InstantMix", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromMusicGenreByNameError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_instant_mix_from_playlist(configuration: &configuration::Configuration, params: GetInstantMixFromPlaylistParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromPlaylistError>> {
+
+    let uri_str = format!("{}/Playlists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromPlaylistError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_instant_mix_from_song(configuration: &configuration::Configuration, params: GetInstantMixFromSongParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromSongError>> {
+
+    let uri_str = format!("{}/Songs/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetInstantMixFromSongError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

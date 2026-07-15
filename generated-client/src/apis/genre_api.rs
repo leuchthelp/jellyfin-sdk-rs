@@ -9,40 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait GenreApi: Send + Sync {
-
-    /// GET /Genres/{genreName}
-    ///
-    /// 
-    async fn get_genre(&self,  params: GetGenreParams ) -> Result<models::BaseItemDto, Error<GetGenreError>>;
-
-    /// GET /Genres
-    ///
-    /// 
-    async fn get_genres(&self,  params: GetGenresParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetGenresError>>;
-}
-
-pub struct GenreApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl GenreApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`GenreApi::get_genre`]
+/// struct for passing parameters to the method [`get_genre`]
 #[derive(Clone, Debug)]
 pub struct GetGenreParams {
     /// The genre name.
@@ -51,7 +23,7 @@ pub struct GetGenreParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`GenreApi::get_genres`]
+/// struct for passing parameters to the method [`get_genres`]
 #[derive(Clone, Debug)]
 pub struct GetGenresParams {
     /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
@@ -93,206 +65,7 @@ pub struct GetGenresParams {
 }
 
 
-#[async_trait]
-impl GenreApi for GenreApiClient {
-    async fn get_genre(&self,  params: GetGenreParams ) -> Result<models::BaseItemDto, Error<GetGenreError>> {
-        
-        let GetGenreParams {
-            genre_name,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Genres/{genreName}", local_var_configuration.base_path, genreName=crate::apis::urlencode(genre_name));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetGenreError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_genres(&self,  params: GetGenresParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetGenresError>> {
-        
-        let GetGenresParams {
-            start_index,
-            limit,
-            search_term,
-            parent_id,
-            fields,
-            exclude_item_types,
-            include_item_types,
-            is_favorite,
-            image_type_limit,
-            enable_image_types,
-            user_id,
-            name_starts_with_or_greater,
-            name_starts_with,
-            name_less_than,
-            sort_by,
-            sort_order,
-            enable_images,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Genres", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = search_term {
-            local_var_req_builder = local_var_req_builder.query(&[("searchTerm", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = parent_id {
-            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = exclude_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = include_item_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = is_favorite {
-            local_var_req_builder = local_var_req_builder.query(&[("isFavorite", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with_or_greater {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_starts_with {
-            local_var_req_builder = local_var_req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = name_less_than {
-            local_var_req_builder = local_var_req_builder.query(&[("nameLessThan", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetGenresError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`GenreApi::get_genre`]
+/// struct for typed errors of method [`get_genre`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGenreError {
@@ -302,7 +75,7 @@ pub enum GetGenreError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`GenreApi::get_genres`]
+/// struct for typed errors of method [`get_genres`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGenresError {
@@ -310,5 +83,165 @@ pub enum GetGenresError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn get_genre(configuration: &configuration::Configuration, params: GetGenreParams) -> Result<models::BaseItemDto, Error<GetGenreError>> {
+
+    let uri_str = format!("{}/Genres/{genreName}", configuration.base_path, genreName=crate::apis::urlencode(params.genre_name));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetGenreError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_genres(configuration: &configuration::Configuration, params: GetGenresParams) -> Result<models::BaseItemDtoQueryResult, Error<GetGenresError>> {
+
+    let uri_str = format!("{}/Genres", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.search_term {
+        req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.parent_id {
+        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.exclude_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.include_item_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.is_favorite {
+        req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with_or_greater {
+        req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_starts_with {
+        req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.name_less_than {
+        req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetGenresError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

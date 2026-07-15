@@ -9,220 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait LiveTvApi: Send + Sync {
-
-    /// POST /LiveTv/ListingProviders
-    ///
-    /// 
-    async fn add_listing_provider(&self,  params: AddListingProviderParams ) -> Result<models::ListingsProviderInfo, Error<AddListingProviderError>>;
-
-    /// POST /LiveTv/TunerHosts
-    ///
-    /// 
-    async fn add_tuner_host(&self,  params: AddTunerHostParams ) -> Result<models::TunerHostInfo, Error<AddTunerHostError>>;
-
-    /// DELETE /LiveTv/SeriesTimers/{timerId}
-    ///
-    /// 
-    async fn cancel_series_timer(&self,  params: CancelSeriesTimerParams ) -> Result<(), Error<CancelSeriesTimerError>>;
-
-    /// DELETE /LiveTv/Timers/{timerId}
-    ///
-    /// 
-    async fn cancel_timer(&self,  params: CancelTimerParams ) -> Result<(), Error<CancelTimerError>>;
-
-    /// POST /LiveTv/SeriesTimers
-    ///
-    /// 
-    async fn create_series_timer(&self,  params: CreateSeriesTimerParams ) -> Result<(), Error<CreateSeriesTimerError>>;
-
-    /// POST /LiveTv/Timers
-    ///
-    /// 
-    async fn create_timer(&self,  params: CreateTimerParams ) -> Result<(), Error<CreateTimerError>>;
-
-    /// DELETE /LiveTv/ListingProviders
-    ///
-    /// 
-    async fn delete_listing_provider(&self,  params: DeleteListingProviderParams ) -> Result<(), Error<DeleteListingProviderError>>;
-
-    /// DELETE /LiveTv/Recordings/{recordingId}
-    ///
-    /// 
-    async fn delete_recording(&self,  params: DeleteRecordingParams ) -> Result<(), Error<DeleteRecordingError>>;
-
-    /// DELETE /LiveTv/TunerHosts
-    ///
-    /// 
-    async fn delete_tuner_host(&self,  params: DeleteTunerHostParams ) -> Result<(), Error<DeleteTunerHostError>>;
-
-    /// GET /LiveTv/Tuners/Discover
-    ///
-    /// 
-    async fn discover_tuners(&self,  params: DiscoverTunersParams ) -> Result<Vec<models::TunerHostInfo>, Error<DiscoverTunersError>>;
-
-    /// GET /LiveTv/Tuners/Discvover
-    ///
-    /// 
-    async fn discvover_tuners(&self,  params: DiscvoverTunersParams ) -> Result<Vec<models::TunerHostInfo>, Error<DiscvoverTunersError>>;
-
-    /// GET /LiveTv/Channels/{channelId}
-    ///
-    /// 
-    async fn get_channel(&self,  params: GetChannelParams ) -> Result<models::BaseItemDto, Error<GetChannelError>>;
-
-    /// GET /LiveTv/ChannelMappingOptions
-    ///
-    /// 
-    async fn get_channel_mapping_options(&self,  params: GetChannelMappingOptionsParams ) -> Result<models::ChannelMappingOptionsDto, Error<GetChannelMappingOptionsError>>;
-
-    /// GET /LiveTv/ListingProviders/Default
-    ///
-    /// 
-    async fn get_default_listing_provider(&self, ) -> Result<models::ListingsProviderInfo, Error<GetDefaultListingProviderError>>;
-
-    /// GET /LiveTv/Timers/Defaults
-    ///
-    /// 
-    async fn get_default_timer(&self,  params: GetDefaultTimerParams ) -> Result<models::SeriesTimerInfoDto, Error<GetDefaultTimerError>>;
-
-    /// GET /LiveTv/GuideInfo
-    ///
-    /// 
-    async fn get_guide_info(&self, ) -> Result<models::GuideInfo, Error<GetGuideInfoError>>;
-
-    /// GET /LiveTv/ListingProviders/Lineups
-    ///
-    /// 
-    async fn get_lineups(&self,  params: GetLineupsParams ) -> Result<Vec<models::NameIdPair>, Error<GetLineupsError>>;
-
-    /// GET /LiveTv/LiveRecordings/{recordingId}/stream
-    ///
-    /// 
-    async fn get_live_recording_file(&self,  params: GetLiveRecordingFileParams ) -> Result<std::path::PathBuf, Error<GetLiveRecordingFileError>>;
-
-    /// GET /LiveTv/LiveStreamFiles/{streamId}/stream.{container}
-    ///
-    /// 
-    async fn get_live_stream_file(&self,  params: GetLiveStreamFileParams ) -> Result<std::path::PathBuf, Error<GetLiveStreamFileError>>;
-
-    /// GET /LiveTv/Channels
-    ///
-    /// 
-    async fn get_live_tv_channels(&self,  params: GetLiveTvChannelsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvChannelsError>>;
-
-    /// GET /LiveTv/Info
-    ///
-    /// 
-    async fn get_live_tv_info(&self, ) -> Result<models::LiveTvInfo, Error<GetLiveTvInfoError>>;
-
-    /// GET /LiveTv/Programs
-    ///
-    /// 
-    async fn get_live_tv_programs(&self,  params: GetLiveTvProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvProgramsError>>;
-
-    /// GET /LiveTv/Programs/{programId}
-    ///
-    /// 
-    async fn get_program(&self,  params: GetProgramParams ) -> Result<models::BaseItemDto, Error<GetProgramError>>;
-
-    /// POST /LiveTv/Programs
-    ///
-    /// 
-    async fn get_programs(&self,  params: GetProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetProgramsError>>;
-
-    /// GET /LiveTv/Programs/Recommended
-    ///
-    /// 
-    async fn get_recommended_programs(&self,  params: GetRecommendedProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecommendedProgramsError>>;
-
-    /// GET /LiveTv/Recordings/{recordingId}
-    ///
-    /// 
-    async fn get_recording(&self,  params: GetRecordingParams ) -> Result<models::BaseItemDto, Error<GetRecordingError>>;
-
-    /// GET /LiveTv/Recordings/Folders
-    ///
-    /// 
-    async fn get_recording_folders(&self,  params: GetRecordingFoldersParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingFoldersError>>;
-
-    /// GET /LiveTv/Recordings
-    ///
-    /// 
-    async fn get_recordings(&self,  params: GetRecordingsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingsError>>;
-
-    /// GET /LiveTv/ListingProviders/SchedulesDirect/Countries
-    ///
-    /// 
-    async fn get_schedules_direct_countries(&self, ) -> Result<std::path::PathBuf, Error<GetSchedulesDirectCountriesError>>;
-
-    /// GET /LiveTv/SeriesTimers/{timerId}
-    ///
-    /// 
-    async fn get_series_timer(&self,  params: GetSeriesTimerParams ) -> Result<models::SeriesTimerInfoDto, Error<GetSeriesTimerError>>;
-
-    /// GET /LiveTv/SeriesTimers
-    ///
-    /// 
-    async fn get_series_timers(&self,  params: GetSeriesTimersParams ) -> Result<models::SeriesTimerInfoDtoQueryResult, Error<GetSeriesTimersError>>;
-
-    /// GET /LiveTv/Timers/{timerId}
-    ///
-    /// 
-    async fn get_timer(&self,  params: GetTimerParams ) -> Result<models::TimerInfoDto, Error<GetTimerError>>;
-
-    /// GET /LiveTv/Timers
-    ///
-    /// 
-    async fn get_timers(&self,  params: GetTimersParams ) -> Result<models::TimerInfoDtoQueryResult, Error<GetTimersError>>;
-
-    /// GET /LiveTv/TunerHosts/Types
-    ///
-    /// 
-    async fn get_tuner_host_types(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetTunerHostTypesError>>;
-
-    /// POST /LiveTv/Tuners/{tunerId}/Reset
-    ///
-    /// 
-    async fn reset_tuner(&self,  params: ResetTunerParams ) -> Result<(), Error<ResetTunerError>>;
-
-    /// POST /LiveTv/ChannelMappings
-    ///
-    /// 
-    async fn set_channel_mapping(&self,  params: SetChannelMappingParams ) -> Result<models::TunerChannelMapping, Error<SetChannelMappingError>>;
-
-    /// POST /LiveTv/SeriesTimers/{timerId}
-    ///
-    /// 
-    async fn update_series_timer(&self,  params: UpdateSeriesTimerParams ) -> Result<(), Error<UpdateSeriesTimerError>>;
-
-    /// POST /LiveTv/Timers/{timerId}
-    ///
-    /// 
-    async fn update_timer(&self,  params: UpdateTimerParams ) -> Result<(), Error<UpdateTimerError>>;
-}
-
-pub struct LiveTvApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl LiveTvApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`LiveTvApi::add_listing_provider`]
+/// struct for passing parameters to the method [`add_listing_provider`]
 #[derive(Clone, Debug)]
 pub struct AddListingProviderParams {
     /// Password.
@@ -235,77 +27,77 @@ pub struct AddListingProviderParams {
     pub listings_provider_info: Option<models::ListingsProviderInfo>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::add_tuner_host`]
+/// struct for passing parameters to the method [`add_tuner_host`]
 #[derive(Clone, Debug)]
 pub struct AddTunerHostParams {
     /// New tuner host.
     pub tuner_host_info: Option<models::TunerHostInfo>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::cancel_series_timer`]
+/// struct for passing parameters to the method [`cancel_series_timer`]
 #[derive(Clone, Debug)]
 pub struct CancelSeriesTimerParams {
     /// Timer id.
     pub timer_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::cancel_timer`]
+/// struct for passing parameters to the method [`cancel_timer`]
 #[derive(Clone, Debug)]
 pub struct CancelTimerParams {
     /// Timer id.
     pub timer_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::create_series_timer`]
+/// struct for passing parameters to the method [`create_series_timer`]
 #[derive(Clone, Debug)]
 pub struct CreateSeriesTimerParams {
     /// New series timer info.
     pub series_timer_info_dto: Option<models::SeriesTimerInfoDto>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::create_timer`]
+/// struct for passing parameters to the method [`create_timer`]
 #[derive(Clone, Debug)]
 pub struct CreateTimerParams {
     /// New timer info.
     pub timer_info_dto: Option<models::TimerInfoDto>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::delete_listing_provider`]
+/// struct for passing parameters to the method [`delete_listing_provider`]
 #[derive(Clone, Debug)]
 pub struct DeleteListingProviderParams {
     /// Listing provider id.
     pub id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::delete_recording`]
+/// struct for passing parameters to the method [`delete_recording`]
 #[derive(Clone, Debug)]
 pub struct DeleteRecordingParams {
     /// Recording id.
     pub recording_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::delete_tuner_host`]
+/// struct for passing parameters to the method [`delete_tuner_host`]
 #[derive(Clone, Debug)]
 pub struct DeleteTunerHostParams {
     /// Tuner host id.
     pub id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::discover_tuners`]
+/// struct for passing parameters to the method [`discover_tuners`]
 #[derive(Clone, Debug)]
 pub struct DiscoverTunersParams {
     /// Only discover new tuners.
     pub new_devices_only: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::discvover_tuners`]
+/// struct for passing parameters to the method [`discvover_tuners`]
 #[derive(Clone, Debug)]
 pub struct DiscvoverTunersParams {
     /// Only discover new tuners.
     pub new_devices_only: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_channel`]
+/// struct for passing parameters to the method [`get_channel`]
 #[derive(Clone, Debug)]
 pub struct GetChannelParams {
     /// Channel id.
@@ -314,21 +106,21 @@ pub struct GetChannelParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_channel_mapping_options`]
+/// struct for passing parameters to the method [`get_channel_mapping_options`]
 #[derive(Clone, Debug)]
 pub struct GetChannelMappingOptionsParams {
     /// Provider id.
     pub provider_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_default_timer`]
+/// struct for passing parameters to the method [`get_default_timer`]
 #[derive(Clone, Debug)]
 pub struct GetDefaultTimerParams {
     /// Optional. To attach default values based on a program.
     pub program_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_lineups`]
+/// struct for passing parameters to the method [`get_lineups`]
 #[derive(Clone, Debug)]
 pub struct GetLineupsParams {
     /// Provider id.
@@ -341,14 +133,14 @@ pub struct GetLineupsParams {
     pub country: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_live_recording_file`]
+/// struct for passing parameters to the method [`get_live_recording_file`]
 #[derive(Clone, Debug)]
 pub struct GetLiveRecordingFileParams {
     /// Recording id.
     pub recording_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_live_stream_file`]
+/// struct for passing parameters to the method [`get_live_stream_file`]
 #[derive(Clone, Debug)]
 pub struct GetLiveStreamFileParams {
     /// Stream id.
@@ -357,7 +149,7 @@ pub struct GetLiveStreamFileParams {
     pub container: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_live_tv_channels`]
+/// struct for passing parameters to the method [`get_live_tv_channels`]
 #[derive(Clone, Debug)]
 pub struct GetLiveTvChannelsParams {
     /// Optional. Filter by channel type.
@@ -404,7 +196,7 @@ pub struct GetLiveTvChannelsParams {
     pub add_current_program: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_live_tv_programs`]
+/// struct for passing parameters to the method [`get_live_tv_programs`]
 #[derive(Clone, Debug)]
 pub struct GetLiveTvProgramsParams {
     /// The channels to return guide information for.
@@ -463,7 +255,7 @@ pub struct GetLiveTvProgramsParams {
     pub enable_total_record_count: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_program`]
+/// struct for passing parameters to the method [`get_program`]
 #[derive(Clone, Debug)]
 pub struct GetProgramParams {
     /// Program id.
@@ -472,14 +264,14 @@ pub struct GetProgramParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_programs`]
+/// struct for passing parameters to the method [`get_programs`]
 #[derive(Clone, Debug)]
 pub struct GetProgramsParams {
     /// Request body.
     pub get_programs_dto: Option<models::GetProgramsDto>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_recommended_programs`]
+/// struct for passing parameters to the method [`get_recommended_programs`]
 #[derive(Clone, Debug)]
 pub struct GetRecommendedProgramsParams {
     /// Optional. filter by user id.
@@ -518,7 +310,7 @@ pub struct GetRecommendedProgramsParams {
     pub enable_total_record_count: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_recording`]
+/// struct for passing parameters to the method [`get_recording`]
 #[derive(Clone, Debug)]
 pub struct GetRecordingParams {
     /// Recording id.
@@ -527,14 +319,14 @@ pub struct GetRecordingParams {
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_recording_folders`]
+/// struct for passing parameters to the method [`get_recording_folders`]
 #[derive(Clone, Debug)]
 pub struct GetRecordingFoldersParams {
     /// Optional. Filter by user and attach user data.
     pub user_id: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_recordings`]
+/// struct for passing parameters to the method [`get_recordings`]
 #[derive(Clone, Debug)]
 pub struct GetRecordingsParams {
     /// Optional. Filter by channel id.
@@ -577,14 +369,14 @@ pub struct GetRecordingsParams {
     pub enable_total_record_count: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_series_timer`]
+/// struct for passing parameters to the method [`get_series_timer`]
 #[derive(Clone, Debug)]
 pub struct GetSeriesTimerParams {
     /// Timer id.
     pub timer_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_series_timers`]
+/// struct for passing parameters to the method [`get_series_timers`]
 #[derive(Clone, Debug)]
 pub struct GetSeriesTimersParams {
     /// Optional. Sort by SortName or Priority.
@@ -593,14 +385,14 @@ pub struct GetSeriesTimersParams {
     pub sort_order: Option<String>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_timer`]
+/// struct for passing parameters to the method [`get_timer`]
 #[derive(Clone, Debug)]
 pub struct GetTimerParams {
     /// Timer id.
     pub timer_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::get_timers`]
+/// struct for passing parameters to the method [`get_timers`]
 #[derive(Clone, Debug)]
 pub struct GetTimersParams {
     /// Optional. Filter by channel id.
@@ -613,21 +405,21 @@ pub struct GetTimersParams {
     pub is_scheduled: Option<bool>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::reset_tuner`]
+/// struct for passing parameters to the method [`reset_tuner`]
 #[derive(Clone, Debug)]
 pub struct ResetTunerParams {
     /// Tuner id.
     pub tuner_id: String
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::set_channel_mapping`]
+/// struct for passing parameters to the method [`set_channel_mapping`]
 #[derive(Clone, Debug)]
 pub struct SetChannelMappingParams {
     /// The set channel mapping dto.
     pub set_channel_mapping_dto: models::SetChannelMappingDto
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::update_series_timer`]
+/// struct for passing parameters to the method [`update_series_timer`]
 #[derive(Clone, Debug)]
 pub struct UpdateSeriesTimerParams {
     /// Timer id.
@@ -636,7 +428,7 @@ pub struct UpdateSeriesTimerParams {
     pub series_timer_info_dto: Option<models::SeriesTimerInfoDto>
 }
 
-/// struct for passing parameters to the method [`LiveTvApi::update_timer`]
+/// struct for passing parameters to the method [`update_timer`]
 #[derive(Clone, Debug)]
 pub struct UpdateTimerParams {
     /// Timer id.
@@ -646,2283 +438,7 @@ pub struct UpdateTimerParams {
 }
 
 
-#[async_trait]
-impl LiveTvApi for LiveTvApiClient {
-    async fn add_listing_provider(&self,  params: AddListingProviderParams ) -> Result<models::ListingsProviderInfo, Error<AddListingProviderError>> {
-        
-        let AddListingProviderParams {
-            pw,
-            validate_listings,
-            validate_login,
-            listings_provider_info,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ListingProviders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = pw {
-            local_var_req_builder = local_var_req_builder.query(&[("pw", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = validate_listings {
-            local_var_req_builder = local_var_req_builder.query(&[("validateListings", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = validate_login {
-            local_var_req_builder = local_var_req_builder.query(&[("validateLogin", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&listings_provider_info);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ListingsProviderInfo`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::ListingsProviderInfo`")))),
-            }
-        } else {
-            let local_var_entity: Option<AddListingProviderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn add_tuner_host(&self,  params: AddTunerHostParams ) -> Result<models::TunerHostInfo, Error<AddTunerHostError>> {
-        
-        let AddTunerHostParams {
-            tuner_host_info,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/TunerHosts", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&tuner_host_info);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TunerHostInfo`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::TunerHostInfo`")))),
-            }
-        } else {
-            let local_var_entity: Option<AddTunerHostError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn cancel_series_timer(&self,  params: CancelSeriesTimerParams ) -> Result<(), Error<CancelSeriesTimerError>> {
-        
-        let CancelSeriesTimerParams {
-            timer_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CancelSeriesTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn cancel_timer(&self,  params: CancelTimerParams ) -> Result<(), Error<CancelTimerError>> {
-        
-        let CancelTimerParams {
-            timer_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CancelTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn create_series_timer(&self,  params: CreateSeriesTimerParams ) -> Result<(), Error<CreateSeriesTimerError>> {
-        
-        let CreateSeriesTimerParams {
-            series_timer_info_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/SeriesTimers", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&series_timer_info_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CreateSeriesTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn create_timer(&self,  params: CreateTimerParams ) -> Result<(), Error<CreateTimerError>> {
-        
-        let CreateTimerParams {
-            timer_info_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&timer_info_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<CreateTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn delete_listing_provider(&self,  params: DeleteListingProviderParams ) -> Result<(), Error<DeleteListingProviderError>> {
-        
-        let DeleteListingProviderParams {
-            id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ListingProviders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = id {
-            local_var_req_builder = local_var_req_builder.query(&[("id", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<DeleteListingProviderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn delete_recording(&self,  params: DeleteRecordingParams ) -> Result<(), Error<DeleteRecordingError>> {
-        
-        let DeleteRecordingParams {
-            recording_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Recordings/{recordingId}", local_var_configuration.base_path, recordingId=crate::apis::urlencode(recording_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<DeleteRecordingError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn delete_tuner_host(&self,  params: DeleteTunerHostParams ) -> Result<(), Error<DeleteTunerHostError>> {
-        
-        let DeleteTunerHostParams {
-            id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/TunerHosts", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = id {
-            local_var_req_builder = local_var_req_builder.query(&[("id", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<DeleteTunerHostError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn discover_tuners(&self,  params: DiscoverTunersParams ) -> Result<Vec<models::TunerHostInfo>, Error<DiscoverTunersError>> {
-        
-        let DiscoverTunersParams {
-            new_devices_only,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Tuners/Discover", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = new_devices_only {
-            local_var_req_builder = local_var_req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<DiscoverTunersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn discvover_tuners(&self,  params: DiscvoverTunersParams ) -> Result<Vec<models::TunerHostInfo>, Error<DiscvoverTunersError>> {
-        
-        let DiscvoverTunersParams {
-            new_devices_only,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Tuners/Discvover", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = new_devices_only {
-            local_var_req_builder = local_var_req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<DiscvoverTunersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_channel(&self,  params: GetChannelParams ) -> Result<models::BaseItemDto, Error<GetChannelError>> {
-        
-        let GetChannelParams {
-            channel_id,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Channels/{channelId}", local_var_configuration.base_path, channelId=crate::apis::urlencode(channel_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetChannelError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_channel_mapping_options(&self,  params: GetChannelMappingOptionsParams ) -> Result<models::ChannelMappingOptionsDto, Error<GetChannelMappingOptionsError>> {
-        
-        let GetChannelMappingOptionsParams {
-            provider_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ChannelMappingOptions", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = provider_id {
-            local_var_req_builder = local_var_req_builder.query(&[("providerId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ChannelMappingOptionsDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::ChannelMappingOptionsDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetChannelMappingOptionsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_default_listing_provider(&self, ) -> Result<models::ListingsProviderInfo, Error<GetDefaultListingProviderError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ListingProviders/Default", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ListingsProviderInfo`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::ListingsProviderInfo`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetDefaultListingProviderError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_default_timer(&self,  params: GetDefaultTimerParams ) -> Result<models::SeriesTimerInfoDto, Error<GetDefaultTimerError>> {
-        
-        let GetDefaultTimerParams {
-            program_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers/Defaults", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = program_id {
-            local_var_req_builder = local_var_req_builder.query(&[("programId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetDefaultTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_guide_info(&self, ) -> Result<models::GuideInfo, Error<GetGuideInfoError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/GuideInfo", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GuideInfo`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::GuideInfo`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetGuideInfoError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_lineups(&self,  params: GetLineupsParams ) -> Result<Vec<models::NameIdPair>, Error<GetLineupsError>> {
-        
-        let GetLineupsParams {
-            id,
-            r#type,
-            location,
-            country,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ListingProviders/Lineups", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = id {
-            local_var_req_builder = local_var_req_builder.query(&[("id", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = r#type {
-            local_var_req_builder = local_var_req_builder.query(&[("type", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = location {
-            local_var_req_builder = local_var_req_builder.query(&[("location", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = country {
-            local_var_req_builder = local_var_req_builder.query(&[("country", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLineupsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_live_recording_file(&self,  params: GetLiveRecordingFileParams ) -> Result<std::path::PathBuf, Error<GetLiveRecordingFileError>> {
-        
-        let GetLiveRecordingFileParams {
-            recording_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/LiveRecordings/{recordingId}/stream", local_var_configuration.base_path, recordingId=crate::apis::urlencode(recording_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLiveRecordingFileError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_live_stream_file(&self,  params: GetLiveStreamFileParams ) -> Result<std::path::PathBuf, Error<GetLiveStreamFileError>> {
-        
-        let GetLiveStreamFileParams {
-            stream_id,
-            container,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/LiveStreamFiles/{streamId}/stream.{container}", local_var_configuration.base_path, streamId=crate::apis::urlencode(stream_id), container=crate::apis::urlencode(container));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLiveStreamFileError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_live_tv_channels(&self,  params: GetLiveTvChannelsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvChannelsError>> {
-        
-        let GetLiveTvChannelsParams {
-            r#type,
-            user_id,
-            start_index,
-            is_movie,
-            is_series,
-            is_news,
-            is_kids,
-            is_sports,
-            limit,
-            is_favorite,
-            is_liked,
-            is_disliked,
-            enable_images,
-            image_type_limit,
-            enable_image_types,
-            fields,
-            enable_user_data,
-            sort_by,
-            sort_order,
-            enable_favorite_sorting,
-            add_current_program,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Channels", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = r#type {
-            local_var_req_builder = local_var_req_builder.query(&[("type", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_movie {
-            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_series {
-            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_news {
-            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_kids {
-            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_sports {
-            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_favorite {
-            local_var_req_builder = local_var_req_builder.query(&[("isFavorite", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_liked {
-            local_var_req_builder = local_var_req_builder.query(&[("isLiked", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_disliked {
-            local_var_req_builder = local_var_req_builder.query(&[("isDisliked", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = local_var_req_builder.query(&[("sortOrder", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_favorite_sorting {
-            local_var_req_builder = local_var_req_builder.query(&[("enableFavoriteSorting", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = add_current_program {
-            local_var_req_builder = local_var_req_builder.query(&[("addCurrentProgram", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLiveTvChannelsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_live_tv_info(&self, ) -> Result<models::LiveTvInfo, Error<GetLiveTvInfoError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Info", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LiveTvInfo`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::LiveTvInfo`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLiveTvInfoError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_live_tv_programs(&self,  params: GetLiveTvProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvProgramsError>> {
-        
-        let GetLiveTvProgramsParams {
-            channel_ids,
-            user_id,
-            min_start_date,
-            has_aired,
-            is_airing,
-            max_start_date,
-            min_end_date,
-            max_end_date,
-            is_movie,
-            is_series,
-            is_news,
-            is_kids,
-            is_sports,
-            start_index,
-            limit,
-            sort_by,
-            sort_order,
-            genres,
-            genre_ids,
-            enable_images,
-            image_type_limit,
-            enable_image_types,
-            enable_user_data,
-            series_timer_id,
-            library_series_id,
-            fields,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Programs", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = channel_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("channelIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("channelIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_start_date {
-            local_var_req_builder = local_var_req_builder.query(&[("minStartDate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = has_aired {
-            local_var_req_builder = local_var_req_builder.query(&[("hasAired", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_airing {
-            local_var_req_builder = local_var_req_builder.query(&[("isAiring", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_start_date {
-            local_var_req_builder = local_var_req_builder.query(&[("maxStartDate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_end_date {
-            local_var_req_builder = local_var_req_builder.query(&[("minEndDate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_end_date {
-            local_var_req_builder = local_var_req_builder.query(&[("maxEndDate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_movie {
-            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_series {
-            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_news {
-            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_kids {
-            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_sports {
-            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genres {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genre_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = series_timer_id {
-            local_var_req_builder = local_var_req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = library_series_id {
-            local_var_req_builder = local_var_req_builder.query(&[("librarySeriesId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetLiveTvProgramsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_program(&self,  params: GetProgramParams ) -> Result<models::BaseItemDto, Error<GetProgramError>> {
-        
-        let GetProgramParams {
-            program_id,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Programs/{programId}", local_var_configuration.base_path, programId=crate::apis::urlencode(program_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetProgramError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_programs(&self,  params: GetProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetProgramsError>> {
-        
-        let GetProgramsParams {
-            get_programs_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Programs", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&get_programs_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetProgramsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_recommended_programs(&self,  params: GetRecommendedProgramsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecommendedProgramsError>> {
-        
-        let GetRecommendedProgramsParams {
-            user_id,
-            start_index,
-            limit,
-            is_airing,
-            has_aired,
-            is_series,
-            is_movie,
-            is_news,
-            is_kids,
-            is_sports,
-            enable_images,
-            image_type_limit,
-            enable_image_types,
-            genre_ids,
-            fields,
-            enable_user_data,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Programs/Recommended", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_airing {
-            local_var_req_builder = local_var_req_builder.query(&[("isAiring", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = has_aired {
-            local_var_req_builder = local_var_req_builder.query(&[("hasAired", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_series {
-            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_movie {
-            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_news {
-            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_kids {
-            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_sports {
-            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = genre_ids {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRecommendedProgramsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_recording(&self,  params: GetRecordingParams ) -> Result<models::BaseItemDto, Error<GetRecordingError>> {
-        
-        let GetRecordingParams {
-            recording_id,
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Recordings/{recordingId}", local_var_configuration.base_path, recordingId=crate::apis::urlencode(recording_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRecordingError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_recording_folders(&self,  params: GetRecordingFoldersParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingFoldersError>> {
-        
-        let GetRecordingFoldersParams {
-            user_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Recordings/Folders", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRecordingFoldersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_recordings(&self,  params: GetRecordingsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingsError>> {
-        
-        let GetRecordingsParams {
-            channel_id,
-            user_id,
-            start_index,
-            limit,
-            status,
-            is_in_progress,
-            series_timer_id,
-            enable_images,
-            image_type_limit,
-            enable_image_types,
-            fields,
-            enable_user_data,
-            is_movie,
-            is_series,
-            is_kids,
-            is_sports,
-            is_news,
-            is_library_item,
-            enable_total_record_count,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Recordings", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = channel_id {
-            local_var_req_builder = local_var_req_builder.query(&[("channelId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_index {
-            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = limit {
-            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = status {
-            local_var_req_builder = local_var_req_builder.query(&[("status", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_in_progress {
-            local_var_req_builder = local_var_req_builder.query(&[("isInProgress", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = series_timer_id {
-            local_var_req_builder = local_var_req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_images {
-            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = image_type_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_image_types {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = fields {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = enable_user_data {
-            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_movie {
-            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_series {
-            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_kids {
-            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_sports {
-            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_news {
-            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_library_item {
-            local_var_req_builder = local_var_req_builder.query(&[("isLibraryItem", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_total_record_count {
-            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetRecordingsError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_schedules_direct_countries(&self, ) -> Result<std::path::PathBuf, Error<GetSchedulesDirectCountriesError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ListingProviders/SchedulesDirect/Countries", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetSchedulesDirectCountriesError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_series_timer(&self,  params: GetSeriesTimerParams ) -> Result<models::SeriesTimerInfoDto, Error<GetSeriesTimerError>> {
-        
-        let GetSeriesTimerParams {
-            timer_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetSeriesTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_series_timers(&self,  params: GetSeriesTimersParams ) -> Result<models::SeriesTimerInfoDtoQueryResult, Error<GetSeriesTimersError>> {
-        
-        let GetSeriesTimersParams {
-            sort_by,
-            sort_order,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/SeriesTimers", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = sort_by {
-            local_var_req_builder = local_var_req_builder.query(&[("sortBy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = sort_order {
-            local_var_req_builder = local_var_req_builder.query(&[("sortOrder", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetSeriesTimersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_timer(&self,  params: GetTimerParams ) -> Result<models::TimerInfoDto, Error<GetTimerError>> {
-        
-        let GetTimerParams {
-            timer_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TimerInfoDto`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::TimerInfoDto`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_timers(&self,  params: GetTimersParams ) -> Result<models::TimerInfoDtoQueryResult, Error<GetTimersError>> {
-        
-        let GetTimersParams {
-            channel_id,
-            series_timer_id,
-            is_active,
-            is_scheduled,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = channel_id {
-            local_var_req_builder = local_var_req_builder.query(&[("channelId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = series_timer_id {
-            local_var_req_builder = local_var_req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_active {
-            local_var_req_builder = local_var_req_builder.query(&[("isActive", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = is_scheduled {
-            local_var_req_builder = local_var_req_builder.query(&[("isScheduled", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TimerInfoDtoQueryResult`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::TimerInfoDtoQueryResult`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTimersError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_tuner_host_types(&self, ) -> Result<Vec<models::NameIdPair>, Error<GetTunerHostTypesError>> {
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/TunerHosts/Types", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetTunerHostTypesError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn reset_tuner(&self,  params: ResetTunerParams ) -> Result<(), Error<ResetTunerError>> {
-        
-        let ResetTunerParams {
-            tuner_id,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Tuners/{tunerId}/Reset", local_var_configuration.base_path, tunerId=crate::apis::urlencode(tuner_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<ResetTunerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn set_channel_mapping(&self,  params: SetChannelMappingParams ) -> Result<models::TunerChannelMapping, Error<SetChannelMappingError>> {
-        
-        let SetChannelMappingParams {
-            set_channel_mapping_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/ChannelMappings", local_var_configuration.base_path);
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&set_channel_mapping_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TunerChannelMapping`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::TunerChannelMapping`")))),
-            }
-        } else {
-            let local_var_entity: Option<SetChannelMappingError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn update_series_timer(&self,  params: UpdateSeriesTimerParams ) -> Result<(), Error<UpdateSeriesTimerError>> {
-        
-        let UpdateSeriesTimerParams {
-            timer_id,
-            series_timer_info_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&series_timer_info_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<UpdateSeriesTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn update_timer(&self,  params: UpdateTimerParams ) -> Result<(), Error<UpdateTimerError>> {
-        
-        let UpdateTimerParams {
-            timer_id,
-            timer_info_dto,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/LiveTv/Timers/{timerId}", local_var_configuration.base_path, timerId=crate::apis::urlencode(timer_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
-
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-        local_var_req_builder = local_var_req_builder.json(&timer_info_dto);
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            Ok(())
-        } else {
-            let local_var_entity: Option<UpdateTimerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`LiveTvApi::add_listing_provider`]
+/// struct for typed errors of method [`add_listing_provider`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddListingProviderError {
@@ -2932,7 +448,7 @@ pub enum AddListingProviderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::add_tuner_host`]
+/// struct for typed errors of method [`add_tuner_host`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddTunerHostError {
@@ -2942,7 +458,7 @@ pub enum AddTunerHostError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::cancel_series_timer`]
+/// struct for typed errors of method [`cancel_series_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CancelSeriesTimerError {
@@ -2952,7 +468,7 @@ pub enum CancelSeriesTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::cancel_timer`]
+/// struct for typed errors of method [`cancel_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CancelTimerError {
@@ -2962,7 +478,7 @@ pub enum CancelTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::create_series_timer`]
+/// struct for typed errors of method [`create_series_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreateSeriesTimerError {
@@ -2972,7 +488,7 @@ pub enum CreateSeriesTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::create_timer`]
+/// struct for typed errors of method [`create_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreateTimerError {
@@ -2982,7 +498,7 @@ pub enum CreateTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::delete_listing_provider`]
+/// struct for typed errors of method [`delete_listing_provider`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteListingProviderError {
@@ -2992,7 +508,7 @@ pub enum DeleteListingProviderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::delete_recording`]
+/// struct for typed errors of method [`delete_recording`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteRecordingError {
@@ -3003,7 +519,7 @@ pub enum DeleteRecordingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::delete_tuner_host`]
+/// struct for typed errors of method [`delete_tuner_host`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteTunerHostError {
@@ -3013,7 +529,7 @@ pub enum DeleteTunerHostError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::discover_tuners`]
+/// struct for typed errors of method [`discover_tuners`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DiscoverTunersError {
@@ -3023,7 +539,7 @@ pub enum DiscoverTunersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::discvover_tuners`]
+/// struct for typed errors of method [`discvover_tuners`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DiscvoverTunersError {
@@ -3033,7 +549,7 @@ pub enum DiscvoverTunersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_channel`]
+/// struct for typed errors of method [`get_channel`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetChannelError {
@@ -3044,7 +560,7 @@ pub enum GetChannelError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_channel_mapping_options`]
+/// struct for typed errors of method [`get_channel_mapping_options`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetChannelMappingOptionsError {
@@ -3054,7 +570,7 @@ pub enum GetChannelMappingOptionsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_default_listing_provider`]
+/// struct for typed errors of method [`get_default_listing_provider`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetDefaultListingProviderError {
@@ -3064,7 +580,7 @@ pub enum GetDefaultListingProviderError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_default_timer`]
+/// struct for typed errors of method [`get_default_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetDefaultTimerError {
@@ -3074,7 +590,7 @@ pub enum GetDefaultTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_guide_info`]
+/// struct for typed errors of method [`get_guide_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGuideInfoError {
@@ -3084,7 +600,7 @@ pub enum GetGuideInfoError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_lineups`]
+/// struct for typed errors of method [`get_lineups`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLineupsError {
@@ -3094,7 +610,7 @@ pub enum GetLineupsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_live_recording_file`]
+/// struct for typed errors of method [`get_live_recording_file`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLiveRecordingFileError {
@@ -3103,7 +619,7 @@ pub enum GetLiveRecordingFileError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_live_stream_file`]
+/// struct for typed errors of method [`get_live_stream_file`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLiveStreamFileError {
@@ -3112,7 +628,7 @@ pub enum GetLiveStreamFileError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_live_tv_channels`]
+/// struct for typed errors of method [`get_live_tv_channels`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLiveTvChannelsError {
@@ -3122,7 +638,7 @@ pub enum GetLiveTvChannelsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_live_tv_info`]
+/// struct for typed errors of method [`get_live_tv_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLiveTvInfoError {
@@ -3132,7 +648,7 @@ pub enum GetLiveTvInfoError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_live_tv_programs`]
+/// struct for typed errors of method [`get_live_tv_programs`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLiveTvProgramsError {
@@ -3142,7 +658,7 @@ pub enum GetLiveTvProgramsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_program`]
+/// struct for typed errors of method [`get_program`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetProgramError {
@@ -3153,7 +669,7 @@ pub enum GetProgramError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_programs`]
+/// struct for typed errors of method [`get_programs`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetProgramsError {
@@ -3163,7 +679,7 @@ pub enum GetProgramsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_recommended_programs`]
+/// struct for typed errors of method [`get_recommended_programs`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRecommendedProgramsError {
@@ -3173,7 +689,7 @@ pub enum GetRecommendedProgramsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_recording`]
+/// struct for typed errors of method [`get_recording`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRecordingError {
@@ -3184,7 +700,7 @@ pub enum GetRecordingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_recording_folders`]
+/// struct for typed errors of method [`get_recording_folders`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRecordingFoldersError {
@@ -3194,7 +710,7 @@ pub enum GetRecordingFoldersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_recordings`]
+/// struct for typed errors of method [`get_recordings`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRecordingsError {
@@ -3204,7 +720,7 @@ pub enum GetRecordingsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_schedules_direct_countries`]
+/// struct for typed errors of method [`get_schedules_direct_countries`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSchedulesDirectCountriesError {
@@ -3214,7 +730,7 @@ pub enum GetSchedulesDirectCountriesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_series_timer`]
+/// struct for typed errors of method [`get_series_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSeriesTimerError {
@@ -3225,7 +741,7 @@ pub enum GetSeriesTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_series_timers`]
+/// struct for typed errors of method [`get_series_timers`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSeriesTimersError {
@@ -3235,7 +751,7 @@ pub enum GetSeriesTimersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_timer`]
+/// struct for typed errors of method [`get_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTimerError {
@@ -3245,7 +761,7 @@ pub enum GetTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_timers`]
+/// struct for typed errors of method [`get_timers`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTimersError {
@@ -3255,7 +771,7 @@ pub enum GetTimersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::get_tuner_host_types`]
+/// struct for typed errors of method [`get_tuner_host_types`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTunerHostTypesError {
@@ -3265,7 +781,7 @@ pub enum GetTunerHostTypesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::reset_tuner`]
+/// struct for typed errors of method [`reset_tuner`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ResetTunerError {
@@ -3275,7 +791,7 @@ pub enum ResetTunerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::set_channel_mapping`]
+/// struct for typed errors of method [`set_channel_mapping`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SetChannelMappingError {
@@ -3285,7 +801,7 @@ pub enum SetChannelMappingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::update_series_timer`]
+/// struct for typed errors of method [`update_series_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateSeriesTimerError {
@@ -3295,7 +811,7 @@ pub enum UpdateSeriesTimerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`LiveTvApi::update_timer`]
+/// struct for typed errors of method [`update_timer`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateTimerError {
@@ -3303,5 +819,1817 @@ pub enum UpdateTimerError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn add_listing_provider(configuration: &configuration::Configuration, params: AddListingProviderParams) -> Result<models::ListingsProviderInfo, Error<AddListingProviderError>> {
+
+    let uri_str = format!("{}/LiveTv/ListingProviders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref param_value) = params.pw {
+        req_builder = req_builder.query(&[("pw", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.validate_listings {
+        req_builder = req_builder.query(&[("validateListings", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.validate_login {
+        req_builder = req_builder.query(&[("validateLogin", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.listings_provider_info);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ListingsProviderInfo`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ListingsProviderInfo`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AddListingProviderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn add_tuner_host(configuration: &configuration::Configuration, params: AddTunerHostParams) -> Result<models::TunerHostInfo, Error<AddTunerHostError>> {
+
+    let uri_str = format!("{}/LiveTv/TunerHosts", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.tuner_host_info);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TunerHostInfo`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::TunerHostInfo`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<AddTunerHostError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn cancel_series_timer(configuration: &configuration::Configuration, params: CancelSeriesTimerParams) -> Result<(), Error<CancelSeriesTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CancelSeriesTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn cancel_timer(configuration: &configuration::Configuration, params: CancelTimerParams) -> Result<(), Error<CancelTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CancelTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn create_series_timer(configuration: &configuration::Configuration, params: CreateSeriesTimerParams) -> Result<(), Error<CreateSeriesTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/SeriesTimers", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.series_timer_info_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CreateSeriesTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn create_timer(configuration: &configuration::Configuration, params: CreateTimerParams) -> Result<(), Error<CreateTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.timer_info_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<CreateTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn delete_listing_provider(configuration: &configuration::Configuration, params: DeleteListingProviderParams) -> Result<(), Error<DeleteListingProviderError>> {
+
+    let uri_str = format!("{}/LiveTv/ListingProviders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref param_value) = params.id {
+        req_builder = req_builder.query(&[("id", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DeleteListingProviderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn delete_recording(configuration: &configuration::Configuration, params: DeleteRecordingParams) -> Result<(), Error<DeleteRecordingError>> {
+
+    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DeleteRecordingError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn delete_tuner_host(configuration: &configuration::Configuration, params: DeleteTunerHostParams) -> Result<(), Error<DeleteTunerHostError>> {
+
+    let uri_str = format!("{}/LiveTv/TunerHosts", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
+
+    if let Some(ref param_value) = params.id {
+        req_builder = req_builder.query(&[("id", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DeleteTunerHostError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn discover_tuners(configuration: &configuration::Configuration, params: DiscoverTunersParams) -> Result<Vec<models::TunerHostInfo>, Error<DiscoverTunersError>> {
+
+    let uri_str = format!("{}/LiveTv/Tuners/Discover", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.new_devices_only {
+        req_builder = req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DiscoverTunersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn discvover_tuners(configuration: &configuration::Configuration, params: DiscvoverTunersParams) -> Result<Vec<models::TunerHostInfo>, Error<DiscvoverTunersError>> {
+
+    let uri_str = format!("{}/LiveTv/Tuners/Discvover", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.new_devices_only {
+        req_builder = req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::TunerHostInfo&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<DiscvoverTunersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_channel(configuration: &configuration::Configuration, params: GetChannelParams) -> Result<models::BaseItemDto, Error<GetChannelError>> {
+
+    let uri_str = format!("{}/LiveTv/Channels/{channelId}", configuration.base_path, channelId=crate::apis::urlencode(params.channel_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetChannelError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_channel_mapping_options(configuration: &configuration::Configuration, params: GetChannelMappingOptionsParams) -> Result<models::ChannelMappingOptionsDto, Error<GetChannelMappingOptionsError>> {
+
+    let uri_str = format!("{}/LiveTv/ChannelMappingOptions", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.provider_id {
+        req_builder = req_builder.query(&[("providerId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ChannelMappingOptionsDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ChannelMappingOptionsDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetChannelMappingOptionsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_default_listing_provider(configuration: &configuration::Configuration) -> Result<models::ListingsProviderInfo, Error<GetDefaultListingProviderError>> {
+
+    let uri_str = format!("{}/LiveTv/ListingProviders/Default", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ListingsProviderInfo`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ListingsProviderInfo`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetDefaultListingProviderError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_default_timer(configuration: &configuration::Configuration, params: GetDefaultTimerParams) -> Result<models::SeriesTimerInfoDto, Error<GetDefaultTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers/Defaults", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.program_id {
+        req_builder = req_builder.query(&[("programId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetDefaultTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_guide_info(configuration: &configuration::Configuration) -> Result<models::GuideInfo, Error<GetGuideInfoError>> {
+
+    let uri_str = format!("{}/LiveTv/GuideInfo", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::GuideInfo`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::GuideInfo`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetGuideInfoError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_lineups(configuration: &configuration::Configuration, params: GetLineupsParams) -> Result<Vec<models::NameIdPair>, Error<GetLineupsError>> {
+
+    let uri_str = format!("{}/LiveTv/ListingProviders/Lineups", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.id {
+        req_builder = req_builder.query(&[("id", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.r#type {
+        req_builder = req_builder.query(&[("type", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.location {
+        req_builder = req_builder.query(&[("location", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.country {
+        req_builder = req_builder.query(&[("country", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLineupsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_live_recording_file(configuration: &configuration::Configuration, params: GetLiveRecordingFileParams) -> Result<reqwest::Response, Error<GetLiveRecordingFileError>> {
+
+    let uri_str = format!("{}/LiveTv/LiveRecordings/{recordingId}/stream", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLiveRecordingFileError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_live_stream_file(configuration: &configuration::Configuration, params: GetLiveStreamFileParams) -> Result<reqwest::Response, Error<GetLiveStreamFileError>> {
+
+    let uri_str = format!("{}/LiveTv/LiveStreamFiles/{streamId}/stream.{container}", configuration.base_path, streamId=crate::apis::urlencode(params.stream_id), container=crate::apis::urlencode(params.container));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLiveStreamFileError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_live_tv_channels(configuration: &configuration::Configuration, params: GetLiveTvChannelsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvChannelsError>> {
+
+    let uri_str = format!("{}/LiveTv/Channels", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.r#type {
+        req_builder = req_builder.query(&[("type", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_movie {
+        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_series {
+        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_news {
+        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_kids {
+        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_sports {
+        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_favorite {
+        req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_liked {
+        req_builder = req_builder.query(&[("isLiked", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_disliked {
+        req_builder = req_builder.query(&[("isDisliked", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = req_builder.query(&[("sortOrder", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_favorite_sorting {
+        req_builder = req_builder.query(&[("enableFavoriteSorting", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.add_current_program {
+        req_builder = req_builder.query(&[("addCurrentProgram", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLiveTvChannelsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_live_tv_info(configuration: &configuration::Configuration) -> Result<models::LiveTvInfo, Error<GetLiveTvInfoError>> {
+
+    let uri_str = format!("{}/LiveTv/Info", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::LiveTvInfo`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::LiveTvInfo`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLiveTvInfoError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_live_tv_programs(configuration: &configuration::Configuration, params: GetLiveTvProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvProgramsError>> {
+
+    let uri_str = format!("{}/LiveTv/Programs", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.channel_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("channelIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("channelIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_start_date {
+        req_builder = req_builder.query(&[("minStartDate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.has_aired {
+        req_builder = req_builder.query(&[("hasAired", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_airing {
+        req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_start_date {
+        req_builder = req_builder.query(&[("maxStartDate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_end_date {
+        req_builder = req_builder.query(&[("minEndDate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_end_date {
+        req_builder = req_builder.query(&[("maxEndDate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_movie {
+        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_series {
+        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_news {
+        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_kids {
+        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_sports {
+        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genres {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genre_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.series_timer_id {
+        req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.library_series_id {
+        req_builder = req_builder.query(&[("librarySeriesId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetLiveTvProgramsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_program(configuration: &configuration::Configuration, params: GetProgramParams) -> Result<models::BaseItemDto, Error<GetProgramError>> {
+
+    let uri_str = format!("{}/LiveTv/Programs/{programId}", configuration.base_path, programId=crate::apis::urlencode(params.program_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetProgramError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_programs(configuration: &configuration::Configuration, params: GetProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetProgramsError>> {
+
+    let uri_str = format!("{}/LiveTv/Programs", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.get_programs_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetProgramsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_recommended_programs(configuration: &configuration::Configuration, params: GetRecommendedProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecommendedProgramsError>> {
+
+    let uri_str = format!("{}/LiveTv/Programs/Recommended", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_airing {
+        req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.has_aired {
+        req_builder = req_builder.query(&[("hasAired", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_series {
+        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_movie {
+        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_news {
+        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_kids {
+        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_sports {
+        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.genre_ids {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRecommendedProgramsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_recording(configuration: &configuration::Configuration, params: GetRecordingParams) -> Result<models::BaseItemDto, Error<GetRecordingError>> {
+
+    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRecordingError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_recording_folders(configuration: &configuration::Configuration, params: GetRecordingFoldersParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingFoldersError>> {
+
+    let uri_str = format!("{}/LiveTv/Recordings/Folders", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRecordingFoldersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_recordings(configuration: &configuration::Configuration, params: GetRecordingsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingsError>> {
+
+    let uri_str = format!("{}/LiveTv/Recordings", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.channel_id {
+        req_builder = req_builder.query(&[("channelId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_index {
+        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.limit {
+        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.status {
+        req_builder = req_builder.query(&[("status", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_in_progress {
+        req_builder = req_builder.query(&[("isInProgress", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.series_timer_id {
+        req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_images {
+        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.image_type_limit {
+        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_image_types {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.fields {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.enable_user_data {
+        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_movie {
+        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_series {
+        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_kids {
+        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_sports {
+        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_news {
+        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_library_item {
+        req_builder = req_builder.query(&[("isLibraryItem", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_total_record_count {
+        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetRecordingsError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_schedules_direct_countries(configuration: &configuration::Configuration) -> Result<reqwest::Response, Error<GetSchedulesDirectCountriesError>> {
+
+    let uri_str = format!("{}/LiveTv/ListingProviders/SchedulesDirect/Countries", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetSchedulesDirectCountriesError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_series_timer(configuration: &configuration::Configuration, params: GetSeriesTimerParams) -> Result<models::SeriesTimerInfoDto, Error<GetSeriesTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetSeriesTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_series_timers(configuration: &configuration::Configuration, params: GetSeriesTimersParams) -> Result<models::SeriesTimerInfoDtoQueryResult, Error<GetSeriesTimersError>> {
+
+    let uri_str = format!("{}/LiveTv/SeriesTimers", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.sort_by {
+        req_builder = req_builder.query(&[("sortBy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.sort_order {
+        req_builder = req_builder.query(&[("sortOrder", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SeriesTimerInfoDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::SeriesTimerInfoDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetSeriesTimersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_timer(configuration: &configuration::Configuration, params: GetTimerParams) -> Result<models::TimerInfoDto, Error<GetTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TimerInfoDto`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::TimerInfoDto`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_timers(configuration: &configuration::Configuration, params: GetTimersParams) -> Result<models::TimerInfoDtoQueryResult, Error<GetTimersError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.channel_id {
+        req_builder = req_builder.query(&[("channelId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.series_timer_id {
+        req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_active {
+        req_builder = req_builder.query(&[("isActive", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.is_scheduled {
+        req_builder = req_builder.query(&[("isScheduled", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TimerInfoDtoQueryResult`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::TimerInfoDtoQueryResult`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTimersError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_tuner_host_types(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetTunerHostTypesError>> {
+
+    let uri_str = format!("{}/LiveTv/TunerHosts/Types", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::NameIdPair&gt;`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetTunerHostTypesError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn reset_tuner(configuration: &configuration::Configuration, params: ResetTunerParams) -> Result<(), Error<ResetTunerError>> {
+
+    let uri_str = format!("{}/LiveTv/Tuners/{tunerId}/Reset", configuration.base_path, tunerId=crate::apis::urlencode(params.tuner_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<ResetTunerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn set_channel_mapping(configuration: &configuration::Configuration, params: SetChannelMappingParams) -> Result<models::TunerChannelMapping, Error<SetChannelMappingError>> {
+
+    let uri_str = format!("{}/LiveTv/ChannelMappings", configuration.base_path);
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.set_channel_mapping_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+    let content_type = resp
+        .headers()
+        .get("content-type")
+        .and_then(|v| v.to_str().ok())
+        .unwrap_or("application/octet-stream");
+    let content_type = super::ContentType::from(content_type);
+
+    if !status.is_client_error() && !status.is_server_error() {
+        let content = resp.text().await?;
+        match content_type {
+            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
+            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TunerChannelMapping`"))),
+            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::TunerChannelMapping`")))),
+        }
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<SetChannelMappingError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn update_series_timer(configuration: &configuration::Configuration, params: UpdateSeriesTimerParams) -> Result<(), Error<UpdateSeriesTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.series_timer_info_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UpdateSeriesTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn update_timer(configuration: &configuration::Configuration, params: UpdateTimerParams) -> Result<(), Error<UpdateTimerError>> {
+
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
+
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+    req_builder = req_builder.json(&params.timer_info_dto);
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(())
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<UpdateTimerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 

@@ -9,60 +9,12 @@
  */
 
 
-use async_trait::async_trait;
 use reqwest;
-use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration};
-use crate::apis::ContentType;
+use super::{Error, configuration, ContentType};
 
-#[async_trait]
-pub trait AudioApi: Send + Sync {
-
-    /// GET /Audio/{itemId}/stream
-    ///
-    /// 
-    async fn get_audio_stream(&self,  params: GetAudioStreamParams ) -> Result<std::path::PathBuf, Error<GetAudioStreamError>>;
-
-    /// GET /Audio/{itemId}/stream.{container}
-    ///
-    /// 
-    async fn get_audio_stream_by_container(&self,  params: GetAudioStreamByContainerParams ) -> Result<std::path::PathBuf, Error<GetAudioStreamByContainerError>>;
-
-    /// GET /Audio/{itemId}/universal
-    ///
-    /// 
-    async fn get_universal_audio_stream(&self,  params: GetUniversalAudioStreamParams ) -> Result<std::path::PathBuf, Error<GetUniversalAudioStreamError>>;
-
-    /// HEAD /Audio/{itemId}/stream
-    ///
-    /// 
-    async fn head_audio_stream(&self,  params: HeadAudioStreamParams ) -> Result<std::path::PathBuf, Error<HeadAudioStreamError>>;
-
-    /// HEAD /Audio/{itemId}/stream.{container}
-    ///
-    /// 
-    async fn head_audio_stream_by_container(&self,  params: HeadAudioStreamByContainerParams ) -> Result<std::path::PathBuf, Error<HeadAudioStreamByContainerError>>;
-
-    /// HEAD /Audio/{itemId}/universal
-    ///
-    /// 
-    async fn head_universal_audio_stream(&self,  params: HeadUniversalAudioStreamParams ) -> Result<std::path::PathBuf, Error<HeadUniversalAudioStreamError>>;
-}
-
-pub struct AudioApiClient {
-    configuration: Arc<configuration::Configuration>
-}
-
-impl AudioApiClient {
-    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
-        Self { configuration }
-    }
-}
-
-
-/// struct for passing parameters to the method [`AudioApi::get_audio_stream`]
+/// struct for passing parameters to the method [`get_audio_stream`]
 #[derive(Clone, Debug)]
 pub struct GetAudioStreamParams {
     /// The item id.
@@ -165,7 +117,7 @@ pub struct GetAudioStreamParams {
     pub enable_audio_vbr_encoding: Option<bool>
 }
 
-/// struct for passing parameters to the method [`AudioApi::get_audio_stream_by_container`]
+/// struct for passing parameters to the method [`get_audio_stream_by_container`]
 #[derive(Clone, Debug)]
 pub struct GetAudioStreamByContainerParams {
     /// The item id.
@@ -268,7 +220,7 @@ pub struct GetAudioStreamByContainerParams {
     pub enable_audio_vbr_encoding: Option<bool>
 }
 
-/// struct for passing parameters to the method [`AudioApi::get_universal_audio_stream`]
+/// struct for passing parameters to the method [`get_universal_audio_stream`]
 #[derive(Clone, Debug)]
 pub struct GetUniversalAudioStreamParams {
     /// The item id.
@@ -309,7 +261,7 @@ pub struct GetUniversalAudioStreamParams {
     pub enable_redirection: Option<bool>
 }
 
-/// struct for passing parameters to the method [`AudioApi::head_audio_stream`]
+/// struct for passing parameters to the method [`head_audio_stream`]
 #[derive(Clone, Debug)]
 pub struct HeadAudioStreamParams {
     /// The item id.
@@ -412,7 +364,7 @@ pub struct HeadAudioStreamParams {
     pub enable_audio_vbr_encoding: Option<bool>
 }
 
-/// struct for passing parameters to the method [`AudioApi::head_audio_stream_by_container`]
+/// struct for passing parameters to the method [`head_audio_stream_by_container`]
 #[derive(Clone, Debug)]
 pub struct HeadAudioStreamByContainerParams {
     /// The item id.
@@ -515,7 +467,7 @@ pub struct HeadAudioStreamByContainerParams {
     pub enable_audio_vbr_encoding: Option<bool>
 }
 
-/// struct for passing parameters to the method [`AudioApi::head_universal_audio_stream`]
+/// struct for passing parameters to the method [`head_universal_audio_stream`]
 #[derive(Clone, Debug)]
 pub struct HeadUniversalAudioStreamParams {
     /// The item id.
@@ -557,1193 +509,7 @@ pub struct HeadUniversalAudioStreamParams {
 }
 
 
-#[async_trait]
-impl AudioApi for AudioApiClient {
-    async fn get_audio_stream(&self,  params: GetAudioStreamParams ) -> Result<std::path::PathBuf, Error<GetAudioStreamError>> {
-        
-        let GetAudioStreamParams {
-            item_id,
-            container,
-            r#static,
-            params,
-            tag,
-            device_profile_id,
-            play_session_id,
-            segment_container,
-            segment_length,
-            min_segments,
-            media_source_id,
-            device_id,
-            audio_codec,
-            enable_auto_stream_copy,
-            allow_video_stream_copy,
-            allow_audio_stream_copy,
-            audio_sample_rate,
-            max_audio_bit_depth,
-            audio_bit_rate,
-            audio_channels,
-            max_audio_channels,
-            profile,
-            level,
-            framerate,
-            max_framerate,
-            copy_timestamps,
-            start_time_ticks,
-            width,
-            height,
-            video_bit_rate,
-            subtitle_stream_index,
-            subtitle_method,
-            max_ref_frames,
-            max_video_bit_depth,
-            require_avc,
-            de_interlace,
-            require_non_anamorphic,
-            transcoding_max_audio_channels,
-            cpu_core_limit,
-            live_stream_id,
-            enable_mpegts_m2_ts_mode,
-            video_codec,
-            subtitle_codec,
-            transcode_reasons,
-            audio_stream_index,
-            video_stream_index,
-            context,
-            stream_options,
-            enable_audio_vbr_encoding,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/stream", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = container {
-            local_var_req_builder = local_var_req_builder.query(&[("container", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = r#static {
-            local_var_req_builder = local_var_req_builder.query(&[("static", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = params {
-            local_var_req_builder = local_var_req_builder.query(&[("params", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = tag {
-            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_profile_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = play_session_id {
-            local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_container {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_length {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentLength", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_segments {
-            local_var_req_builder = local_var_req_builder.query(&[("minSegments", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_auto_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_video_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_audio_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("audioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = profile {
-            local_var_req_builder = local_var_req_builder.query(&[("profile", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = level {
-            local_var_req_builder = local_var_req_builder.query(&[("level", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("framerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxFramerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = copy_timestamps {
-            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = width {
-            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = height {
-            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("videoBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_method {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_ref_frames {
-            local_var_req_builder = local_var_req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_video_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_avc {
-            local_var_req_builder = local_var_req_builder.query(&[("requireAvc", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = de_interlace {
-            local_var_req_builder = local_var_req_builder.query(&[("deInterlace", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_non_anamorphic {
-            local_var_req_builder = local_var_req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = cpu_core_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = live_stream_id {
-            local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_mpegts_m2_ts_mode {
-            local_var_req_builder = local_var_req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("videoCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcode_reasons {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = context {
-            local_var_req_builder = local_var_req_builder.query(&[("context", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = stream_options {
-            let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
-            local_var_req_builder = local_var_req_builder.query(&params);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetAudioStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_audio_stream_by_container(&self,  params: GetAudioStreamByContainerParams ) -> Result<std::path::PathBuf, Error<GetAudioStreamByContainerError>> {
-        
-        let GetAudioStreamByContainerParams {
-            item_id,
-            container,
-            r#static,
-            params,
-            tag,
-            device_profile_id,
-            play_session_id,
-            segment_container,
-            segment_length,
-            min_segments,
-            media_source_id,
-            device_id,
-            audio_codec,
-            enable_auto_stream_copy,
-            allow_video_stream_copy,
-            allow_audio_stream_copy,
-            audio_sample_rate,
-            max_audio_bit_depth,
-            audio_bit_rate,
-            audio_channels,
-            max_audio_channels,
-            profile,
-            level,
-            framerate,
-            max_framerate,
-            copy_timestamps,
-            start_time_ticks,
-            width,
-            height,
-            video_bit_rate,
-            subtitle_stream_index,
-            subtitle_method,
-            max_ref_frames,
-            max_video_bit_depth,
-            require_avc,
-            de_interlace,
-            require_non_anamorphic,
-            transcoding_max_audio_channels,
-            cpu_core_limit,
-            live_stream_id,
-            enable_mpegts_m2_ts_mode,
-            video_codec,
-            subtitle_codec,
-            transcode_reasons,
-            audio_stream_index,
-            video_stream_index,
-            context,
-            stream_options,
-            enable_audio_vbr_encoding,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/stream.{container}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), container=crate::apis::urlencode(container));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = r#static {
-            local_var_req_builder = local_var_req_builder.query(&[("static", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = params {
-            local_var_req_builder = local_var_req_builder.query(&[("params", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = tag {
-            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_profile_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = play_session_id {
-            local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_container {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_length {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentLength", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_segments {
-            local_var_req_builder = local_var_req_builder.query(&[("minSegments", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_auto_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_video_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_audio_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("audioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = profile {
-            local_var_req_builder = local_var_req_builder.query(&[("profile", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = level {
-            local_var_req_builder = local_var_req_builder.query(&[("level", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("framerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxFramerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = copy_timestamps {
-            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = width {
-            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = height {
-            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("videoBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_method {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_ref_frames {
-            local_var_req_builder = local_var_req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_video_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_avc {
-            local_var_req_builder = local_var_req_builder.query(&[("requireAvc", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = de_interlace {
-            local_var_req_builder = local_var_req_builder.query(&[("deInterlace", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_non_anamorphic {
-            local_var_req_builder = local_var_req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = cpu_core_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = live_stream_id {
-            local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_mpegts_m2_ts_mode {
-            local_var_req_builder = local_var_req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("videoCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcode_reasons {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = context {
-            local_var_req_builder = local_var_req_builder.query(&[("context", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = stream_options {
-            let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
-            local_var_req_builder = local_var_req_builder.query(&params);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetAudioStreamByContainerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn get_universal_audio_stream(&self,  params: GetUniversalAudioStreamParams ) -> Result<std::path::PathBuf, Error<GetUniversalAudioStreamError>> {
-        
-        let GetUniversalAudioStreamParams {
-            item_id,
-            container,
-            media_source_id,
-            device_id,
-            user_id,
-            audio_codec,
-            max_audio_channels,
-            transcoding_audio_channels,
-            max_streaming_bitrate,
-            audio_bit_rate,
-            start_time_ticks,
-            transcoding_container,
-            transcoding_protocol,
-            max_audio_sample_rate,
-            max_audio_bit_depth,
-            enable_remote_media,
-            enable_audio_vbr_encoding,
-            enable_redirection,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/universal", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = container {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_streaming_bitrate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_container {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_protocol {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_remote_media {
-            local_var_req_builder = local_var_req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_redirection {
-            local_var_req_builder = local_var_req_builder.query(&[("enableRedirection", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<GetUniversalAudioStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn head_audio_stream(&self,  params: HeadAudioStreamParams ) -> Result<std::path::PathBuf, Error<HeadAudioStreamError>> {
-        
-        let HeadAudioStreamParams {
-            item_id,
-            container,
-            r#static,
-            params,
-            tag,
-            device_profile_id,
-            play_session_id,
-            segment_container,
-            segment_length,
-            min_segments,
-            media_source_id,
-            device_id,
-            audio_codec,
-            enable_auto_stream_copy,
-            allow_video_stream_copy,
-            allow_audio_stream_copy,
-            audio_sample_rate,
-            max_audio_bit_depth,
-            audio_bit_rate,
-            audio_channels,
-            max_audio_channels,
-            profile,
-            level,
-            framerate,
-            max_framerate,
-            copy_timestamps,
-            start_time_ticks,
-            width,
-            height,
-            video_bit_rate,
-            subtitle_stream_index,
-            subtitle_method,
-            max_ref_frames,
-            max_video_bit_depth,
-            require_avc,
-            de_interlace,
-            require_non_anamorphic,
-            transcoding_max_audio_channels,
-            cpu_core_limit,
-            live_stream_id,
-            enable_mpegts_m2_ts_mode,
-            video_codec,
-            subtitle_codec,
-            transcode_reasons,
-            audio_stream_index,
-            video_stream_index,
-            context,
-            stream_options,
-            enable_audio_vbr_encoding,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/stream", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = container {
-            local_var_req_builder = local_var_req_builder.query(&[("container", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = r#static {
-            local_var_req_builder = local_var_req_builder.query(&[("static", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = params {
-            local_var_req_builder = local_var_req_builder.query(&[("params", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = tag {
-            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_profile_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = play_session_id {
-            local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_container {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_length {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentLength", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_segments {
-            local_var_req_builder = local_var_req_builder.query(&[("minSegments", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_auto_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_video_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_audio_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("audioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = profile {
-            local_var_req_builder = local_var_req_builder.query(&[("profile", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = level {
-            local_var_req_builder = local_var_req_builder.query(&[("level", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("framerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxFramerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = copy_timestamps {
-            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = width {
-            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = height {
-            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("videoBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_method {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_ref_frames {
-            local_var_req_builder = local_var_req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_video_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_avc {
-            local_var_req_builder = local_var_req_builder.query(&[("requireAvc", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = de_interlace {
-            local_var_req_builder = local_var_req_builder.query(&[("deInterlace", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_non_anamorphic {
-            local_var_req_builder = local_var_req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = cpu_core_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = live_stream_id {
-            local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_mpegts_m2_ts_mode {
-            local_var_req_builder = local_var_req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("videoCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcode_reasons {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = context {
-            local_var_req_builder = local_var_req_builder.query(&[("context", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = stream_options {
-            let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
-            local_var_req_builder = local_var_req_builder.query(&params);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<HeadAudioStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn head_audio_stream_by_container(&self,  params: HeadAudioStreamByContainerParams ) -> Result<std::path::PathBuf, Error<HeadAudioStreamByContainerError>> {
-        
-        let HeadAudioStreamByContainerParams {
-            item_id,
-            container,
-            r#static,
-            params,
-            tag,
-            device_profile_id,
-            play_session_id,
-            segment_container,
-            segment_length,
-            min_segments,
-            media_source_id,
-            device_id,
-            audio_codec,
-            enable_auto_stream_copy,
-            allow_video_stream_copy,
-            allow_audio_stream_copy,
-            audio_sample_rate,
-            max_audio_bit_depth,
-            audio_bit_rate,
-            audio_channels,
-            max_audio_channels,
-            profile,
-            level,
-            framerate,
-            max_framerate,
-            copy_timestamps,
-            start_time_ticks,
-            width,
-            height,
-            video_bit_rate,
-            subtitle_stream_index,
-            subtitle_method,
-            max_ref_frames,
-            max_video_bit_depth,
-            require_avc,
-            de_interlace,
-            require_non_anamorphic,
-            transcoding_max_audio_channels,
-            cpu_core_limit,
-            live_stream_id,
-            enable_mpegts_m2_ts_mode,
-            video_codec,
-            subtitle_codec,
-            transcode_reasons,
-            audio_stream_index,
-            video_stream_index,
-            context,
-            stream_options,
-            enable_audio_vbr_encoding,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/stream.{container}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), container=crate::apis::urlencode(container));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = r#static {
-            local_var_req_builder = local_var_req_builder.query(&[("static", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = params {
-            local_var_req_builder = local_var_req_builder.query(&[("params", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = tag {
-            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_profile_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = play_session_id {
-            local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_container {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = segment_length {
-            local_var_req_builder = local_var_req_builder.query(&[("segmentLength", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = min_segments {
-            local_var_req_builder = local_var_req_builder.query(&[("minSegments", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_auto_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_video_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = allow_audio_stream_copy {
-            local_var_req_builder = local_var_req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("audioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = profile {
-            local_var_req_builder = local_var_req_builder.query(&[("profile", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = level {
-            local_var_req_builder = local_var_req_builder.query(&[("level", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("framerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_framerate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxFramerate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = copy_timestamps {
-            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = width {
-            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = height {
-            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("videoBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_method {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_ref_frames {
-            local_var_req_builder = local_var_req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_video_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_avc {
-            local_var_req_builder = local_var_req_builder.query(&[("requireAvc", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = de_interlace {
-            local_var_req_builder = local_var_req_builder.query(&[("deInterlace", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = require_non_anamorphic {
-            local_var_req_builder = local_var_req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = cpu_core_limit {
-            local_var_req_builder = local_var_req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = live_stream_id {
-            local_var_req_builder = local_var_req_builder.query(&[("liveStreamId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_mpegts_m2_ts_mode {
-            local_var_req_builder = local_var_req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("videoCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = subtitle_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcode_reasons {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = video_stream_index {
-            local_var_req_builder = local_var_req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = context {
-            local_var_req_builder = local_var_req_builder.query(&[("context", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = stream_options {
-            let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
-            local_var_req_builder = local_var_req_builder.query(&params);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<HeadAudioStreamByContainerError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-    async fn head_universal_audio_stream(&self,  params: HeadUniversalAudioStreamParams ) -> Result<std::path::PathBuf, Error<HeadUniversalAudioStreamError>> {
-        
-        let HeadUniversalAudioStreamParams {
-            item_id,
-            container,
-            media_source_id,
-            device_id,
-            user_id,
-            audio_codec,
-            max_audio_channels,
-            transcoding_audio_channels,
-            max_streaming_bitrate,
-            audio_bit_rate,
-            start_time_ticks,
-            transcoding_container,
-            transcoding_protocol,
-            max_audio_sample_rate,
-            max_audio_bit_depth,
-            enable_remote_media,
-            enable_audio_vbr_encoding,
-            enable_redirection,
-        } = params;
-        
-
-        let local_var_configuration = &self.configuration;
-
-        let local_var_client = &local_var_configuration.client;
-
-        let local_var_uri_str = format!("{}/Audio/{itemId}/universal", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
-        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
-
-        if let Some(ref param_value) = container {
-            local_var_req_builder = match "multi" {
-                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-                _ => local_var_req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-            };
-        }
-        if let Some(ref param_value) = media_source_id {
-            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = device_id {
-            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = user_id {
-            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_codec {
-            local_var_req_builder = local_var_req_builder.query(&[("audioCodec", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_audio_channels {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_streaming_bitrate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = audio_bit_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("audioBitRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = start_time_ticks {
-            local_var_req_builder = local_var_req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_container {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = transcoding_protocol {
-            local_var_req_builder = local_var_req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_sample_rate {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = max_audio_bit_depth {
-            local_var_req_builder = local_var_req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_remote_media {
-            local_var_req_builder = local_var_req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_audio_vbr_encoding {
-            local_var_req_builder = local_var_req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
-        }
-        if let Some(ref param_value) = enable_redirection {
-            local_var_req_builder = local_var_req_builder.query(&[("enableRedirection", &param_value.to_string())]);
-        }
-        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
-            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
-        }
-        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
-            let local_var_key = local_var_apikey.key.clone();
-            let local_var_value = match local_var_apikey.prefix {
-                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
-                None => local_var_key,
-            };
-            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
-        };
-
-        let local_var_req = local_var_req_builder.build()?;
-        let local_var_resp = local_var_client.execute(local_var_req).await?;
-
-        let local_var_status = local_var_resp.status();
-        let local_var_content_type = local_var_resp
-            .headers()
-            .get("content-type")
-            .and_then(|v| v.to_str().ok())
-            .unwrap_or("application/octet-stream");
-        let local_var_content_type = super::ContentType::from(local_var_content_type);
-        let local_var_content = local_var_resp.text().await?;
-
-        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
-            match local_var_content_type {
-                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
-                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
-                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
-            }
-        } else {
-            let local_var_entity: Option<HeadUniversalAudioStreamError> = serde_json::from_str(&local_var_content).ok();
-            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
-            Err(Error::ResponseError(local_var_error))
-        }
-    }
-
-}
-
-/// struct for typed errors of method [`AudioApi::get_audio_stream`]
+/// struct for typed errors of method [`get_audio_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetAudioStreamError {
@@ -1751,7 +517,7 @@ pub enum GetAudioStreamError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AudioApi::get_audio_stream_by_container`]
+/// struct for typed errors of method [`get_audio_stream_by_container`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetAudioStreamByContainerError {
@@ -1759,7 +525,7 @@ pub enum GetAudioStreamByContainerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AudioApi::get_universal_audio_stream`]
+/// struct for typed errors of method [`get_universal_audio_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetUniversalAudioStreamError {
@@ -1770,7 +536,7 @@ pub enum GetUniversalAudioStreamError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AudioApi::head_audio_stream`]
+/// struct for typed errors of method [`head_audio_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadAudioStreamError {
@@ -1778,7 +544,7 @@ pub enum HeadAudioStreamError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AudioApi::head_audio_stream_by_container`]
+/// struct for typed errors of method [`head_audio_stream_by_container`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadAudioStreamByContainerError {
@@ -1786,7 +552,7 @@ pub enum HeadAudioStreamByContainerError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`AudioApi::head_universal_audio_stream`]
+/// struct for typed errors of method [`head_universal_audio_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadUniversalAudioStreamError {
@@ -1795,5 +561,842 @@ pub enum HeadUniversalAudioStreamError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
+}
+
+
+pub async fn get_audio_stream(configuration: &configuration::Configuration, params: GetAudioStreamParams) -> Result<reqwest::Response, Error<GetAudioStreamError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.container {
+        req_builder = req_builder.query(&[("container", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.r#static {
+        req_builder = req_builder.query(&[("static", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.params {
+        req_builder = req_builder.query(&[("params", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.tag {
+        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_profile_id {
+        req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.play_session_id {
+        req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_container {
+        req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_length {
+        req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_segments {
+        req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_auto_stream_copy {
+        req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_video_stream_copy {
+        req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_audio_stream_copy {
+        req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_sample_rate {
+        req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_channels {
+        req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.profile {
+        req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.level {
+        req_builder = req_builder.query(&[("level", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.framerate {
+        req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_framerate {
+        req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.copy_timestamps {
+        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.width {
+        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.height {
+        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_bit_rate {
+        req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_method {
+        req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_ref_frames {
+        req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_video_bit_depth {
+        req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_avc {
+        req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.de_interlace {
+        req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_non_anamorphic {
+        req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+        req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.cpu_core_limit {
+        req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.live_stream_id {
+        req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+        req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_codec {
+        req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_codec {
+        req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcode_reasons {
+        req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_stream_index {
+        req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.context {
+        req_builder = req_builder.query(&[("context", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.stream_options {
+        let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
+        req_builder = req_builder.query(&params);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetAudioStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_audio_stream_by_container(configuration: &configuration::Configuration, params: GetAudioStreamByContainerParams) -> Result<reqwest::Response, Error<GetAudioStreamByContainerError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), container=crate::apis::urlencode(params.container));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.r#static {
+        req_builder = req_builder.query(&[("static", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.params {
+        req_builder = req_builder.query(&[("params", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.tag {
+        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_profile_id {
+        req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.play_session_id {
+        req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_container {
+        req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_length {
+        req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_segments {
+        req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_auto_stream_copy {
+        req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_video_stream_copy {
+        req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_audio_stream_copy {
+        req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_sample_rate {
+        req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_channels {
+        req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.profile {
+        req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.level {
+        req_builder = req_builder.query(&[("level", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.framerate {
+        req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_framerate {
+        req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.copy_timestamps {
+        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.width {
+        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.height {
+        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_bit_rate {
+        req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_method {
+        req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_ref_frames {
+        req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_video_bit_depth {
+        req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_avc {
+        req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.de_interlace {
+        req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_non_anamorphic {
+        req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+        req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.cpu_core_limit {
+        req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.live_stream_id {
+        req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+        req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_codec {
+        req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_codec {
+        req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcode_reasons {
+        req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_stream_index {
+        req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.context {
+        req_builder = req_builder.query(&[("context", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.stream_options {
+        let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
+        req_builder = req_builder.query(&params);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetAudioStreamByContainerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn get_universal_audio_stream(configuration: &configuration::Configuration, params: GetUniversalAudioStreamParams) -> Result<reqwest::Response, Error<GetUniversalAudioStreamError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
+
+    if let Some(ref param_value) = params.container {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_audio_channels {
+        req_builder = req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_streaming_bitrate {
+        req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_container {
+        req_builder = req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_protocol {
+        req_builder = req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_sample_rate {
+        req_builder = req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_remote_media {
+        req_builder = req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_redirection {
+        req_builder = req_builder.query(&[("enableRedirection", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<GetUniversalAudioStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn head_audio_stream(configuration: &configuration::Configuration, params: HeadAudioStreamParams) -> Result<reqwest::Response, Error<HeadAudioStreamError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
+
+    if let Some(ref param_value) = params.container {
+        req_builder = req_builder.query(&[("container", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.r#static {
+        req_builder = req_builder.query(&[("static", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.params {
+        req_builder = req_builder.query(&[("params", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.tag {
+        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_profile_id {
+        req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.play_session_id {
+        req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_container {
+        req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_length {
+        req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_segments {
+        req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_auto_stream_copy {
+        req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_video_stream_copy {
+        req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_audio_stream_copy {
+        req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_sample_rate {
+        req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_channels {
+        req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.profile {
+        req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.level {
+        req_builder = req_builder.query(&[("level", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.framerate {
+        req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_framerate {
+        req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.copy_timestamps {
+        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.width {
+        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.height {
+        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_bit_rate {
+        req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_method {
+        req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_ref_frames {
+        req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_video_bit_depth {
+        req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_avc {
+        req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.de_interlace {
+        req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_non_anamorphic {
+        req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+        req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.cpu_core_limit {
+        req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.live_stream_id {
+        req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+        req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_codec {
+        req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_codec {
+        req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcode_reasons {
+        req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_stream_index {
+        req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.context {
+        req_builder = req_builder.query(&[("context", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.stream_options {
+        let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
+        req_builder = req_builder.query(&params);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<HeadAudioStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn head_audio_stream_by_container(configuration: &configuration::Configuration, params: HeadAudioStreamByContainerParams) -> Result<reqwest::Response, Error<HeadAudioStreamByContainerError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), container=crate::apis::urlencode(params.container));
+    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
+
+    if let Some(ref param_value) = params.r#static {
+        req_builder = req_builder.query(&[("static", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.params {
+        req_builder = req_builder.query(&[("params", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.tag {
+        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_profile_id {
+        req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.play_session_id {
+        req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_container {
+        req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.segment_length {
+        req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.min_segments {
+        req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_auto_stream_copy {
+        req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_video_stream_copy {
+        req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.allow_audio_stream_copy {
+        req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_sample_rate {
+        req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_channels {
+        req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.profile {
+        req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.level {
+        req_builder = req_builder.query(&[("level", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.framerate {
+        req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_framerate {
+        req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.copy_timestamps {
+        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.width {
+        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.height {
+        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_bit_rate {
+        req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_stream_index {
+        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_method {
+        req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_ref_frames {
+        req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_video_bit_depth {
+        req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_avc {
+        req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.de_interlace {
+        req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.require_non_anamorphic {
+        req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+        req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.cpu_core_limit {
+        req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.live_stream_id {
+        req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+        req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_codec {
+        req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.subtitle_codec {
+        req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcode_reasons {
+        req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_stream_index {
+        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.video_stream_index {
+        req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.context {
+        req_builder = req_builder.query(&[("context", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.stream_options {
+        let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
+        req_builder = req_builder.query(&params);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<HeadAudioStreamByContainerError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
+}
+
+pub async fn head_universal_audio_stream(configuration: &configuration::Configuration, params: HeadUniversalAudioStreamParams) -> Result<reqwest::Response, Error<HeadUniversalAudioStreamError>> {
+
+    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
+
+    if let Some(ref param_value) = params.container {
+        req_builder = match "multi" {
+            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+    }
+    if let Some(ref param_value) = params.media_source_id {
+        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.device_id {
+        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.user_id {
+        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_codec {
+        req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_channels {
+        req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_audio_channels {
+        req_builder = req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_streaming_bitrate {
+        req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.audio_bit_rate {
+        req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.start_time_ticks {
+        req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_container {
+        req_builder = req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.transcoding_protocol {
+        req_builder = req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_sample_rate {
+        req_builder = req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.max_audio_bit_depth {
+        req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_remote_media {
+        req_builder = req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+        req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
+    }
+    if let Some(ref param_value) = params.enable_redirection {
+        req_builder = req_builder.query(&[("enableRedirection", &param_value.to_string())]);
+    }
+    if let Some(ref user_agent) = configuration.user_agent {
+        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
+    }
+    if let Some(ref apikey) = configuration.api_key {
+        let key = apikey.key.clone();
+        let value = match apikey.prefix {
+            Some(ref prefix) => format!("{} {}", prefix, key),
+            None => key,
+        };
+        req_builder = req_builder.header("Authorization", value);
+    };
+
+    let req = req_builder.build()?;
+    let resp = configuration.client.execute(req).await?;
+
+    let status = resp.status();
+
+    if !status.is_client_error() && !status.is_server_error() {
+        Ok(resp)
+    } else {
+        let content = resp.text().await?;
+        let entity: Option<HeadUniversalAudioStreamError> = serde_json::from_str(&content).ok();
+        Err(Error::ResponseError(ResponseContent { status, content, entity }))
+    }
 }
 
