@@ -9,13 +9,804 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait PlaylistApi: Send + Sync {
+
+    /// POST /Playlists/{playlistId}/Items
+    ///
+    /// 
+    async fn add_item_to_playlist(&self,  params: AddItemToPlaylistParams ) -> Result<(), Error<AddItemToPlaylistError>>;
+
+    /// POST /Playlists
+    ///
+    /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
+    async fn create_playlist(&self,  params: CreatePlaylistParams ) -> Result<models::PlaylistCreationResult, Error<CreatePlaylistError>>;
+
+    /// GET /Playlists/{playlistId}
+    ///
+    /// 
+    async fn get_playlist(&self,  params: GetPlaylistParams ) -> Result<models::PlaylistDto, Error<GetPlaylistError>>;
+
+    /// GET /Playlists/{playlistId}/Items
+    ///
+    /// 
+    async fn get_playlist_items(&self,  params: GetPlaylistItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetPlaylistItemsError>>;
+
+    /// GET /Playlists/{playlistId}/Users/{userId}
+    ///
+    /// 
+    async fn get_playlist_user(&self,  params: GetPlaylistUserParams ) -> Result<models::PlaylistUserPermissions, Error<GetPlaylistUserError>>;
+
+    /// GET /Playlists/{playlistId}/Users
+    ///
+    /// 
+    async fn get_playlist_users(&self,  params: GetPlaylistUsersParams ) -> Result<Vec<models::PlaylistUserPermissions>, Error<GetPlaylistUsersError>>;
+
+    /// POST /Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}
+    ///
+    /// 
+    async fn move_item(&self,  params: MoveItemParams ) -> Result<(), Error<MoveItemError>>;
+
+    /// DELETE /Playlists/{playlistId}/Items
+    ///
+    /// 
+    async fn remove_item_from_playlist(&self,  params: RemoveItemFromPlaylistParams ) -> Result<(), Error<RemoveItemFromPlaylistError>>;
+
+    /// DELETE /Playlists/{playlistId}/Users/{userId}
+    ///
+    /// 
+    async fn remove_user_from_playlist(&self,  params: RemoveUserFromPlaylistParams ) -> Result<(), Error<RemoveUserFromPlaylistError>>;
+
+    /// POST /Playlists/{playlistId}
+    ///
+    /// 
+    async fn update_playlist(&self,  params: UpdatePlaylistParams ) -> Result<(), Error<UpdatePlaylistError>>;
+
+    /// POST /Playlists/{playlistId}/Users/{userId}
+    ///
+    /// 
+    async fn update_playlist_user(&self,  params: UpdatePlaylistUserParams ) -> Result<(), Error<UpdatePlaylistUserError>>;
+}
+
+pub struct PlaylistApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl PlaylistApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`add_item_to_playlist`]
+/// struct for passing parameters to the method [`PlaylistApi::add_item_to_playlist`]
+#[derive(Clone, Debug)]
+pub struct AddItemToPlaylistParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// Item id, comma delimited.
+    pub ids: Option<Vec<uuid::Uuid>>,
+    /// Optional. 0-based index where to place the items or at the end if `null`.
+    pub position: Option<i32>,
+    /// The userId.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::create_playlist`]
+#[derive(Clone, Debug)]
+pub struct CreatePlaylistParams {
+    /// The playlist name.
+    pub name: Option<String>,
+    /// The item ids.
+    pub ids: Option<Vec<uuid::Uuid>>,
+    /// The user id.
+    pub user_id: Option<String>,
+    /// The media type.
+    pub media_type: Option<String>,
+    /// The create playlist payload.
+    pub create_playlist_dto: Option<models::CreatePlaylistDto>
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::get_playlist`]
+#[derive(Clone, Debug)]
+pub struct GetPlaylistParams {
+    /// The playlist id.
+    pub playlist_id: String
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::get_playlist_items`]
+#[derive(Clone, Debug)]
+pub struct GetPlaylistItemsParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// User id.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. Include image information in output.
+    pub enable_images: Option<bool>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>,
+    /// Optional. The max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::get_playlist_user`]
+#[derive(Clone, Debug)]
+pub struct GetPlaylistUserParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The user id.
+    pub user_id: String
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::get_playlist_users`]
+#[derive(Clone, Debug)]
+pub struct GetPlaylistUsersParams {
+    /// The playlist id.
+    pub playlist_id: String
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::move_item`]
+#[derive(Clone, Debug)]
+pub struct MoveItemParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The item id.
+    pub item_id: String,
+    /// The new index.
+    pub new_index: i32
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::remove_item_from_playlist`]
+#[derive(Clone, Debug)]
+pub struct RemoveItemFromPlaylistParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The item ids, comma delimited.
+    pub entry_ids: Option<Vec<String>>
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::remove_user_from_playlist`]
+#[derive(Clone, Debug)]
+pub struct RemoveUserFromPlaylistParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The user id.
+    pub user_id: String
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::update_playlist`]
+#[derive(Clone, Debug)]
+pub struct UpdatePlaylistParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The Jellyfin.Api.Models.PlaylistDtos.UpdatePlaylistDto id.
+    pub update_playlist_dto: models::UpdatePlaylistDto
+}
+
+/// struct for passing parameters to the method [`PlaylistApi::update_playlist_user`]
+#[derive(Clone, Debug)]
+pub struct UpdatePlaylistUserParams {
+    /// The playlist id.
+    pub playlist_id: String,
+    /// The user id.
+    pub user_id: String,
+    /// The Jellyfin.Api.Models.PlaylistDtos.UpdatePlaylistUserDto.
+    pub update_playlist_user_dto: models::UpdatePlaylistUserDto
+}
+
+
+#[async_trait]
+impl PlaylistApi for PlaylistApiClient {
+    async fn add_item_to_playlist(&self,  params: AddItemToPlaylistParams ) -> Result<(), Error<AddItemToPlaylistError>> {
+        
+        let AddItemToPlaylistParams {
+            playlist_id,
+            ids,
+            position,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Items", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = ids {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = position {
+            local_var_req_builder = local_var_req_builder.query(&[("position", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<AddItemToPlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
+    async fn create_playlist(&self,  params: CreatePlaylistParams ) -> Result<models::PlaylistCreationResult, Error<CreatePlaylistError>> {
+        
+        let CreatePlaylistParams {
+            name,
+            ids,
+            user_id,
+            media_type,
+            create_playlist_dto,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = name {
+            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = ids {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = media_type {
+            local_var_req_builder = local_var_req_builder.query(&[("mediaType", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&create_playlist_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistCreationResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PlaylistCreationResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<CreatePlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_playlist(&self,  params: GetPlaylistParams ) -> Result<models::PlaylistDto, Error<GetPlaylistError>> {
+        
+        let GetPlaylistParams {
+            playlist_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PlaylistDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_playlist_items(&self,  params: GetPlaylistItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetPlaylistItemsError>> {
+        
+        let GetPlaylistItemsParams {
+            playlist_id,
+            user_id,
+            start_index,
+            limit,
+            fields,
+            enable_images,
+            enable_user_data,
+            image_type_limit,
+            enable_image_types,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Items", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPlaylistItemsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_playlist_user(&self,  params: GetPlaylistUserParams ) -> Result<models::PlaylistUserPermissions, Error<GetPlaylistUserError>> {
+        
+        let GetPlaylistUserParams {
+            playlist_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id), userId=crate::apis::urlencode(user_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistUserPermissions`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PlaylistUserPermissions`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPlaylistUserError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_playlist_users(&self,  params: GetPlaylistUsersParams ) -> Result<Vec<models::PlaylistUserPermissions>, Error<GetPlaylistUsersError>> {
+        
+        let GetPlaylistUsersParams {
+            playlist_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Users", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PlaylistUserPermissions&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::PlaylistUserPermissions&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPlaylistUsersError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn move_item(&self,  params: MoveItemParams ) -> Result<(), Error<MoveItemError>> {
+        
+        let MoveItemParams {
+            playlist_id,
+            item_id,
+            new_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id), itemId=crate::apis::urlencode(item_id), newIndex=new_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<MoveItemError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn remove_item_from_playlist(&self,  params: RemoveItemFromPlaylistParams ) -> Result<(), Error<RemoveItemFromPlaylistError>> {
+        
+        let RemoveItemFromPlaylistParams {
+            playlist_id,
+            entry_ids,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Items", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = entry_ids {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("entryIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("entryIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<RemoveItemFromPlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn remove_user_from_playlist(&self,  params: RemoveUserFromPlaylistParams ) -> Result<(), Error<RemoveUserFromPlaylistError>> {
+        
+        let RemoveUserFromPlaylistParams {
+            playlist_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id), userId=crate::apis::urlencode(user_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<RemoveUserFromPlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_playlist(&self,  params: UpdatePlaylistParams ) -> Result<(), Error<UpdatePlaylistError>> {
+        
+        let UpdatePlaylistParams {
+            playlist_id,
+            update_playlist_dto,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&update_playlist_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UpdatePlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_playlist_user(&self,  params: UpdatePlaylistUserParams ) -> Result<(), Error<UpdatePlaylistUserError>> {
+        
+        let UpdatePlaylistUserParams {
+            playlist_id,
+            user_id,
+            update_playlist_user_dto,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", local_var_configuration.base_path, playlistId=crate::apis::urlencode(playlist_id), userId=crate::apis::urlencode(user_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&update_playlist_user_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UpdatePlaylistUserError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`PlaylistApi::add_item_to_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddItemToPlaylistError {
@@ -26,7 +817,7 @@ pub enum AddItemToPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`create_playlist`]
+/// struct for typed errors of method [`PlaylistApi::create_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CreatePlaylistError {
@@ -36,7 +827,7 @@ pub enum CreatePlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_playlist`]
+/// struct for typed errors of method [`PlaylistApi::get_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPlaylistError {
@@ -47,7 +838,7 @@ pub enum GetPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_playlist_items`]
+/// struct for typed errors of method [`PlaylistApi::get_playlist_items`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPlaylistItemsError {
@@ -58,7 +849,7 @@ pub enum GetPlaylistItemsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_playlist_user`]
+/// struct for typed errors of method [`PlaylistApi::get_playlist_user`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPlaylistUserError {
@@ -69,7 +860,7 @@ pub enum GetPlaylistUserError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_playlist_users`]
+/// struct for typed errors of method [`PlaylistApi::get_playlist_users`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPlaylistUsersError {
@@ -80,7 +871,7 @@ pub enum GetPlaylistUsersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`move_item`]
+/// struct for typed errors of method [`PlaylistApi::move_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MoveItemError {
@@ -91,7 +882,7 @@ pub enum MoveItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`remove_item_from_playlist`]
+/// struct for typed errors of method [`PlaylistApi::remove_item_from_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RemoveItemFromPlaylistError {
@@ -102,7 +893,7 @@ pub enum RemoveItemFromPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`remove_user_from_playlist`]
+/// struct for typed errors of method [`PlaylistApi::remove_user_from_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RemoveUserFromPlaylistError {
@@ -113,7 +904,7 @@ pub enum RemoveUserFromPlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_playlist`]
+/// struct for typed errors of method [`PlaylistApi::update_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdatePlaylistError {
@@ -124,7 +915,7 @@ pub enum UpdatePlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_playlist_user`]
+/// struct for typed errors of method [`PlaylistApi::update_playlist_user`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdatePlaylistUserError {
@@ -133,514 +924,5 @@ pub enum UpdatePlaylistUserError {
     Status503(),
     Status401(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn add_item_to_playlist(configuration: &configuration::Configuration, playlist_id: &str, ids: Option<Vec<uuid::Uuid>>, position: Option<i32>, user_id: Option<&str>) -> Result<(), Error<AddItemToPlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_query_ids = ids;
-    let p_query_position = position;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_ids {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_position {
-        req_builder = req_builder.query(&[("position", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<AddItemToPlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-/// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
-pub async fn create_playlist(configuration: &configuration::Configuration, name: Option<&str>, ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, media_type: Option<&str>, create_playlist_dto: Option<models::CreatePlaylistDto>) -> Result<models::PlaylistCreationResult, Error<CreatePlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_name = name;
-    let p_query_ids = ids;
-    let p_query_user_id = user_id;
-    let p_query_media_type = media_type;
-    let p_body_create_playlist_dto = create_playlist_dto;
-
-    let uri_str = format!("{}/Playlists", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_name {
-        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_ids {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_media_type {
-        req_builder = req_builder.query(&[("mediaType", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_create_playlist_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistCreationResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PlaylistCreationResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CreatePlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_playlist(configuration: &configuration::Configuration, playlist_id: &str) -> Result<models::PlaylistDto, Error<GetPlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-
-    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PlaylistDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_playlist_items(configuration: &configuration::Configuration, playlist_id: &str, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetPlaylistItemsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_fields = fields;
-    let p_query_enable_images = enable_images;
-    let p_query_enable_user_data = enable_user_data;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPlaylistItemsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_playlist_user(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str) -> Result<models::PlaylistUserPermissions, Error<GetPlaylistUserError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_path_user_id = user_id;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PlaylistUserPermissions`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PlaylistUserPermissions`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPlaylistUserError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_playlist_users(configuration: &configuration::Configuration, playlist_id: &str) -> Result<Vec<models::PlaylistUserPermissions>, Error<GetPlaylistUsersError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Users", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PlaylistUserPermissions&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::PlaylistUserPermissions&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPlaylistUsersError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn move_item(configuration: &configuration::Configuration, playlist_id: &str, item_id: &str, new_index: i32) -> Result<(), Error<MoveItemError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_path_item_id = item_id;
-    let p_path_new_index = new_index;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), itemId=crate::apis::urlencode(p_path_item_id), newIndex=p_path_new_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<MoveItemError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn remove_item_from_playlist(configuration: &configuration::Configuration, playlist_id: &str, entry_ids: Option<Vec<String>>) -> Result<(), Error<RemoveItemFromPlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_query_entry_ids = entry_ids;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_entry_ids {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("entryIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("entryIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<RemoveItemFromPlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn remove_user_from_playlist(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str) -> Result<(), Error<RemoveUserFromPlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_path_user_id = user_id;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<RemoveUserFromPlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_playlist(configuration: &configuration::Configuration, playlist_id: &str, update_playlist_dto: models::UpdatePlaylistDto) -> Result<(), Error<UpdatePlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_body_update_playlist_dto = update_playlist_dto;
-
-    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_update_playlist_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdatePlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_playlist_user(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str, update_playlist_user_dto: models::UpdatePlaylistUserDto) -> Result<(), Error<UpdatePlaylistUserError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_playlist_id = playlist_id;
-    let p_path_user_id = user_id;
-    let p_body_update_playlist_user_dto = update_playlist_user_dto;
-
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_update_playlist_user_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdatePlaylistUserError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

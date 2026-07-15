@@ -9,13 +9,1142 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait SessionApi: Send + Sync {
+
+    /// POST /Sessions/{sessionId}/User/{userId}
+    ///
+    /// 
+    async fn add_user_to_session(&self,  params: AddUserToSessionParams ) -> Result<(), Error<AddUserToSessionError>>;
+
+    /// POST /Sessions/{sessionId}/Viewing
+    ///
+    /// 
+    async fn display_content(&self,  params: DisplayContentParams ) -> Result<(), Error<DisplayContentError>>;
+
+    /// GET /Sessions
+    ///
+    /// 
+    async fn get_sessions(&self,  params: GetSessionsParams ) -> Result<Vec<models::SessionInfoDto>, Error<GetSessionsError>>;
+
+    /// POST /Sessions/Playing/Ping
+    ///
+    /// 
+    async fn ping_playback_session(&self,  params: PingPlaybackSessionParams ) -> Result<(), Error<PingPlaybackSessionError>>;
+
+    /// POST /Sessions/{sessionId}/Playing
+    ///
+    /// 
+    async fn play(&self,  params: PlayParams ) -> Result<(), Error<PlayError>>;
+
+    /// POST /Sessions/Capabilities
+    ///
+    /// 
+    async fn post_capabilities(&self,  params: PostCapabilitiesParams ) -> Result<(), Error<PostCapabilitiesError>>;
+
+    /// POST /Sessions/Capabilities/Full
+    ///
+    /// 
+    async fn post_full_capabilities(&self,  params: PostFullCapabilitiesParams ) -> Result<(), Error<PostFullCapabilitiesError>>;
+
+    /// DELETE /Sessions/{sessionId}/User/{userId}
+    ///
+    /// 
+    async fn remove_user_from_session(&self,  params: RemoveUserFromSessionParams ) -> Result<(), Error<RemoveUserFromSessionError>>;
+
+    /// POST /Sessions/Playing/Progress
+    ///
+    /// 
+    async fn report_playback_progress(&self,  params: ReportPlaybackProgressParams ) -> Result<(), Error<ReportPlaybackProgressError>>;
+
+    /// POST /Sessions/Playing
+    ///
+    /// 
+    async fn report_playback_start(&self,  params: ReportPlaybackStartParams ) -> Result<(), Error<ReportPlaybackStartError>>;
+
+    /// POST /Sessions/Playing/Stopped
+    ///
+    /// 
+    async fn report_playback_stopped(&self,  params: ReportPlaybackStoppedParams ) -> Result<(), Error<ReportPlaybackStoppedError>>;
+
+    /// POST /Sessions/Logout
+    ///
+    /// 
+    async fn report_session_ended(&self, ) -> Result<(), Error<ReportSessionEndedError>>;
+
+    /// POST /Sessions/Viewing
+    ///
+    /// 
+    async fn report_viewing(&self,  params: ReportViewingParams ) -> Result<(), Error<ReportViewingError>>;
+
+    /// POST /Sessions/{sessionId}/Command
+    ///
+    /// 
+    async fn send_full_general_command(&self,  params: SendFullGeneralCommandParams ) -> Result<(), Error<SendFullGeneralCommandError>>;
+
+    /// POST /Sessions/{sessionId}/Command/{command}
+    ///
+    /// 
+    async fn send_general_command(&self,  params: SendGeneralCommandParams ) -> Result<(), Error<SendGeneralCommandError>>;
+
+    /// POST /Sessions/{sessionId}/Message
+    ///
+    /// 
+    async fn send_message_command(&self,  params: SendMessageCommandParams ) -> Result<(), Error<SendMessageCommandError>>;
+
+    /// POST /Sessions/{sessionId}/Playing/{command}
+    ///
+    /// 
+    async fn send_playstate_command(&self,  params: SendPlaystateCommandParams ) -> Result<(), Error<SendPlaystateCommandError>>;
+
+    /// POST /Sessions/{sessionId}/System/{command}
+    ///
+    /// 
+    async fn send_system_command(&self,  params: SendSystemCommandParams ) -> Result<(), Error<SendSystemCommandError>>;
+}
+
+pub struct SessionApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl SessionApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`add_user_to_session`]
+/// struct for passing parameters to the method [`SessionApi::add_user_to_session`]
+#[derive(Clone, Debug)]
+pub struct AddUserToSessionParams {
+    /// The session id.
+    pub session_id: String,
+    /// The user id.
+    pub user_id: String
+}
+
+/// struct for passing parameters to the method [`SessionApi::display_content`]
+#[derive(Clone, Debug)]
+pub struct DisplayContentParams {
+    /// The session Id.
+    pub session_id: String,
+    /// The type of item to browse to.
+    pub item_type: String,
+    /// The Id of the item.
+    pub item_id: String,
+    /// The name of the item.
+    pub item_name: String
+}
+
+/// struct for passing parameters to the method [`SessionApi::get_sessions`]
+#[derive(Clone, Debug)]
+pub struct GetSessionsParams {
+    /// Filter by sessions that a given user is allowed to remote control.
+    pub controllable_by_user_id: Option<String>,
+    /// Filter by device Id.
+    pub device_id: Option<String>,
+    /// Optional. Filter by sessions that were active in the last n seconds.
+    pub active_within_seconds: Option<i32>
+}
+
+/// struct for passing parameters to the method [`SessionApi::ping_playback_session`]
+#[derive(Clone, Debug)]
+pub struct PingPlaybackSessionParams {
+    /// Playback session id.
+    pub play_session_id: String
+}
+
+/// struct for passing parameters to the method [`SessionApi::play`]
+#[derive(Clone, Debug)]
+pub struct PlayParams {
+    /// The session id.
+    pub session_id: String,
+    /// The type of play command to issue (PlayNow, PlayNext, PlayLast). Clients who have not yet implemented play next and play last may play now.
+    pub play_command: String,
+    /// The ids of the items to play, comma delimited.
+    pub item_ids: Vec<uuid::Uuid>,
+    /// The starting position of the first item.
+    pub start_position_ticks: Option<i64>,
+    /// Optional. The media source id.
+    pub media_source_id: Option<String>,
+    /// Optional. The index of the audio stream to play.
+    pub audio_stream_index: Option<i32>,
+    /// Optional. The index of the subtitle stream to play.
+    pub subtitle_stream_index: Option<i32>,
+    /// Optional. The start index.
+    pub start_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`SessionApi::post_capabilities`]
+#[derive(Clone, Debug)]
+pub struct PostCapabilitiesParams {
+    /// The session id.
+    pub id: Option<String>,
+    /// A list of playable media types, comma delimited. Audio, Video, Book, Photo.
+    pub playable_media_types: Option<Vec<models::MediaType>>,
+    /// A list of supported remote control commands, comma delimited.
+    pub supported_commands: Option<Vec<models::GeneralCommandType>>,
+    /// Determines whether media can be played remotely..
+    pub supports_media_control: Option<bool>,
+    /// Determines whether the device supports a unique identifier.
+    pub supports_persistent_identifier: Option<bool>
+}
+
+/// struct for passing parameters to the method [`SessionApi::post_full_capabilities`]
+#[derive(Clone, Debug)]
+pub struct PostFullCapabilitiesParams {
+    /// The MediaBrowser.Model.Session.ClientCapabilities.
+    pub client_capabilities_dto: models::ClientCapabilitiesDto,
+    /// The session id.
+    pub id: Option<String>
+}
+
+/// struct for passing parameters to the method [`SessionApi::remove_user_from_session`]
+#[derive(Clone, Debug)]
+pub struct RemoveUserFromSessionParams {
+    /// The session id.
+    pub session_id: String,
+    /// The user id.
+    pub user_id: String
+}
+
+/// struct for passing parameters to the method [`SessionApi::report_playback_progress`]
+#[derive(Clone, Debug)]
+pub struct ReportPlaybackProgressParams {
+    /// The playback progress info.
+    pub playback_progress_info: Option<models::PlaybackProgressInfo>
+}
+
+/// struct for passing parameters to the method [`SessionApi::report_playback_start`]
+#[derive(Clone, Debug)]
+pub struct ReportPlaybackStartParams {
+    /// The playback start info.
+    pub playback_start_info: Option<models::PlaybackStartInfo>
+}
+
+/// struct for passing parameters to the method [`SessionApi::report_playback_stopped`]
+#[derive(Clone, Debug)]
+pub struct ReportPlaybackStoppedParams {
+    /// The playback stop info.
+    pub playback_stop_info: Option<models::PlaybackStopInfo>
+}
+
+/// struct for passing parameters to the method [`SessionApi::report_viewing`]
+#[derive(Clone, Debug)]
+pub struct ReportViewingParams {
+    /// The item id.
+    pub item_id: String,
+    /// The session id.
+    pub session_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`SessionApi::send_full_general_command`]
+#[derive(Clone, Debug)]
+pub struct SendFullGeneralCommandParams {
+    /// The session id.
+    pub session_id: String,
+    /// The MediaBrowser.Model.Session.GeneralCommand.
+    pub general_command: models::GeneralCommand
+}
+
+/// struct for passing parameters to the method [`SessionApi::send_general_command`]
+#[derive(Clone, Debug)]
+pub struct SendGeneralCommandParams {
+    /// The session id.
+    pub session_id: String,
+    /// The command to send.
+    pub command: String
+}
+
+/// struct for passing parameters to the method [`SessionApi::send_message_command`]
+#[derive(Clone, Debug)]
+pub struct SendMessageCommandParams {
+    /// The session id.
+    pub session_id: String,
+    /// The MediaBrowser.Model.Session.MessageCommand object containing Header, Message Text, and TimeoutMs.
+    pub message_command: models::MessageCommand
+}
+
+/// struct for passing parameters to the method [`SessionApi::send_playstate_command`]
+#[derive(Clone, Debug)]
+pub struct SendPlaystateCommandParams {
+    /// The session id.
+    pub session_id: String,
+    /// The MediaBrowser.Model.Session.PlaystateCommand.
+    pub command: String,
+    /// The optional position ticks.
+    pub seek_position_ticks: Option<i64>,
+    /// The optional controlling user id.
+    pub controlling_user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`SessionApi::send_system_command`]
+#[derive(Clone, Debug)]
+pub struct SendSystemCommandParams {
+    /// The session id.
+    pub session_id: String,
+    /// The command to send.
+    pub command: String
+}
+
+
+#[async_trait]
+impl SessionApi for SessionApiClient {
+    async fn add_user_to_session(&self,  params: AddUserToSessionParams ) -> Result<(), Error<AddUserToSessionError>> {
+        
+        let AddUserToSessionParams {
+            session_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id), userId=crate::apis::urlencode(user_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<AddUserToSessionError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn display_content(&self,  params: DisplayContentParams ) -> Result<(), Error<DisplayContentError>> {
+        
+        let DisplayContentParams {
+            session_id,
+            item_type,
+            item_id,
+            item_name,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Viewing", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        local_var_req_builder = local_var_req_builder.query(&[("itemType", &item_type.to_string())]);
+        local_var_req_builder = local_var_req_builder.query(&[("itemId", &item_id.to_string())]);
+        local_var_req_builder = local_var_req_builder.query(&[("itemName", &item_name.to_string())]);
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DisplayContentError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_sessions(&self,  params: GetSessionsParams ) -> Result<Vec<models::SessionInfoDto>, Error<GetSessionsError>> {
+        
+        let GetSessionsParams {
+            controllable_by_user_id,
+            device_id,
+            active_within_seconds,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = controllable_by_user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("controllableByUserId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = device_id {
+            local_var_req_builder = local_var_req_builder.query(&[("deviceId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = active_within_seconds {
+            local_var_req_builder = local_var_req_builder.query(&[("activeWithinSeconds", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::SessionInfoDto&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::SessionInfoDto&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSessionsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn ping_playback_session(&self,  params: PingPlaybackSessionParams ) -> Result<(), Error<PingPlaybackSessionError>> {
+        
+        let PingPlaybackSessionParams {
+            play_session_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Playing/Ping", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        local_var_req_builder = local_var_req_builder.query(&[("playSessionId", &play_session_id.to_string())]);
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<PingPlaybackSessionError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn play(&self,  params: PlayParams ) -> Result<(), Error<PlayError>> {
+        
+        let PlayParams {
+            session_id,
+            play_command,
+            item_ids,
+            start_position_ticks,
+            media_source_id,
+            audio_stream_index,
+            subtitle_stream_index,
+            start_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Playing", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        local_var_req_builder = local_var_req_builder.query(&[("playCommand", &play_command.to_string())]);
+        local_var_req_builder = match "multi" {
+            "multi" => local_var_req_builder.query(&item_ids.into_iter().map(|p| ("itemIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+            _ => local_var_req_builder.query(&[("itemIds", &item_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        };
+        if let Some(ref param_value) = start_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = media_source_id {
+            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = audio_stream_index {
+            local_var_req_builder = local_var_req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = subtitle_stream_index {
+            local_var_req_builder = local_var_req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<PlayError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn post_capabilities(&self,  params: PostCapabilitiesParams ) -> Result<(), Error<PostCapabilitiesError>> {
+        
+        let PostCapabilitiesParams {
+            id,
+            playable_media_types,
+            supported_commands,
+            supports_media_control,
+            supports_persistent_identifier,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Capabilities", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = id {
+            local_var_req_builder = local_var_req_builder.query(&[("id", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = playable_media_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("playableMediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("playableMediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = supported_commands {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("supportedCommands".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("supportedCommands", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = supports_media_control {
+            local_var_req_builder = local_var_req_builder.query(&[("supportsMediaControl", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = supports_persistent_identifier {
+            local_var_req_builder = local_var_req_builder.query(&[("supportsPersistentIdentifier", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<PostCapabilitiesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn post_full_capabilities(&self,  params: PostFullCapabilitiesParams ) -> Result<(), Error<PostFullCapabilitiesError>> {
+        
+        let PostFullCapabilitiesParams {
+            client_capabilities_dto,
+            id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Capabilities/Full", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = id {
+            local_var_req_builder = local_var_req_builder.query(&[("id", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&client_capabilities_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<PostFullCapabilitiesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn remove_user_from_session(&self,  params: RemoveUserFromSessionParams ) -> Result<(), Error<RemoveUserFromSessionError>> {
+        
+        let RemoveUserFromSessionParams {
+            session_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id), userId=crate::apis::urlencode(user_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<RemoveUserFromSessionError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn report_playback_progress(&self,  params: ReportPlaybackProgressParams ) -> Result<(), Error<ReportPlaybackProgressError>> {
+        
+        let ReportPlaybackProgressParams {
+            playback_progress_info,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Playing/Progress", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&playback_progress_info);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<ReportPlaybackProgressError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn report_playback_start(&self,  params: ReportPlaybackStartParams ) -> Result<(), Error<ReportPlaybackStartError>> {
+        
+        let ReportPlaybackStartParams {
+            playback_start_info,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Playing", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&playback_start_info);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<ReportPlaybackStartError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn report_playback_stopped(&self,  params: ReportPlaybackStoppedParams ) -> Result<(), Error<ReportPlaybackStoppedError>> {
+        
+        let ReportPlaybackStoppedParams {
+            playback_stop_info,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Playing/Stopped", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&playback_stop_info);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<ReportPlaybackStoppedError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn report_session_ended(&self, ) -> Result<(), Error<ReportSessionEndedError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Logout", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<ReportSessionEndedError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn report_viewing(&self,  params: ReportViewingParams ) -> Result<(), Error<ReportViewingError>> {
+        
+        let ReportViewingParams {
+            item_id,
+            session_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/Viewing", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = session_id {
+            local_var_req_builder = local_var_req_builder.query(&[("sessionId", &param_value.to_string())]);
+        }
+        local_var_req_builder = local_var_req_builder.query(&[("itemId", &item_id.to_string())]);
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<ReportViewingError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn send_full_general_command(&self,  params: SendFullGeneralCommandParams ) -> Result<(), Error<SendFullGeneralCommandError>> {
+        
+        let SendFullGeneralCommandParams {
+            session_id,
+            general_command,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Command", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&general_command);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SendFullGeneralCommandError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn send_general_command(&self,  params: SendGeneralCommandParams ) -> Result<(), Error<SendGeneralCommandError>> {
+        
+        let SendGeneralCommandParams {
+            session_id,
+            command,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Command/{command}", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id), command=crate::apis::urlencode(command));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SendGeneralCommandError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn send_message_command(&self,  params: SendMessageCommandParams ) -> Result<(), Error<SendMessageCommandError>> {
+        
+        let SendMessageCommandParams {
+            session_id,
+            message_command,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Message", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&message_command);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SendMessageCommandError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn send_playstate_command(&self,  params: SendPlaystateCommandParams ) -> Result<(), Error<SendPlaystateCommandError>> {
+        
+        let SendPlaystateCommandParams {
+            session_id,
+            command,
+            seek_position_ticks,
+            controlling_user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/Playing/{command}", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id), command=crate::apis::urlencode(command));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = seek_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("seekPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = controlling_user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("controllingUserId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SendPlaystateCommandError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn send_system_command(&self,  params: SendSystemCommandParams ) -> Result<(), Error<SendSystemCommandError>> {
+        
+        let SendSystemCommandParams {
+            session_id,
+            command,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Sessions/{sessionId}/System/{command}", local_var_configuration.base_path, sessionId=crate::apis::urlencode(session_id), command=crate::apis::urlencode(command));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SendSystemCommandError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`SessionApi::add_user_to_session`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum AddUserToSessionError {
@@ -25,7 +1154,7 @@ pub enum AddUserToSessionError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`display_content`]
+/// struct for typed errors of method [`SessionApi::display_content`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DisplayContentError {
@@ -35,7 +1164,7 @@ pub enum DisplayContentError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_sessions`]
+/// struct for typed errors of method [`SessionApi::get_sessions`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSessionsError {
@@ -45,7 +1174,7 @@ pub enum GetSessionsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`ping_playback_session`]
+/// struct for typed errors of method [`SessionApi::ping_playback_session`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PingPlaybackSessionError {
@@ -55,7 +1184,7 @@ pub enum PingPlaybackSessionError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`play`]
+/// struct for typed errors of method [`SessionApi::play`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PlayError {
@@ -65,7 +1194,7 @@ pub enum PlayError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`post_capabilities`]
+/// struct for typed errors of method [`SessionApi::post_capabilities`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostCapabilitiesError {
@@ -75,7 +1204,7 @@ pub enum PostCapabilitiesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`post_full_capabilities`]
+/// struct for typed errors of method [`SessionApi::post_full_capabilities`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostFullCapabilitiesError {
@@ -85,7 +1214,7 @@ pub enum PostFullCapabilitiesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`remove_user_from_session`]
+/// struct for typed errors of method [`SessionApi::remove_user_from_session`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RemoveUserFromSessionError {
@@ -95,7 +1224,7 @@ pub enum RemoveUserFromSessionError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`report_playback_progress`]
+/// struct for typed errors of method [`SessionApi::report_playback_progress`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReportPlaybackProgressError {
@@ -105,7 +1234,7 @@ pub enum ReportPlaybackProgressError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`report_playback_start`]
+/// struct for typed errors of method [`SessionApi::report_playback_start`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReportPlaybackStartError {
@@ -115,7 +1244,7 @@ pub enum ReportPlaybackStartError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`report_playback_stopped`]
+/// struct for typed errors of method [`SessionApi::report_playback_stopped`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReportPlaybackStoppedError {
@@ -125,7 +1254,7 @@ pub enum ReportPlaybackStoppedError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`report_session_ended`]
+/// struct for typed errors of method [`SessionApi::report_session_ended`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReportSessionEndedError {
@@ -135,7 +1264,7 @@ pub enum ReportSessionEndedError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`report_viewing`]
+/// struct for typed errors of method [`SessionApi::report_viewing`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum ReportViewingError {
@@ -145,7 +1274,7 @@ pub enum ReportViewingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`send_full_general_command`]
+/// struct for typed errors of method [`SessionApi::send_full_general_command`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SendFullGeneralCommandError {
@@ -155,7 +1284,7 @@ pub enum SendFullGeneralCommandError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`send_general_command`]
+/// struct for typed errors of method [`SessionApi::send_general_command`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SendGeneralCommandError {
@@ -165,7 +1294,7 @@ pub enum SendGeneralCommandError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`send_message_command`]
+/// struct for typed errors of method [`SessionApi::send_message_command`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SendMessageCommandError {
@@ -175,7 +1304,7 @@ pub enum SendMessageCommandError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`send_playstate_command`]
+/// struct for typed errors of method [`SessionApi::send_playstate_command`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SendPlaystateCommandError {
@@ -185,7 +1314,7 @@ pub enum SendPlaystateCommandError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`send_system_command`]
+/// struct for typed errors of method [`SessionApi::send_system_command`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SendSystemCommandError {
@@ -193,709 +1322,5 @@ pub enum SendSystemCommandError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn add_user_to_session(configuration: &configuration::Configuration, session_id: &str, user_id: &str) -> Result<(), Error<AddUserToSessionError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_path_user_id = user_id;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), userId=crate::apis::urlencode(p_path_user_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<AddUserToSessionError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn display_content(configuration: &configuration::Configuration, session_id: &str, item_type: &str, item_id: &str, item_name: &str) -> Result<(), Error<DisplayContentError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_query_item_type = item_type;
-    let p_query_item_id = item_id;
-    let p_query_item_name = item_name;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Viewing", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    req_builder = req_builder.query(&[("itemType", &p_query_item_type.to_string())]);
-    req_builder = req_builder.query(&[("itemId", &p_query_item_id.to_string())]);
-    req_builder = req_builder.query(&[("itemName", &p_query_item_name.to_string())]);
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DisplayContentError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_sessions(configuration: &configuration::Configuration, controllable_by_user_id: Option<&str>, device_id: Option<&str>, active_within_seconds: Option<i32>) -> Result<Vec<models::SessionInfoDto>, Error<GetSessionsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_controllable_by_user_id = controllable_by_user_id;
-    let p_query_device_id = device_id;
-    let p_query_active_within_seconds = active_within_seconds;
-
-    let uri_str = format!("{}/Sessions", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_controllable_by_user_id {
-        req_builder = req_builder.query(&[("controllableByUserId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_device_id {
-        req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_active_within_seconds {
-        req_builder = req_builder.query(&[("activeWithinSeconds", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::SessionInfoDto&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::SessionInfoDto&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSessionsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn ping_playback_session(configuration: &configuration::Configuration, play_session_id: &str) -> Result<(), Error<PingPlaybackSessionError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_play_session_id = play_session_id;
-
-    let uri_str = format!("{}/Sessions/Playing/Ping", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    req_builder = req_builder.query(&[("playSessionId", &p_query_play_session_id.to_string())]);
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PingPlaybackSessionError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn play(configuration: &configuration::Configuration, session_id: &str, play_command: &str, item_ids: Vec<uuid::Uuid>, start_position_ticks: Option<i64>, media_source_id: Option<&str>, audio_stream_index: Option<i32>, subtitle_stream_index: Option<i32>, start_index: Option<i32>) -> Result<(), Error<PlayError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_query_play_command = play_command;
-    let p_query_item_ids = item_ids;
-    let p_query_start_position_ticks = start_position_ticks;
-    let p_query_media_source_id = media_source_id;
-    let p_query_audio_stream_index = audio_stream_index;
-    let p_query_subtitle_stream_index = subtitle_stream_index;
-    let p_query_start_index = start_index;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Playing", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    req_builder = req_builder.query(&[("playCommand", &p_query_play_command.to_string())]);
-    req_builder = match "multi" {
-        "multi" => req_builder.query(&p_query_item_ids.into_iter().map(|p| ("itemIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-        _ => req_builder.query(&[("itemIds", &p_query_item_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-    };
-    if let Some(ref param_value) = p_query_start_position_ticks {
-        req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_media_source_id {
-        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_audio_stream_index {
-        req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_subtitle_stream_index {
-        req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PlayError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn post_capabilities(configuration: &configuration::Configuration, id: Option<&str>, playable_media_types: Option<Vec<models::MediaType>>, supported_commands: Option<Vec<models::GeneralCommandType>>, supports_media_control: Option<bool>, supports_persistent_identifier: Option<bool>) -> Result<(), Error<PostCapabilitiesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_id = id;
-    let p_query_playable_media_types = playable_media_types;
-    let p_query_supported_commands = supported_commands;
-    let p_query_supports_media_control = supports_media_control;
-    let p_query_supports_persistent_identifier = supports_persistent_identifier;
-
-    let uri_str = format!("{}/Sessions/Capabilities", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_id {
-        req_builder = req_builder.query(&[("id", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_playable_media_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("playableMediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("playableMediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_supported_commands {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("supportedCommands".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("supportedCommands", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_supports_media_control {
-        req_builder = req_builder.query(&[("supportsMediaControl", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_supports_persistent_identifier {
-        req_builder = req_builder.query(&[("supportsPersistentIdentifier", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PostCapabilitiesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn post_full_capabilities(configuration: &configuration::Configuration, client_capabilities_dto: models::ClientCapabilitiesDto, id: Option<&str>) -> Result<(), Error<PostFullCapabilitiesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_client_capabilities_dto = client_capabilities_dto;
-    let p_query_id = id;
-
-    let uri_str = format!("{}/Sessions/Capabilities/Full", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_id {
-        req_builder = req_builder.query(&[("id", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_client_capabilities_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PostFullCapabilitiesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn remove_user_from_session(configuration: &configuration::Configuration, session_id: &str, user_id: &str) -> Result<(), Error<RemoveUserFromSessionError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_path_user_id = user_id;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), userId=crate::apis::urlencode(p_path_user_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<RemoveUserFromSessionError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn report_playback_progress(configuration: &configuration::Configuration, playback_progress_info: Option<models::PlaybackProgressInfo>) -> Result<(), Error<ReportPlaybackProgressError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_playback_progress_info = playback_progress_info;
-
-    let uri_str = format!("{}/Sessions/Playing/Progress", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_playback_progress_info);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ReportPlaybackProgressError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn report_playback_start(configuration: &configuration::Configuration, playback_start_info: Option<models::PlaybackStartInfo>) -> Result<(), Error<ReportPlaybackStartError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_playback_start_info = playback_start_info;
-
-    let uri_str = format!("{}/Sessions/Playing", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_playback_start_info);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ReportPlaybackStartError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn report_playback_stopped(configuration: &configuration::Configuration, playback_stop_info: Option<models::PlaybackStopInfo>) -> Result<(), Error<ReportPlaybackStoppedError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_playback_stop_info = playback_stop_info;
-
-    let uri_str = format!("{}/Sessions/Playing/Stopped", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_playback_stop_info);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ReportPlaybackStoppedError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn report_session_ended(configuration: &configuration::Configuration, ) -> Result<(), Error<ReportSessionEndedError>> {
-
-    let uri_str = format!("{}/Sessions/Logout", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ReportSessionEndedError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn report_viewing(configuration: &configuration::Configuration, item_id: &str, session_id: Option<&str>) -> Result<(), Error<ReportViewingError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_item_id = item_id;
-    let p_query_session_id = session_id;
-
-    let uri_str = format!("{}/Sessions/Viewing", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_session_id {
-        req_builder = req_builder.query(&[("sessionId", &param_value.to_string())]);
-    }
-    req_builder = req_builder.query(&[("itemId", &p_query_item_id.to_string())]);
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<ReportViewingError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn send_full_general_command(configuration: &configuration::Configuration, session_id: &str, general_command: models::GeneralCommand) -> Result<(), Error<SendFullGeneralCommandError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_body_general_command = general_command;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Command", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_general_command);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SendFullGeneralCommandError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn send_general_command(configuration: &configuration::Configuration, session_id: &str, command: &str) -> Result<(), Error<SendGeneralCommandError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_path_command = command;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Command/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SendGeneralCommandError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn send_message_command(configuration: &configuration::Configuration, session_id: &str, message_command: models::MessageCommand) -> Result<(), Error<SendMessageCommandError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_body_message_command = message_command;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Message", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_message_command);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SendMessageCommandError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn send_playstate_command(configuration: &configuration::Configuration, session_id: &str, command: &str, seek_position_ticks: Option<i64>, controlling_user_id: Option<&str>) -> Result<(), Error<SendPlaystateCommandError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_path_command = command;
-    let p_query_seek_position_ticks = seek_position_ticks;
-    let p_query_controlling_user_id = controlling_user_id;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/Playing/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_seek_position_ticks {
-        req_builder = req_builder.query(&[("seekPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_controlling_user_id {
-        req_builder = req_builder.query(&[("controllingUserId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SendPlaystateCommandError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn send_system_command(configuration: &configuration::Configuration, session_id: &str, command: &str) -> Result<(), Error<SendSystemCommandError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_session_id = session_id;
-    let p_path_command = command;
-
-    let uri_str = format!("{}/Sessions/{sessionId}/System/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SendSystemCommandError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

@@ -9,13 +9,603 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait UserDataApi: Send + Sync {
+
+    /// DELETE /UserItems/{itemId}/Rating
+    ///
+    /// 
+    async fn delete_user_item_rating(&self,  params: DeleteUserItemRatingParams ) -> Result<models::UserItemDataDto, Error<DeleteUserItemRatingError>>;
+
+    /// GET /UserItems/{itemId}/UserData
+    ///
+    /// 
+    async fn get_item_user_data(&self,  params: GetItemUserDataParams ) -> Result<models::UserItemDataDto, Error<GetItemUserDataError>>;
+
+    /// POST /UserFavoriteItems/{itemId}
+    ///
+    /// 
+    async fn mark_favorite_item(&self,  params: MarkFavoriteItemParams ) -> Result<models::UserItemDataDto, Error<MarkFavoriteItemError>>;
+
+    /// POST /UserPlayedItems/{itemId}
+    ///
+    /// 
+    async fn mark_played_item(&self,  params: MarkPlayedItemParams ) -> Result<models::UserItemDataDto, Error<MarkPlayedItemError>>;
+
+    /// DELETE /UserPlayedItems/{itemId}
+    ///
+    /// 
+    async fn mark_unplayed_item(&self,  params: MarkUnplayedItemParams ) -> Result<models::UserItemDataDto, Error<MarkUnplayedItemError>>;
+
+    /// DELETE /UserFavoriteItems/{itemId}
+    ///
+    /// 
+    async fn unmark_favorite_item(&self,  params: UnmarkFavoriteItemParams ) -> Result<models::UserItemDataDto, Error<UnmarkFavoriteItemError>>;
+
+    /// POST /UserItems/{itemId}/UserData
+    ///
+    /// 
+    async fn update_item_user_data(&self,  params: UpdateItemUserDataParams ) -> Result<models::UserItemDataDto, Error<UpdateItemUserDataError>>;
+
+    /// POST /UserItems/{itemId}/Rating
+    ///
+    /// 
+    async fn update_user_item_rating(&self,  params: UpdateUserItemRatingParams ) -> Result<models::UserItemDataDto, Error<UpdateUserItemRatingError>>;
+}
+
+pub struct UserDataApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl UserDataApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`delete_user_item_rating`]
+/// struct for passing parameters to the method [`UserDataApi::delete_user_item_rating`]
+#[derive(Clone, Debug)]
+pub struct DeleteUserItemRatingParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::get_item_user_data`]
+#[derive(Clone, Debug)]
+pub struct GetItemUserDataParams {
+    /// The item id.
+    pub item_id: String,
+    /// The user id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::mark_favorite_item`]
+#[derive(Clone, Debug)]
+pub struct MarkFavoriteItemParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::mark_played_item`]
+#[derive(Clone, Debug)]
+pub struct MarkPlayedItemParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>,
+    /// Optional. The date the item was played.
+    pub date_played: Option<chrono::DateTime<chrono::FixedOffset>>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::mark_unplayed_item`]
+#[derive(Clone, Debug)]
+pub struct MarkUnplayedItemParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::unmark_favorite_item`]
+#[derive(Clone, Debug)]
+pub struct UnmarkFavoriteItemParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::update_item_user_data`]
+#[derive(Clone, Debug)]
+pub struct UpdateItemUserDataParams {
+    /// The item id.
+    pub item_id: String,
+    /// New user data object.
+    pub update_user_item_data_dto: models::UpdateUserItemDataDto,
+    /// The user id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`UserDataApi::update_user_item_rating`]
+#[derive(Clone, Debug)]
+pub struct UpdateUserItemRatingParams {
+    /// Item id.
+    pub item_id: String,
+    /// User id.
+    pub user_id: Option<String>,
+    /// Whether this M:Jellyfin.Api.Controllers.UserLibraryController.UpdateUserItemRating(System.Nullable{System.Guid},System.Guid,System.Nullable{System.Boolean}) is likes.
+    pub likes: Option<bool>
+}
+
+
+#[async_trait]
+impl UserDataApi for UserDataApiClient {
+    async fn delete_user_item_rating(&self,  params: DeleteUserItemRatingParams ) -> Result<models::UserItemDataDto, Error<DeleteUserItemRatingError>> {
+        
+        let DeleteUserItemRatingParams {
+            item_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserItems/{itemId}/Rating", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<DeleteUserItemRatingError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_item_user_data(&self,  params: GetItemUserDataParams ) -> Result<models::UserItemDataDto, Error<GetItemUserDataError>> {
+        
+        let GetItemUserDataParams {
+            item_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserItems/{itemId}/UserData", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetItemUserDataError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn mark_favorite_item(&self,  params: MarkFavoriteItemParams ) -> Result<models::UserItemDataDto, Error<MarkFavoriteItemError>> {
+        
+        let MarkFavoriteItemParams {
+            item_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserFavoriteItems/{itemId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<MarkFavoriteItemError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn mark_played_item(&self,  params: MarkPlayedItemParams ) -> Result<models::UserItemDataDto, Error<MarkPlayedItemError>> {
+        
+        let MarkPlayedItemParams {
+            item_id,
+            user_id,
+            date_played,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserPlayedItems/{itemId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = date_played {
+            local_var_req_builder = local_var_req_builder.query(&[("datePlayed", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<MarkPlayedItemError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn mark_unplayed_item(&self,  params: MarkUnplayedItemParams ) -> Result<models::UserItemDataDto, Error<MarkUnplayedItemError>> {
+        
+        let MarkUnplayedItemParams {
+            item_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserPlayedItems/{itemId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<MarkUnplayedItemError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn unmark_favorite_item(&self,  params: UnmarkFavoriteItemParams ) -> Result<models::UserItemDataDto, Error<UnmarkFavoriteItemError>> {
+        
+        let UnmarkFavoriteItemParams {
+            item_id,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserFavoriteItems/{itemId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<UnmarkFavoriteItemError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_item_user_data(&self,  params: UpdateItemUserDataParams ) -> Result<models::UserItemDataDto, Error<UpdateItemUserDataError>> {
+        
+        let UpdateItemUserDataParams {
+            item_id,
+            update_user_item_data_dto,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserItems/{itemId}/UserData", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&update_user_item_data_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<UpdateItemUserDataError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_user_item_rating(&self,  params: UpdateUserItemRatingParams ) -> Result<models::UserItemDataDto, Error<UpdateUserItemRatingError>> {
+        
+        let UpdateUserItemRatingParams {
+            item_id,
+            user_id,
+            likes,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserItems/{itemId}/Rating", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = likes {
+            local_var_req_builder = local_var_req_builder.query(&[("likes", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<UpdateUserItemRatingError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`UserDataApi::delete_user_item_rating`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteUserItemRatingError {
@@ -25,7 +615,7 @@ pub enum DeleteUserItemRatingError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_item_user_data`]
+/// struct for typed errors of method [`UserDataApi::get_item_user_data`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetItemUserDataError {
@@ -36,7 +626,7 @@ pub enum GetItemUserDataError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`mark_favorite_item`]
+/// struct for typed errors of method [`UserDataApi::mark_favorite_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkFavoriteItemError {
@@ -46,7 +636,7 @@ pub enum MarkFavoriteItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`mark_played_item`]
+/// struct for typed errors of method [`UserDataApi::mark_played_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkPlayedItemError {
@@ -57,7 +647,7 @@ pub enum MarkPlayedItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`mark_unplayed_item`]
+/// struct for typed errors of method [`UserDataApi::mark_unplayed_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum MarkUnplayedItemError {
@@ -68,7 +658,7 @@ pub enum MarkUnplayedItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`unmark_favorite_item`]
+/// struct for typed errors of method [`UserDataApi::unmark_favorite_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UnmarkFavoriteItemError {
@@ -78,7 +668,7 @@ pub enum UnmarkFavoriteItemError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_item_user_data`]
+/// struct for typed errors of method [`UserDataApi::update_item_user_data`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateItemUserDataError {
@@ -89,7 +679,7 @@ pub enum UpdateItemUserDataError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_user_item_rating`]
+/// struct for typed errors of method [`UserDataApi::update_user_item_rating`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateUserItemRatingError {
@@ -97,400 +687,5 @@ pub enum UpdateUserItemRatingError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn delete_user_item_rating(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<DeleteUserItemRatingError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteUserItemRatingError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_item_user_data(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<GetItemUserDataError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetItemUserDataError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn mark_favorite_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<MarkFavoriteItemError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<MarkFavoriteItemError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn mark_played_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, date_played: Option<chrono::DateTime<chrono::FixedOffset>>) -> Result<models::UserItemDataDto, Error<MarkPlayedItemError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-    let p_query_date_played = date_played;
-
-    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_date_played {
-        req_builder = req_builder.query(&[("datePlayed", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<MarkPlayedItemError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn mark_unplayed_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<MarkUnplayedItemError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<MarkUnplayedItemError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn unmark_favorite_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<UnmarkFavoriteItemError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UnmarkFavoriteItemError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_item_user_data(configuration: &configuration::Configuration, item_id: &str, update_user_item_data_dto: models::UpdateUserItemDataDto, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<UpdateItemUserDataError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_body_update_user_item_data_dto = update_user_item_data_dto;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_update_user_item_data_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdateItemUserDataError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_user_item_rating(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, likes: Option<bool>) -> Result<models::UserItemDataDto, Error<UpdateUserItemRatingError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_query_user_id = user_id;
-    let p_query_likes = likes;
-
-    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_likes {
-        req_builder = req_builder.query(&[("likes", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::UserItemDataDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::UserItemDataDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdateUserItemRatingError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

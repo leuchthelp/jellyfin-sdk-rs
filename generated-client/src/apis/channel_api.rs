@@ -9,13 +9,474 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait ChannelApi: Send + Sync {
+
+    /// GET /Channels/Features
+    ///
+    /// 
+    async fn get_all_channel_features(&self, ) -> Result<Vec<models::ChannelFeatures>, Error<GetAllChannelFeaturesError>>;
+
+    /// GET /Channels/{channelId}/Features
+    ///
+    /// 
+    async fn get_channel_features(&self,  params: GetChannelFeaturesParams ) -> Result<models::ChannelFeatures, Error<GetChannelFeaturesError>>;
+
+    /// GET /Channels/{channelId}/Items
+    ///
+    /// 
+    async fn get_channel_items(&self,  params: GetChannelItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelItemsError>>;
+
+    /// GET /Channels
+    ///
+    /// 
+    async fn get_channels(&self,  params: GetChannelsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelsError>>;
+
+    /// GET /Channels/Items/Latest
+    ///
+    /// 
+    async fn get_latest_channel_items(&self,  params: GetLatestChannelItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLatestChannelItemsError>>;
+}
+
+pub struct ChannelApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl ChannelApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_all_channel_features`]
+/// struct for passing parameters to the method [`ChannelApi::get_channel_features`]
+#[derive(Clone, Debug)]
+pub struct GetChannelFeaturesParams {
+    /// Channel id.
+    pub channel_id: String
+}
+
+/// struct for passing parameters to the method [`ChannelApi::get_channel_items`]
+#[derive(Clone, Debug)]
+pub struct GetChannelItemsParams {
+    /// Channel Id.
+    pub channel_id: String,
+    /// Optional. Folder Id.
+    pub folder_id: Option<String>,
+    /// Optional. User Id.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Sort Order - Ascending,Descending.
+    pub sort_order: Option<Vec<models::SortOrder>>,
+    /// Optional. Specify additional filters to apply.
+    pub filters: Option<Vec<models::ItemFilter>>,
+    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
+    pub sort_by: Option<Vec<models::ItemSortBy>>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>
+}
+
+/// struct for passing parameters to the method [`ChannelApi::get_channels`]
+#[derive(Clone, Debug)]
+pub struct GetChannelsParams {
+    /// User Id to filter by. Use System.Guid.Empty to not filter by user.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Filter by channels that support getting latest items.
+    pub supports_latest_items: Option<bool>,
+    /// Optional. Filter by channels that support media deletion.
+    pub supports_media_deletion: Option<bool>,
+    /// Optional. Filter by channels that are favorite.
+    pub is_favorite: Option<bool>
+}
+
+/// struct for passing parameters to the method [`ChannelApi::get_latest_channel_items`]
+#[derive(Clone, Debug)]
+pub struct GetLatestChannelItemsParams {
+    /// Optional. User Id.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Specify additional filters to apply.
+    pub filters: Option<Vec<models::ItemFilter>>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. Specify one or more channel id's, comma delimited.
+    pub channel_ids: Option<Vec<uuid::Uuid>>
+}
+
+
+#[async_trait]
+impl ChannelApi for ChannelApiClient {
+    async fn get_all_channel_features(&self, ) -> Result<Vec<models::ChannelFeatures>, Error<GetAllChannelFeaturesError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Channels/Features", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ChannelFeatures&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::ChannelFeatures&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetAllChannelFeaturesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_channel_features(&self,  params: GetChannelFeaturesParams ) -> Result<models::ChannelFeatures, Error<GetChannelFeaturesError>> {
+        
+        let GetChannelFeaturesParams {
+            channel_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Channels/{channelId}/Features", local_var_configuration.base_path, channelId=crate::apis::urlencode(channel_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ChannelFeatures`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::ChannelFeatures`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetChannelFeaturesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_channel_items(&self,  params: GetChannelItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelItemsError>> {
+        
+        let GetChannelItemsParams {
+            channel_id,
+            folder_id,
+            user_id,
+            start_index,
+            limit,
+            sort_order,
+            filters,
+            sort_by,
+            fields,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Channels/{channelId}/Items", local_var_configuration.base_path, channelId=crate::apis::urlencode(channel_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = folder_id {
+            local_var_req_builder = local_var_req_builder.query(&[("folderId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = sort_order {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = filters {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = sort_by {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetChannelItemsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_channels(&self,  params: GetChannelsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelsError>> {
+        
+        let GetChannelsParams {
+            user_id,
+            start_index,
+            limit,
+            supports_latest_items,
+            supports_media_deletion,
+            is_favorite,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Channels", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = supports_latest_items {
+            local_var_req_builder = local_var_req_builder.query(&[("supportsLatestItems", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = supports_media_deletion {
+            local_var_req_builder = local_var_req_builder.query(&[("supportsMediaDeletion", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_favorite {
+            local_var_req_builder = local_var_req_builder.query(&[("isFavorite", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetChannelsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_latest_channel_items(&self,  params: GetLatestChannelItemsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetLatestChannelItemsError>> {
+        
+        let GetLatestChannelItemsParams {
+            user_id,
+            start_index,
+            limit,
+            filters,
+            fields,
+            channel_ids,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Channels/Items/Latest", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = filters {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = channel_ids {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("channelIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("channelIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetLatestChannelItemsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`ChannelApi::get_all_channel_features`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetAllChannelFeaturesError {
@@ -25,7 +486,7 @@ pub enum GetAllChannelFeaturesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_channel_features`]
+/// struct for typed errors of method [`ChannelApi::get_channel_features`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetChannelFeaturesError {
@@ -35,7 +496,7 @@ pub enum GetChannelFeaturesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_channel_items`]
+/// struct for typed errors of method [`ChannelApi::get_channel_items`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetChannelItemsError {
@@ -45,7 +506,7 @@ pub enum GetChannelItemsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_channels`]
+/// struct for typed errors of method [`ChannelApi::get_channels`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetChannelsError {
@@ -55,7 +516,7 @@ pub enum GetChannelsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_latest_channel_items`]
+/// struct for typed errors of method [`ChannelApi::get_latest_channel_items`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetLatestChannelItemsError {
@@ -63,323 +524,5 @@ pub enum GetLatestChannelItemsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_all_channel_features(configuration: &configuration::Configuration, ) -> Result<Vec<models::ChannelFeatures>, Error<GetAllChannelFeaturesError>> {
-
-    let uri_str = format!("{}/Channels/Features", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ChannelFeatures&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::ChannelFeatures&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetAllChannelFeaturesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_channel_features(configuration: &configuration::Configuration, channel_id: &str) -> Result<models::ChannelFeatures, Error<GetChannelFeaturesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_channel_id = channel_id;
-
-    let uri_str = format!("{}/Channels/{channelId}/Features", configuration.base_path, channelId=crate::apis::urlencode(p_path_channel_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::ChannelFeatures`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::ChannelFeatures`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetChannelFeaturesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_channel_items(configuration: &configuration::Configuration, channel_id: &str, folder_id: Option<&str>, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, sort_order: Option<Vec<models::SortOrder>>, filters: Option<Vec<models::ItemFilter>>, sort_by: Option<Vec<models::ItemSortBy>>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelItemsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_channel_id = channel_id;
-    let p_query_folder_id = folder_id;
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_sort_order = sort_order;
-    let p_query_filters = filters;
-    let p_query_sort_by = sort_by;
-    let p_query_fields = fields;
-
-    let uri_str = format!("{}/Channels/{channelId}/Items", configuration.base_path, channelId=crate::apis::urlencode(p_path_channel_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_folder_id {
-        req_builder = req_builder.query(&[("folderId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_sort_order {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_filters {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_sort_by {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetChannelItemsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_channels(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, supports_latest_items: Option<bool>, supports_media_deletion: Option<bool>, is_favorite: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetChannelsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_supports_latest_items = supports_latest_items;
-    let p_query_supports_media_deletion = supports_media_deletion;
-    let p_query_is_favorite = is_favorite;
-
-    let uri_str = format!("{}/Channels", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_supports_latest_items {
-        req_builder = req_builder.query(&[("supportsLatestItems", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_supports_media_deletion {
-        req_builder = req_builder.query(&[("supportsMediaDeletion", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_favorite {
-        req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetChannelsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_latest_channel_items(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, filters: Option<Vec<models::ItemFilter>>, fields: Option<Vec<models::ItemFields>>, channel_ids: Option<Vec<uuid::Uuid>>) -> Result<models::BaseItemDtoQueryResult, Error<GetLatestChannelItemsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_filters = filters;
-    let p_query_fields = fields;
-    let p_query_channel_ids = channel_ids;
-
-    let uri_str = format!("{}/Channels/Items/Latest", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_filters {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_channel_ids {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("channelIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("channelIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetLatestChannelItemsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

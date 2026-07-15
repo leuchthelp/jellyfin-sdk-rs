@@ -9,13 +9,333 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait ScheduledTaskApi: Send + Sync {
+
+    /// GET /ScheduledTasks/{taskId}
+    ///
+    /// 
+    async fn get_task(&self,  params: GetTaskParams ) -> Result<models::TaskInfo, Error<GetTaskError>>;
+
+    /// GET /ScheduledTasks
+    ///
+    /// 
+    async fn get_tasks(&self,  params: GetTasksParams ) -> Result<Vec<models::TaskInfo>, Error<GetTasksError>>;
+
+    /// POST /ScheduledTasks/Running/{taskId}
+    ///
+    /// 
+    async fn start_task(&self,  params: StartTaskParams ) -> Result<(), Error<StartTaskError>>;
+
+    /// DELETE /ScheduledTasks/Running/{taskId}
+    ///
+    /// 
+    async fn stop_task(&self,  params: StopTaskParams ) -> Result<(), Error<StopTaskError>>;
+
+    /// POST /ScheduledTasks/{taskId}/Triggers
+    ///
+    /// 
+    async fn update_task(&self,  params: UpdateTaskParams ) -> Result<(), Error<UpdateTaskError>>;
+}
+
+pub struct ScheduledTaskApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl ScheduledTaskApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_task`]
+/// struct for passing parameters to the method [`ScheduledTaskApi::get_task`]
+#[derive(Clone, Debug)]
+pub struct GetTaskParams {
+    /// Task Id.
+    pub task_id: String
+}
+
+/// struct for passing parameters to the method [`ScheduledTaskApi::get_tasks`]
+#[derive(Clone, Debug)]
+pub struct GetTasksParams {
+    /// Optional filter tasks that are hidden, or not.
+    pub is_hidden: Option<bool>,
+    /// Optional filter tasks that are enabled, or not.
+    pub is_enabled: Option<bool>
+}
+
+/// struct for passing parameters to the method [`ScheduledTaskApi::start_task`]
+#[derive(Clone, Debug)]
+pub struct StartTaskParams {
+    /// Task Id.
+    pub task_id: String
+}
+
+/// struct for passing parameters to the method [`ScheduledTaskApi::stop_task`]
+#[derive(Clone, Debug)]
+pub struct StopTaskParams {
+    /// Task Id.
+    pub task_id: String
+}
+
+/// struct for passing parameters to the method [`ScheduledTaskApi::update_task`]
+#[derive(Clone, Debug)]
+pub struct UpdateTaskParams {
+    /// Task Id.
+    pub task_id: String,
+    /// Triggers.
+    pub task_trigger_info: Vec<models::TaskTriggerInfo>
+}
+
+
+#[async_trait]
+impl ScheduledTaskApi for ScheduledTaskApiClient {
+    async fn get_task(&self,  params: GetTaskParams ) -> Result<models::TaskInfo, Error<GetTaskError>> {
+        
+        let GetTaskParams {
+            task_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/ScheduledTasks/{taskId}", local_var_configuration.base_path, taskId=crate::apis::urlencode(task_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TaskInfo`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::TaskInfo`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetTaskError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_tasks(&self,  params: GetTasksParams ) -> Result<Vec<models::TaskInfo>, Error<GetTasksError>> {
+        
+        let GetTasksParams {
+            is_hidden,
+            is_enabled,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/ScheduledTasks", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = is_hidden {
+            local_var_req_builder = local_var_req_builder.query(&[("isHidden", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_enabled {
+            local_var_req_builder = local_var_req_builder.query(&[("isEnabled", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TaskInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::TaskInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetTasksError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn start_task(&self,  params: StartTaskParams ) -> Result<(), Error<StartTaskError>> {
+        
+        let StartTaskParams {
+            task_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/ScheduledTasks/Running/{taskId}", local_var_configuration.base_path, taskId=crate::apis::urlencode(task_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<StartTaskError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn stop_task(&self,  params: StopTaskParams ) -> Result<(), Error<StopTaskError>> {
+        
+        let StopTaskParams {
+            task_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/ScheduledTasks/Running/{taskId}", local_var_configuration.base_path, taskId=crate::apis::urlencode(task_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<StopTaskError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_task(&self,  params: UpdateTaskParams ) -> Result<(), Error<UpdateTaskError>> {
+        
+        let UpdateTaskParams {
+            task_id,
+            task_trigger_info,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/ScheduledTasks/{taskId}/Triggers", local_var_configuration.base_path, taskId=crate::apis::urlencode(task_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&task_trigger_info);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UpdateTaskError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`ScheduledTaskApi::get_task`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTaskError {
@@ -26,7 +346,7 @@ pub enum GetTaskError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_tasks`]
+/// struct for typed errors of method [`ScheduledTaskApi::get_tasks`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetTasksError {
@@ -36,7 +356,7 @@ pub enum GetTasksError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`start_task`]
+/// struct for typed errors of method [`ScheduledTaskApi::start_task`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum StartTaskError {
@@ -47,7 +367,7 @@ pub enum StartTaskError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`stop_task`]
+/// struct for typed errors of method [`ScheduledTaskApi::stop_task`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum StopTaskError {
@@ -58,7 +378,7 @@ pub enum StopTaskError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_task`]
+/// struct for typed errors of method [`ScheduledTaskApi::update_task`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateTaskError {
@@ -67,202 +387,5 @@ pub enum UpdateTaskError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_task(configuration: &configuration::Configuration, task_id: &str) -> Result<models::TaskInfo, Error<GetTaskError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_task_id = task_id;
-
-    let uri_str = format!("{}/ScheduledTasks/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::TaskInfo`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::TaskInfo`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetTaskError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_tasks(configuration: &configuration::Configuration, is_hidden: Option<bool>, is_enabled: Option<bool>) -> Result<Vec<models::TaskInfo>, Error<GetTasksError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_is_hidden = is_hidden;
-    let p_query_is_enabled = is_enabled;
-
-    let uri_str = format!("{}/ScheduledTasks", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_is_hidden {
-        req_builder = req_builder.query(&[("isHidden", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_enabled {
-        req_builder = req_builder.query(&[("isEnabled", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::TaskInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::TaskInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetTasksError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn start_task(configuration: &configuration::Configuration, task_id: &str) -> Result<(), Error<StartTaskError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_task_id = task_id;
-
-    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<StartTaskError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn stop_task(configuration: &configuration::Configuration, task_id: &str) -> Result<(), Error<StopTaskError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_task_id = task_id;
-
-    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<StopTaskError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_task(configuration: &configuration::Configuration, task_id: &str, task_trigger_info: Vec<models::TaskTriggerInfo>) -> Result<(), Error<UpdateTaskError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_task_id = task_id;
-    let p_body_task_trigger_info = task_trigger_info;
-
-    let uri_str = format!("{}/ScheduledTasks/{taskId}/Triggers", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_task_trigger_info);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdateTaskError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

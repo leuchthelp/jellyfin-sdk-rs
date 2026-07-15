@@ -9,13 +9,275 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait YearApi: Send + Sync {
+
+    /// GET /Years/{year}
+    ///
+    /// 
+    async fn get_year(&self,  params: GetYearParams ) -> Result<models::BaseItemDto, Error<GetYearError>>;
+
+    /// GET /Years
+    ///
+    /// 
+    async fn get_years(&self,  params: GetYearsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetYearsError>>;
+}
+
+pub struct YearApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl YearApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_year`]
+/// struct for passing parameters to the method [`YearApi::get_year`]
+#[derive(Clone, Debug)]
+pub struct GetYearParams {
+    /// The year.
+    pub year: i32,
+    /// Optional. Filter by user id, and attach user data.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`YearApi::get_years`]
+#[derive(Clone, Debug)]
+pub struct GetYearsParams {
+    /// Skips over a given number of items within the results. Use for paging.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Sort Order - Ascending,Descending.
+    pub sort_order: Option<Vec<models::SortOrder>>,
+    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
+    pub parent_id: Option<String>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. If specified, results will be excluded based on item type. This allows multiple, comma delimited.
+    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
+    /// Optional. If specified, results will be included based on item type. This allows multiple, comma delimited.
+    pub include_item_types: Option<Vec<models::BaseItemKind>>,
+    /// Optional. Filter by MediaType. Allows multiple, comma delimited.
+    pub media_types: Option<Vec<models::MediaType>>,
+    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
+    pub sort_by: Option<Vec<models::ItemSortBy>>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>,
+    /// Optional. The max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>,
+    /// User Id.
+    pub user_id: Option<String>,
+    /// Search recursively.
+    pub recursive: Option<bool>,
+    /// Optional. Include image information in output.
+    pub enable_images: Option<bool>
+}
+
+
+#[async_trait]
+impl YearApi for YearApiClient {
+    async fn get_year(&self,  params: GetYearParams ) -> Result<models::BaseItemDto, Error<GetYearError>> {
+        
+        let GetYearParams {
+            year,
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Years/{year}", local_var_configuration.base_path, year=year);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetYearError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_years(&self,  params: GetYearsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetYearsError>> {
+        
+        let GetYearsParams {
+            start_index,
+            limit,
+            sort_order,
+            parent_id,
+            fields,
+            exclude_item_types,
+            include_item_types,
+            media_types,
+            sort_by,
+            enable_user_data,
+            image_type_limit,
+            enable_image_types,
+            user_id,
+            recursive,
+            enable_images,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Years", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = sort_order {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = exclude_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = include_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = media_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = sort_by {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = recursive {
+            local_var_req_builder = local_var_req_builder.query(&[("recursive", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetYearsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`YearApi::get_year`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetYearError {
@@ -26,7 +288,7 @@ pub enum GetYearError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_years`]
+/// struct for typed errors of method [`YearApi::get_years`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetYearsError {
@@ -34,178 +296,5 @@ pub enum GetYearsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_year(configuration: &configuration::Configuration, year: i32, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetYearError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_year = year;
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/Years/{year}", configuration.base_path, year=p_path_year);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDto`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDto`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetYearError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_years(configuration: &configuration::Configuration, start_index: Option<i32>, limit: Option<i32>, sort_order: Option<Vec<models::SortOrder>>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>, sort_by: Option<Vec<models::ItemSortBy>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, user_id: Option<&str>, recursive: Option<bool>, enable_images: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetYearsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_sort_order = sort_order;
-    let p_query_parent_id = parent_id;
-    let p_query_fields = fields;
-    let p_query_exclude_item_types = exclude_item_types;
-    let p_query_include_item_types = include_item_types;
-    let p_query_media_types = media_types;
-    let p_query_sort_by = sort_by;
-    let p_query_enable_user_data = enable_user_data;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-    let p_query_user_id = user_id;
-    let p_query_recursive = recursive;
-    let p_query_enable_images = enable_images;
-
-    let uri_str = format!("{}/Years", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_sort_order {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_exclude_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_include_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_media_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_sort_by {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_recursive {
-        req_builder = req_builder.query(&[("recursive", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetYearsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

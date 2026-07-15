@@ -9,15 +9,4291 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
-use tokio::fs::File as TokioFile;
-use tokio_util::codec::{BytesCodec, FramedRead};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait ImageApi: Send + Sync {
+
+    /// DELETE /Branding/Splashscreen
+    ///
+    /// 
+    async fn delete_custom_splashscreen(&self, ) -> Result<(), Error<DeleteCustomSplashscreenError>>;
+
+    /// DELETE /Items/{itemId}/Images/{imageType}
+    ///
+    /// 
+    async fn delete_item_image(&self,  params: DeleteItemImageParams ) -> Result<(), Error<DeleteItemImageError>>;
+
+    /// DELETE /Items/{itemId}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn delete_item_image_by_index(&self,  params: DeleteItemImageByIndexParams ) -> Result<(), Error<DeleteItemImageByIndexError>>;
+
+    /// DELETE /UserImage
+    ///
+    /// 
+    async fn delete_user_image(&self,  params: DeleteUserImageParams ) -> Result<(), Error<DeleteUserImageError>>;
+
+    /// GET /Artists/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_artist_image(&self,  params: GetArtistImageParams ) -> Result<std::path::PathBuf, Error<GetArtistImageError>>;
+
+    /// GET /Genres/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn get_genre_image(&self,  params: GetGenreImageParams ) -> Result<std::path::PathBuf, Error<GetGenreImageError>>;
+
+    /// GET /Genres/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_genre_image_by_index(&self,  params: GetGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetGenreImageByIndexError>>;
+
+    /// GET /Items/{itemId}/Images/{imageType}
+    ///
+    /// 
+    async fn get_item_image(&self,  params: GetItemImageParams ) -> Result<std::path::PathBuf, Error<GetItemImageError>>;
+
+    /// GET /Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}
+    ///
+    /// 
+    async fn get_item_image2(&self,  params: GetItemImage2Params ) -> Result<std::path::PathBuf, Error<GetItemImage2Error>>;
+
+    /// GET /Items/{itemId}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_item_image_by_index(&self,  params: GetItemImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetItemImageByIndexError>>;
+
+    /// GET /Items/{itemId}/Images
+    ///
+    /// 
+    async fn get_item_image_infos(&self,  params: GetItemImageInfosParams ) -> Result<Vec<models::ImageInfo>, Error<GetItemImageInfosError>>;
+
+    /// GET /MusicGenres/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn get_music_genre_image(&self,  params: GetMusicGenreImageParams ) -> Result<std::path::PathBuf, Error<GetMusicGenreImageError>>;
+
+    /// GET /MusicGenres/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_music_genre_image_by_index(&self,  params: GetMusicGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetMusicGenreImageByIndexError>>;
+
+    /// GET /Persons/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn get_person_image(&self,  params: GetPersonImageParams ) -> Result<std::path::PathBuf, Error<GetPersonImageError>>;
+
+    /// GET /Persons/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_person_image_by_index(&self,  params: GetPersonImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetPersonImageByIndexError>>;
+
+    /// GET /Branding/Splashscreen
+    ///
+    /// 
+    async fn get_splashscreen(&self,  params: GetSplashscreenParams ) -> Result<std::path::PathBuf, Error<GetSplashscreenError>>;
+
+    /// GET /Studios/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn get_studio_image(&self,  params: GetStudioImageParams ) -> Result<std::path::PathBuf, Error<GetStudioImageError>>;
+
+    /// GET /Studios/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn get_studio_image_by_index(&self,  params: GetStudioImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetStudioImageByIndexError>>;
+
+    /// GET /UserImage
+    ///
+    /// 
+    async fn get_user_image(&self,  params: GetUserImageParams ) -> Result<std::path::PathBuf, Error<GetUserImageError>>;
+
+    /// HEAD /Artists/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_artist_image(&self,  params: HeadArtistImageParams ) -> Result<std::path::PathBuf, Error<HeadArtistImageError>>;
+
+    /// HEAD /Genres/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn head_genre_image(&self,  params: HeadGenreImageParams ) -> Result<std::path::PathBuf, Error<HeadGenreImageError>>;
+
+    /// HEAD /Genres/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_genre_image_by_index(&self,  params: HeadGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadGenreImageByIndexError>>;
+
+    /// HEAD /Items/{itemId}/Images/{imageType}
+    ///
+    /// 
+    async fn head_item_image(&self,  params: HeadItemImageParams ) -> Result<std::path::PathBuf, Error<HeadItemImageError>>;
+
+    /// HEAD /Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}
+    ///
+    /// 
+    async fn head_item_image2(&self,  params: HeadItemImage2Params ) -> Result<std::path::PathBuf, Error<HeadItemImage2Error>>;
+
+    /// HEAD /Items/{itemId}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_item_image_by_index(&self,  params: HeadItemImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadItemImageByIndexError>>;
+
+    /// HEAD /MusicGenres/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn head_music_genre_image(&self,  params: HeadMusicGenreImageParams ) -> Result<std::path::PathBuf, Error<HeadMusicGenreImageError>>;
+
+    /// HEAD /MusicGenres/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_music_genre_image_by_index(&self,  params: HeadMusicGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadMusicGenreImageByIndexError>>;
+
+    /// HEAD /Persons/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn head_person_image(&self,  params: HeadPersonImageParams ) -> Result<std::path::PathBuf, Error<HeadPersonImageError>>;
+
+    /// HEAD /Persons/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_person_image_by_index(&self,  params: HeadPersonImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadPersonImageByIndexError>>;
+
+    /// HEAD /Studios/{name}/Images/{imageType}
+    ///
+    /// 
+    async fn head_studio_image(&self,  params: HeadStudioImageParams ) -> Result<std::path::PathBuf, Error<HeadStudioImageError>>;
+
+    /// HEAD /Studios/{name}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn head_studio_image_by_index(&self,  params: HeadStudioImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadStudioImageByIndexError>>;
+
+    /// HEAD /UserImage
+    ///
+    /// 
+    async fn head_user_image(&self,  params: HeadUserImageParams ) -> Result<std::path::PathBuf, Error<HeadUserImageError>>;
+
+    /// POST /UserImage
+    ///
+    /// 
+    async fn post_user_image(&self,  params: PostUserImageParams ) -> Result<(), Error<PostUserImageError>>;
+
+    /// POST /Items/{itemId}/Images/{imageType}
+    ///
+    /// 
+    async fn set_item_image(&self,  params: SetItemImageParams ) -> Result<(), Error<SetItemImageError>>;
+
+    /// POST /Items/{itemId}/Images/{imageType}/{imageIndex}
+    ///
+    /// 
+    async fn set_item_image_by_index(&self,  params: SetItemImageByIndexParams ) -> Result<(), Error<SetItemImageByIndexError>>;
+
+    /// POST /Items/{itemId}/Images/{imageType}/{imageIndex}/Index
+    ///
+    /// 
+    async fn update_item_image_index(&self,  params: UpdateItemImageIndexParams ) -> Result<(), Error<UpdateItemImageIndexError>>;
+
+    /// POST /Branding/Splashscreen
+    ///
+    /// 
+    async fn upload_custom_splashscreen(&self,  params: UploadCustomSplashscreenParams ) -> Result<(), Error<UploadCustomSplashscreenError>>;
+}
+
+pub struct ImageApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl ImageApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`delete_custom_splashscreen`]
+/// struct for passing parameters to the method [`ImageApi::delete_item_image`]
+#[derive(Clone, Debug)]
+pub struct DeleteItemImageParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::delete_item_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct DeleteItemImageByIndexParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The image index.
+    pub image_index: i32
+}
+
+/// struct for passing parameters to the method [`ImageApi::delete_user_image`]
+#[derive(Clone, Debug)]
+pub struct DeleteUserImageParams {
+    /// User Id.
+    pub user_id: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_artist_image`]
+#[derive(Clone, Debug)]
+pub struct GetArtistImageParams {
+    /// Artist name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_genre_image`]
+#[derive(Clone, Debug)]
+pub struct GetGenreImageParams {
+    /// Genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_genre_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct GetGenreImageByIndexParams {
+    /// Genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_item_image`]
+#[derive(Clone, Debug)]
+pub struct GetItemImageParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Optional. The MediaBrowser.Model.Drawing.ImageFormat of the returned image.
+    pub format: Option<String>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_item_image2`]
+#[derive(Clone, Debug)]
+pub struct GetItemImage2Params {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The maximum image width to return.
+    pub max_width: i32,
+    /// The maximum image height to return.
+    pub max_height: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: String,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: String,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: f64,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: i32,
+    /// Image index.
+    pub image_index: i32,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_item_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct GetItemImageByIndexParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Optional. The MediaBrowser.Model.Drawing.ImageFormat of the returned image.
+    pub format: Option<String>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_item_image_infos`]
+#[derive(Clone, Debug)]
+pub struct GetItemImageInfosParams {
+    /// Item id.
+    pub item_id: String
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_music_genre_image`]
+#[derive(Clone, Debug)]
+pub struct GetMusicGenreImageParams {
+    /// Music genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_music_genre_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct GetMusicGenreImageByIndexParams {
+    /// Music genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_person_image`]
+#[derive(Clone, Debug)]
+pub struct GetPersonImageParams {
+    /// Person name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_person_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct GetPersonImageByIndexParams {
+    /// Person name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_splashscreen`]
+#[derive(Clone, Debug)]
+pub struct GetSplashscreenParams {
+    /// Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_studio_image`]
+#[derive(Clone, Debug)]
+pub struct GetStudioImageParams {
+    /// Studio name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_studio_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct GetStudioImageByIndexParams {
+    /// Studio name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::get_user_image`]
+#[derive(Clone, Debug)]
+pub struct GetUserImageParams {
+    /// User id.
+    pub user_id: Option<String>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_artist_image`]
+#[derive(Clone, Debug)]
+pub struct HeadArtistImageParams {
+    /// Artist name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_genre_image`]
+#[derive(Clone, Debug)]
+pub struct HeadGenreImageParams {
+    /// Genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_genre_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct HeadGenreImageByIndexParams {
+    /// Genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_item_image`]
+#[derive(Clone, Debug)]
+pub struct HeadItemImageParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Optional. The MediaBrowser.Model.Drawing.ImageFormat of the returned image.
+    pub format: Option<String>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_item_image2`]
+#[derive(Clone, Debug)]
+pub struct HeadItemImage2Params {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// The maximum image width to return.
+    pub max_width: i32,
+    /// The maximum image height to return.
+    pub max_height: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: String,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: String,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: f64,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: i32,
+    /// Image index.
+    pub image_index: i32,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_item_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct HeadItemImageByIndexParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Optional. The MediaBrowser.Model.Drawing.ImageFormat of the returned image.
+    pub format: Option<String>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_music_genre_image`]
+#[derive(Clone, Debug)]
+pub struct HeadMusicGenreImageParams {
+    /// Music genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_music_genre_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct HeadMusicGenreImageByIndexParams {
+    /// Music genre name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_person_image`]
+#[derive(Clone, Debug)]
+pub struct HeadPersonImageParams {
+    /// Person name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_person_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct HeadPersonImageByIndexParams {
+    /// Person name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_studio_image`]
+#[derive(Clone, Debug)]
+pub struct HeadStudioImageParams {
+    /// Studio name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>,
+    /// Image index.
+    pub image_index: Option<i32>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_studio_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct HeadStudioImageByIndexParams {
+    /// Studio name.
+    pub name: String,
+    /// Image type.
+    pub image_type: String,
+    /// Image index.
+    pub image_index: i32,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>,
+    /// The maximum image width to return.
+    pub max_width: Option<i32>,
+    /// The maximum image height to return.
+    pub max_height: Option<i32>,
+    /// Optional. Percent to render for the percent played overlay.
+    pub percent_played: Option<f64>,
+    /// Optional. Unplayed count overlay to render.
+    pub unplayed_count: Option<i32>,
+    /// The fixed image width to return.
+    pub width: Option<i32>,
+    /// The fixed image height to return.
+    pub height: Option<i32>,
+    /// Optional. Quality setting, from 0-100. Defaults to 90 and should suffice in most cases.
+    pub quality: Option<i32>,
+    /// Width of box to fill.
+    pub fill_width: Option<i32>,
+    /// Height of box to fill.
+    pub fill_height: Option<i32>,
+    /// Optional. Blur image.
+    pub blur: Option<i32>,
+    /// Optional. Apply a background color for transparent images.
+    pub background_color: Option<String>,
+    /// Optional. Apply a foreground layer on top of the image.
+    pub foreground_layer: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::head_user_image`]
+#[derive(Clone, Debug)]
+pub struct HeadUserImageParams {
+    /// User id.
+    pub user_id: Option<String>,
+    /// Optional. Supply the cache tag from the item object to receive strong caching headers.
+    pub tag: Option<String>,
+    /// Determines the output format of the image - original,gif,jpg,png.
+    pub format: Option<String>
+}
+
+/// struct for passing parameters to the method [`ImageApi::post_user_image`]
+#[derive(Clone, Debug)]
+pub struct PostUserImageParams {
+    /// User Id.
+    pub user_id: Option<String>,
+    pub body: Option<std::path::PathBuf>
+}
+
+/// struct for passing parameters to the method [`ImageApi::set_item_image`]
+#[derive(Clone, Debug)]
+pub struct SetItemImageParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    pub body: Option<std::path::PathBuf>
+}
+
+/// struct for passing parameters to the method [`ImageApi::set_item_image_by_index`]
+#[derive(Clone, Debug)]
+pub struct SetItemImageByIndexParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// (Unused) Image index.
+    pub image_index: i32,
+    pub body: Option<std::path::PathBuf>
+}
+
+/// struct for passing parameters to the method [`ImageApi::update_item_image_index`]
+#[derive(Clone, Debug)]
+pub struct UpdateItemImageIndexParams {
+    /// Item id.
+    pub item_id: String,
+    /// Image type.
+    pub image_type: String,
+    /// Old image index.
+    pub image_index: i32,
+    /// New image index.
+    pub new_index: i32
+}
+
+/// struct for passing parameters to the method [`ImageApi::upload_custom_splashscreen`]
+#[derive(Clone, Debug)]
+pub struct UploadCustomSplashscreenParams {
+    pub body: Option<std::path::PathBuf>
+}
+
+
+#[async_trait]
+impl ImageApi for ImageApiClient {
+    async fn delete_custom_splashscreen(&self, ) -> Result<(), Error<DeleteCustomSplashscreenError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Branding/Splashscreen", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DeleteCustomSplashscreenError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn delete_item_image(&self,  params: DeleteItemImageParams ) -> Result<(), Error<DeleteItemImageError>> {
+        
+        let DeleteItemImageParams {
+            item_id,
+            image_type,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DeleteItemImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn delete_item_image_by_index(&self,  params: DeleteItemImageByIndexParams ) -> Result<(), Error<DeleteItemImageByIndexError>> {
+        
+        let DeleteItemImageByIndexParams {
+            item_id,
+            image_type,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DeleteItemImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn delete_user_image(&self,  params: DeleteUserImageParams ) -> Result<(), Error<DeleteUserImageError>> {
+        
+        let DeleteUserImageParams {
+            user_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserImage", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DeleteUserImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_artist_image(&self,  params: GetArtistImageParams ) -> Result<std::path::PathBuf, Error<GetArtistImageError>> {
+        
+        let GetArtistImageParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Artists/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetArtistImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_genre_image(&self,  params: GetGenreImageParams ) -> Result<std::path::PathBuf, Error<GetGenreImageError>> {
+        
+        let GetGenreImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Genres/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetGenreImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_genre_image_by_index(&self,  params: GetGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetGenreImageByIndexError>> {
+        
+        let GetGenreImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Genres/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetGenreImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_item_image(&self,  params: GetItemImageParams ) -> Result<std::path::PathBuf, Error<GetItemImageError>> {
+        
+        let GetItemImageParams {
+            item_id,
+            image_type,
+            max_width,
+            max_height,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetItemImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_item_image2(&self,  params: GetItemImage2Params ) -> Result<std::path::PathBuf, Error<GetItemImage2Error>> {
+        
+        let GetItemImage2Params {
+            item_id,
+            image_type,
+            max_width,
+            max_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            image_index,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), maxWidth=max_width, maxHeight=max_height, tag=crate::apis::urlencode(tag), format=crate::apis::urlencode(format), percentPlayed=percent_played, unplayedCount=unplayed_count, imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetItemImage2Error> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_item_image_by_index(&self,  params: GetItemImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetItemImageByIndexError>> {
+        
+        let GetItemImageByIndexParams {
+            item_id,
+            image_type,
+            image_index,
+            max_width,
+            max_height,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetItemImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_item_image_infos(&self,  params: GetItemImageInfosParams ) -> Result<Vec<models::ImageInfo>, Error<GetItemImageInfosError>> {
+        
+        let GetItemImageInfosParams {
+            item_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ImageInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::ImageInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetItemImageInfosError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_music_genre_image(&self,  params: GetMusicGenreImageParams ) -> Result<std::path::PathBuf, Error<GetMusicGenreImageError>> {
+        
+        let GetMusicGenreImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetMusicGenreImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_music_genre_image_by_index(&self,  params: GetMusicGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetMusicGenreImageByIndexError>> {
+        
+        let GetMusicGenreImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetMusicGenreImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_person_image(&self,  params: GetPersonImageParams ) -> Result<std::path::PathBuf, Error<GetPersonImageError>> {
+        
+        let GetPersonImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Persons/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPersonImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_person_image_by_index(&self,  params: GetPersonImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetPersonImageByIndexError>> {
+        
+        let GetPersonImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Persons/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPersonImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_splashscreen(&self,  params: GetSplashscreenParams ) -> Result<std::path::PathBuf, Error<GetSplashscreenError>> {
+        
+        let GetSplashscreenParams {
+            tag,
+            format,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Branding/Splashscreen", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSplashscreenError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_studio_image(&self,  params: GetStudioImageParams ) -> Result<std::path::PathBuf, Error<GetStudioImageError>> {
+        
+        let GetStudioImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Studios/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetStudioImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_studio_image_by_index(&self,  params: GetStudioImageByIndexParams ) -> Result<std::path::PathBuf, Error<GetStudioImageByIndexError>> {
+        
+        let GetStudioImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Studios/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetStudioImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_user_image(&self,  params: GetUserImageParams ) -> Result<std::path::PathBuf, Error<GetUserImageError>> {
+        
+        let GetUserImageParams {
+            user_id,
+            tag,
+            format,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserImage", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetUserImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_artist_image(&self,  params: HeadArtistImageParams ) -> Result<std::path::PathBuf, Error<HeadArtistImageError>> {
+        
+        let HeadArtistImageParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Artists/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadArtistImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_genre_image(&self,  params: HeadGenreImageParams ) -> Result<std::path::PathBuf, Error<HeadGenreImageError>> {
+        
+        let HeadGenreImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Genres/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadGenreImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_genre_image_by_index(&self,  params: HeadGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadGenreImageByIndexError>> {
+        
+        let HeadGenreImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Genres/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadGenreImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_item_image(&self,  params: HeadItemImageParams ) -> Result<std::path::PathBuf, Error<HeadItemImageError>> {
+        
+        let HeadItemImageParams {
+            item_id,
+            image_type,
+            max_width,
+            max_height,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadItemImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_item_image2(&self,  params: HeadItemImage2Params ) -> Result<std::path::PathBuf, Error<HeadItemImage2Error>> {
+        
+        let HeadItemImage2Params {
+            item_id,
+            image_type,
+            max_width,
+            max_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            image_index,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), maxWidth=max_width, maxHeight=max_height, tag=crate::apis::urlencode(tag), format=crate::apis::urlencode(format), percentPlayed=percent_played, unplayedCount=unplayed_count, imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadItemImage2Error> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_item_image_by_index(&self,  params: HeadItemImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadItemImageByIndexError>> {
+        
+        let HeadItemImageByIndexParams {
+            item_id,
+            image_type,
+            image_index,
+            max_width,
+            max_height,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            tag,
+            format,
+            percent_played,
+            unplayed_count,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadItemImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_music_genre_image(&self,  params: HeadMusicGenreImageParams ) -> Result<std::path::PathBuf, Error<HeadMusicGenreImageError>> {
+        
+        let HeadMusicGenreImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadMusicGenreImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_music_genre_image_by_index(&self,  params: HeadMusicGenreImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadMusicGenreImageByIndexError>> {
+        
+        let HeadMusicGenreImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadMusicGenreImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_person_image(&self,  params: HeadPersonImageParams ) -> Result<std::path::PathBuf, Error<HeadPersonImageError>> {
+        
+        let HeadPersonImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Persons/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadPersonImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_person_image_by_index(&self,  params: HeadPersonImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadPersonImageByIndexError>> {
+        
+        let HeadPersonImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Persons/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadPersonImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_studio_image(&self,  params: HeadStudioImageParams ) -> Result<std::path::PathBuf, Error<HeadStudioImageError>> {
+        
+        let HeadStudioImageParams {
+            name,
+            image_type,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+            image_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Studios/{name}/Images/{imageType}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_index {
+            local_var_req_builder = local_var_req_builder.query(&[("imageIndex", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadStudioImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_studio_image_by_index(&self,  params: HeadStudioImageByIndexParams ) -> Result<std::path::PathBuf, Error<HeadStudioImageByIndexError>> {
+        
+        let HeadStudioImageByIndexParams {
+            name,
+            image_type,
+            image_index,
+            tag,
+            format,
+            max_width,
+            max_height,
+            percent_played,
+            unplayed_count,
+            width,
+            height,
+            quality,
+            fill_width,
+            fill_height,
+            blur,
+            background_color,
+            foreground_layer,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Studios/{name}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, name=crate::apis::urlencode(name), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_width {
+            local_var_req_builder = local_var_req_builder.query(&[("maxWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = max_height {
+            local_var_req_builder = local_var_req_builder.query(&[("maxHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = percent_played {
+            local_var_req_builder = local_var_req_builder.query(&[("percentPlayed", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = unplayed_count {
+            local_var_req_builder = local_var_req_builder.query(&[("unplayedCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = width {
+            local_var_req_builder = local_var_req_builder.query(&[("width", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = height {
+            local_var_req_builder = local_var_req_builder.query(&[("height", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = quality {
+            local_var_req_builder = local_var_req_builder.query(&[("quality", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_width {
+            local_var_req_builder = local_var_req_builder.query(&[("fillWidth", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fill_height {
+            local_var_req_builder = local_var_req_builder.query(&[("fillHeight", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = blur {
+            local_var_req_builder = local_var_req_builder.query(&[("blur", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = background_color {
+            local_var_req_builder = local_var_req_builder.query(&[("backgroundColor", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = foreground_layer {
+            local_var_req_builder = local_var_req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadStudioImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn head_user_image(&self,  params: HeadUserImageParams ) -> Result<std::path::PathBuf, Error<HeadUserImageError>> {
+        
+        let HeadUserImageParams {
+            user_id,
+            tag,
+            format,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserImage", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::HEAD, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = tag {
+            local_var_req_builder = local_var_req_builder.query(&[("tag", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<HeadUserImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn post_user_image(&self,  params: PostUserImageParams ) -> Result<(), Error<PostUserImageError>> {
+        
+        let PostUserImageParams {
+            user_id,
+            body,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/UserImage", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&body);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<PostUserImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn set_item_image(&self,  params: SetItemImageParams ) -> Result<(), Error<SetItemImageError>> {
+        
+        let SetItemImageParams {
+            item_id,
+            image_type,
+            body,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&body);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SetItemImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn set_item_image_by_index(&self,  params: SetItemImageByIndexParams ) -> Result<(), Error<SetItemImageByIndexError>> {
+        
+        let SetItemImageByIndexParams {
+            item_id,
+            image_type,
+            image_index,
+            body,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&body);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SetItemImageByIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn update_item_image_index(&self,  params: UpdateItemImageIndexParams ) -> Result<(), Error<UpdateItemImageIndexError>> {
+        
+        let UpdateItemImageIndexParams {
+            item_id,
+            image_type,
+            image_index,
+            new_index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/Index", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), imageType=crate::apis::urlencode(image_type), imageIndex=image_index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        local_var_req_builder = local_var_req_builder.query(&[("newIndex", &new_index.to_string())]);
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UpdateItemImageIndexError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn upload_custom_splashscreen(&self,  params: UploadCustomSplashscreenParams ) -> Result<(), Error<UploadCustomSplashscreenError>> {
+        
+        let UploadCustomSplashscreenParams {
+            body,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Branding/Splashscreen", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&body);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UploadCustomSplashscreenError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`ImageApi::delete_custom_splashscreen`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteCustomSplashscreenError {
@@ -27,7 +4303,7 @@ pub enum DeleteCustomSplashscreenError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`delete_item_image`]
+/// struct for typed errors of method [`ImageApi::delete_item_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteItemImageError {
@@ -38,7 +4314,7 @@ pub enum DeleteItemImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`delete_item_image_by_index`]
+/// struct for typed errors of method [`ImageApi::delete_item_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteItemImageByIndexError {
@@ -49,7 +4325,7 @@ pub enum DeleteItemImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`delete_user_image`]
+/// struct for typed errors of method [`ImageApi::delete_user_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteUserImageError {
@@ -59,7 +4335,7 @@ pub enum DeleteUserImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_artist_image`]
+/// struct for typed errors of method [`ImageApi::get_artist_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetArtistImageError {
@@ -68,7 +4344,7 @@ pub enum GetArtistImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_genre_image`]
+/// struct for typed errors of method [`ImageApi::get_genre_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGenreImageError {
@@ -77,7 +4353,7 @@ pub enum GetGenreImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_genre_image_by_index`]
+/// struct for typed errors of method [`ImageApi::get_genre_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetGenreImageByIndexError {
@@ -86,7 +4362,7 @@ pub enum GetGenreImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_item_image`]
+/// struct for typed errors of method [`ImageApi::get_item_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetItemImageError {
@@ -95,7 +4371,7 @@ pub enum GetItemImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_item_image2`]
+/// struct for typed errors of method [`ImageApi::get_item_image2`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetItemImage2Error {
@@ -104,7 +4380,7 @@ pub enum GetItemImage2Error {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_item_image_by_index`]
+/// struct for typed errors of method [`ImageApi::get_item_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetItemImageByIndexError {
@@ -113,7 +4389,7 @@ pub enum GetItemImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_item_image_infos`]
+/// struct for typed errors of method [`ImageApi::get_item_image_infos`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetItemImageInfosError {
@@ -124,7 +4400,7 @@ pub enum GetItemImageInfosError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_music_genre_image`]
+/// struct for typed errors of method [`ImageApi::get_music_genre_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMusicGenreImageError {
@@ -133,7 +4409,7 @@ pub enum GetMusicGenreImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_music_genre_image_by_index`]
+/// struct for typed errors of method [`ImageApi::get_music_genre_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMusicGenreImageByIndexError {
@@ -142,7 +4418,7 @@ pub enum GetMusicGenreImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_person_image`]
+/// struct for typed errors of method [`ImageApi::get_person_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPersonImageError {
@@ -151,7 +4427,7 @@ pub enum GetPersonImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_person_image_by_index`]
+/// struct for typed errors of method [`ImageApi::get_person_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPersonImageByIndexError {
@@ -160,7 +4436,7 @@ pub enum GetPersonImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_splashscreen`]
+/// struct for typed errors of method [`ImageApi::get_splashscreen`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSplashscreenError {
@@ -168,7 +4444,7 @@ pub enum GetSplashscreenError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_studio_image`]
+/// struct for typed errors of method [`ImageApi::get_studio_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetStudioImageError {
@@ -177,7 +4453,7 @@ pub enum GetStudioImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_studio_image_by_index`]
+/// struct for typed errors of method [`ImageApi::get_studio_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetStudioImageByIndexError {
@@ -186,7 +4462,7 @@ pub enum GetStudioImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_user_image`]
+/// struct for typed errors of method [`ImageApi::get_user_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetUserImageError {
@@ -196,7 +4472,7 @@ pub enum GetUserImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_artist_image`]
+/// struct for typed errors of method [`ImageApi::head_artist_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadArtistImageError {
@@ -205,7 +4481,7 @@ pub enum HeadArtistImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_genre_image`]
+/// struct for typed errors of method [`ImageApi::head_genre_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadGenreImageError {
@@ -214,7 +4490,7 @@ pub enum HeadGenreImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_genre_image_by_index`]
+/// struct for typed errors of method [`ImageApi::head_genre_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadGenreImageByIndexError {
@@ -223,7 +4499,7 @@ pub enum HeadGenreImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_item_image`]
+/// struct for typed errors of method [`ImageApi::head_item_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadItemImageError {
@@ -232,7 +4508,7 @@ pub enum HeadItemImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_item_image2`]
+/// struct for typed errors of method [`ImageApi::head_item_image2`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadItemImage2Error {
@@ -241,7 +4517,7 @@ pub enum HeadItemImage2Error {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_item_image_by_index`]
+/// struct for typed errors of method [`ImageApi::head_item_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadItemImageByIndexError {
@@ -250,7 +4526,7 @@ pub enum HeadItemImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_music_genre_image`]
+/// struct for typed errors of method [`ImageApi::head_music_genre_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadMusicGenreImageError {
@@ -259,7 +4535,7 @@ pub enum HeadMusicGenreImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_music_genre_image_by_index`]
+/// struct for typed errors of method [`ImageApi::head_music_genre_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadMusicGenreImageByIndexError {
@@ -268,7 +4544,7 @@ pub enum HeadMusicGenreImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_person_image`]
+/// struct for typed errors of method [`ImageApi::head_person_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadPersonImageError {
@@ -277,7 +4553,7 @@ pub enum HeadPersonImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_person_image_by_index`]
+/// struct for typed errors of method [`ImageApi::head_person_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadPersonImageByIndexError {
@@ -286,7 +4562,7 @@ pub enum HeadPersonImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_studio_image`]
+/// struct for typed errors of method [`ImageApi::head_studio_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadStudioImageError {
@@ -295,7 +4571,7 @@ pub enum HeadStudioImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_studio_image_by_index`]
+/// struct for typed errors of method [`ImageApi::head_studio_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadStudioImageByIndexError {
@@ -304,7 +4580,7 @@ pub enum HeadStudioImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`head_user_image`]
+/// struct for typed errors of method [`ImageApi::head_user_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum HeadUserImageError {
@@ -314,7 +4590,7 @@ pub enum HeadUserImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`post_user_image`]
+/// struct for typed errors of method [`ImageApi::post_user_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum PostUserImageError {
@@ -326,7 +4602,7 @@ pub enum PostUserImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`set_item_image`]
+/// struct for typed errors of method [`ImageApi::set_item_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SetItemImageError {
@@ -338,7 +4614,7 @@ pub enum SetItemImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`set_item_image_by_index`]
+/// struct for typed errors of method [`ImageApi::set_item_image_by_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SetItemImageByIndexError {
@@ -350,7 +4626,7 @@ pub enum SetItemImageByIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_item_image_index`]
+/// struct for typed errors of method [`ImageApi::update_item_image_index`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdateItemImageIndexError {
@@ -361,7 +4637,7 @@ pub enum UpdateItemImageIndexError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`upload_custom_splashscreen`]
+/// struct for typed errors of method [`ImageApi::upload_custom_splashscreen`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UploadCustomSplashscreenError {
@@ -370,2478 +4646,5 @@ pub enum UploadCustomSplashscreenError {
     Status503(),
     Status401(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn delete_custom_splashscreen(configuration: &configuration::Configuration, ) -> Result<(), Error<DeleteCustomSplashscreenError>> {
-
-    let uri_str = format!("{}/Branding/Splashscreen", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteCustomSplashscreenError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn delete_item_image(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: Option<i32>) -> Result<(), Error<DeleteItemImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteItemImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn delete_item_image_by_index(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: i32) -> Result<(), Error<DeleteItemImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteItemImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn delete_user_image(configuration: &configuration::Configuration, user_id: Option<&str>) -> Result<(), Error<DeleteUserImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-
-    let uri_str = format!("{}/UserImage", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteUserImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_artist_image(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetArtistImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Artists/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetArtistImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_genre_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<GetGenreImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Genres/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetGenreImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_genre_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetGenreImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Genres/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetGenreImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_item_image(configuration: &configuration::Configuration, item_id: &str, image_type: &str, max_width: Option<i32>, max_height: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, tag: Option<&str>, format: Option<&str>, percent_played: Option<f64>, unplayed_count: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<GetItemImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetItemImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_item_image2(configuration: &configuration::Configuration, item_id: &str, image_type: &str, max_width: i32, max_height: i32, tag: &str, format: &str, percent_played: f64, unplayed_count: i32, image_index: i32, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetItemImage2Error>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_max_width = max_width;
-    let p_path_max_height = max_height;
-    let p_path_tag = tag;
-    let p_path_format = format;
-    let p_path_percent_played = percent_played;
-    let p_path_unplayed_count = unplayed_count;
-    let p_path_image_index = image_index;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), maxWidth=p_path_max_width, maxHeight=p_path_max_height, tag=crate::apis::urlencode(p_path_tag), format=crate::apis::urlencode(p_path_format), percentPlayed=p_path_percent_played, unplayedCount=p_path_unplayed_count, imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetItemImage2Error> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_item_image_by_index(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: i32, max_width: Option<i32>, max_height: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, tag: Option<&str>, format: Option<&str>, percent_played: Option<f64>, unplayed_count: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetItemImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetItemImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_item_image_infos(configuration: &configuration::Configuration, item_id: &str) -> Result<Vec<models::ImageInfo>, Error<GetItemImageInfosError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-
-    let uri_str = format!("{}/Items/{itemId}/Images", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ImageInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::ImageInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetItemImageInfosError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_music_genre_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<GetMusicGenreImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetMusicGenreImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_music_genre_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetMusicGenreImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetMusicGenreImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_person_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<GetPersonImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Persons/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPersonImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_person_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetPersonImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Persons/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPersonImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_splashscreen(configuration: &configuration::Configuration, tag: Option<&str>, format: Option<&str>) -> Result<reqwest::Response, Error<GetSplashscreenError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_tag = tag;
-    let p_query_format = format;
-
-    let uri_str = format!("{}/Branding/Splashscreen", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSplashscreenError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_studio_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<GetStudioImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Studios/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetStudioImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_studio_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<GetStudioImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Studios/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetStudioImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_user_image(configuration: &configuration::Configuration, user_id: Option<&str>, tag: Option<&str>, format: Option<&str>) -> Result<reqwest::Response, Error<GetUserImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_tag = tag;
-    let p_query_format = format;
-
-    let uri_str = format!("{}/UserImage", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetUserImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_artist_image(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadArtistImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Artists/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadArtistImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_genre_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<HeadGenreImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Genres/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadGenreImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_genre_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadGenreImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Genres/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadGenreImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_item_image(configuration: &configuration::Configuration, item_id: &str, image_type: &str, max_width: Option<i32>, max_height: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, tag: Option<&str>, format: Option<&str>, percent_played: Option<f64>, unplayed_count: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<HeadItemImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadItemImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_item_image2(configuration: &configuration::Configuration, item_id: &str, image_type: &str, max_width: i32, max_height: i32, tag: &str, format: &str, percent_played: f64, unplayed_count: i32, image_index: i32, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadItemImage2Error>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_max_width = max_width;
-    let p_path_max_height = max_height;
-    let p_path_tag = tag;
-    let p_path_format = format;
-    let p_path_percent_played = percent_played;
-    let p_path_unplayed_count = unplayed_count;
-    let p_path_image_index = image_index;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/{tag}/{format}/{maxWidth}/{maxHeight}/{percentPlayed}/{unplayedCount}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), maxWidth=p_path_max_width, maxHeight=p_path_max_height, tag=crate::apis::urlencode(p_path_tag), format=crate::apis::urlencode(p_path_format), percentPlayed=p_path_percent_played, unplayedCount=p_path_unplayed_count, imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadItemImage2Error> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_item_image_by_index(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: i32, max_width: Option<i32>, max_height: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, tag: Option<&str>, format: Option<&str>, percent_played: Option<f64>, unplayed_count: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadItemImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadItemImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_music_genre_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<HeadMusicGenreImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadMusicGenreImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_music_genre_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadMusicGenreImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/MusicGenres/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadMusicGenreImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_person_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<HeadPersonImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Persons/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadPersonImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_person_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadPersonImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Persons/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadPersonImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_studio_image(configuration: &configuration::Configuration, name: &str, image_type: &str, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>, image_index: Option<i32>) -> Result<reqwest::Response, Error<HeadStudioImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-    let p_query_image_index = image_index;
-
-    let uri_str = format!("{}/Studios/{name}/Images/{imageType}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_index {
-        req_builder = req_builder.query(&[("imageIndex", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadStudioImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_studio_image_by_index(configuration: &configuration::Configuration, name: &str, image_type: &str, image_index: i32, tag: Option<&str>, format: Option<&str>, max_width: Option<i32>, max_height: Option<i32>, percent_played: Option<f64>, unplayed_count: Option<i32>, width: Option<i32>, height: Option<i32>, quality: Option<i32>, fill_width: Option<i32>, fill_height: Option<i32>, blur: Option<i32>, background_color: Option<&str>, foreground_layer: Option<&str>) -> Result<reqwest::Response, Error<HeadStudioImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_tag = tag;
-    let p_query_format = format;
-    let p_query_max_width = max_width;
-    let p_query_max_height = max_height;
-    let p_query_percent_played = percent_played;
-    let p_query_unplayed_count = unplayed_count;
-    let p_query_width = width;
-    let p_query_height = height;
-    let p_query_quality = quality;
-    let p_query_fill_width = fill_width;
-    let p_query_fill_height = fill_height;
-    let p_query_blur = blur;
-    let p_query_background_color = background_color;
-    let p_query_foreground_layer = foreground_layer;
-
-    let uri_str = format!("{}/Studios/{name}/Images/{imageType}/{imageIndex}", configuration.base_path, name=crate::apis::urlencode(p_path_name), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_width {
-        req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_max_height {
-        req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_percent_played {
-        req_builder = req_builder.query(&[("percentPlayed", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_unplayed_count {
-        req_builder = req_builder.query(&[("unplayedCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_width {
-        req_builder = req_builder.query(&[("width", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_height {
-        req_builder = req_builder.query(&[("height", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_quality {
-        req_builder = req_builder.query(&[("quality", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_width {
-        req_builder = req_builder.query(&[("fillWidth", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fill_height {
-        req_builder = req_builder.query(&[("fillHeight", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_blur {
-        req_builder = req_builder.query(&[("blur", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_background_color {
-        req_builder = req_builder.query(&[("backgroundColor", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_foreground_layer {
-        req_builder = req_builder.query(&[("foregroundLayer", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadStudioImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn head_user_image(configuration: &configuration::Configuration, user_id: Option<&str>, tag: Option<&str>, format: Option<&str>) -> Result<reqwest::Response, Error<HeadUserImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_tag = tag;
-    let p_query_format = format;
-
-    let uri_str = format!("{}/UserImage", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_tag {
-        req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<HeadUserImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn post_user_image(configuration: &configuration::Configuration, user_id: Option<&str>, body: Option<std::path::PathBuf>) -> Result<(), Error<PostUserImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_body_body = body;
-
-    let uri_str = format!("{}/UserImage", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    if let Some(param_value) = p_body_body {
-        let file = TokioFile::open(param_value).await?;
-        let stream = FramedRead::new(file, BytesCodec::new());
-        req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<PostUserImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn set_item_image(configuration: &configuration::Configuration, item_id: &str, image_type: &str, body: Option<std::path::PathBuf>) -> Result<(), Error<SetItemImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_body_body = body;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    if let Some(param_value) = p_body_body {
-        let file = TokioFile::open(param_value).await?;
-        let stream = FramedRead::new(file, BytesCodec::new());
-        req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SetItemImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn set_item_image_by_index(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: i32, body: Option<std::path::PathBuf>) -> Result<(), Error<SetItemImageByIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_body_body = body;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    if let Some(param_value) = p_body_body {
-        let file = TokioFile::open(param_value).await?;
-        let stream = FramedRead::new(file, BytesCodec::new());
-        req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SetItemImageByIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn update_item_image_index(configuration: &configuration::Configuration, item_id: &str, image_type: &str, image_index: i32, new_index: i32) -> Result<(), Error<UpdateItemImageIndexError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_image_type = image_type;
-    let p_path_image_index = image_index;
-    let p_query_new_index = new_index;
-
-    let uri_str = format!("{}/Items/{itemId}/Images/{imageType}/{imageIndex}/Index", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), imageType=crate::apis::urlencode(p_path_image_type), imageIndex=p_path_image_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    req_builder = req_builder.query(&[("newIndex", &p_query_new_index.to_string())]);
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdateItemImageIndexError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn upload_custom_splashscreen(configuration: &configuration::Configuration, body: Option<std::path::PathBuf>) -> Result<(), Error<UploadCustomSplashscreenError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_body = body;
-
-    let uri_str = format!("{}/Branding/Splashscreen", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    if let Some(param_value) = p_body_body {
-        let file = TokioFile::open(param_value).await?;
-        let stream = FramedRead::new(file, BytesCodec::new());
-        req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UploadCustomSplashscreenError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

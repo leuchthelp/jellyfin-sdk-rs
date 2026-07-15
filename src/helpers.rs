@@ -1,4 +1,4 @@
-use openapi::apis::configuration::{ApiKey, BasicAuth, Configuration};
+use jellyfin_generated_client::apis::configuration::{ApiKey, BasicAuth, Configuration};
 use reqwest::header::{HeaderMap, HeaderValue};
 use url::Url;
 

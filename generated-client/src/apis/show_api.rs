@@ -9,13 +9,581 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait ShowApi: Send + Sync {
+
+    /// GET /Shows/{seriesId}/Episodes
+    ///
+    /// 
+    async fn get_episodes(&self,  params: GetEpisodesParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetEpisodesError>>;
+
+    /// GET /Shows/NextUp
+    ///
+    /// 
+    async fn get_next_up(&self,  params: GetNextUpParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetNextUpError>>;
+
+    /// GET /Shows/{seriesId}/Seasons
+    ///
+    /// 
+    async fn get_seasons(&self,  params: GetSeasonsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetSeasonsError>>;
+
+    /// GET /Shows/Upcoming
+    ///
+    /// 
+    async fn get_upcoming_episodes(&self,  params: GetUpcomingEpisodesParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetUpcomingEpisodesError>>;
+}
+
+pub struct ShowApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl ShowApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_episodes`]
+/// struct for passing parameters to the method [`ShowApi::get_episodes`]
+#[derive(Clone, Debug)]
+pub struct GetEpisodesParams {
+    /// The series id.
+    pub series_id: String,
+    /// The user id.
+    pub user_id: Option<String>,
+    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional filter by season number.
+    pub season: Option<i32>,
+    /// Optional. Filter by season id.
+    pub season_id: Option<String>,
+    /// Optional. Filter by items that are missing episodes or not.
+    pub is_missing: Option<bool>,
+    /// Optional. Return items that are siblings of a supplied item.
+    pub adjacent_to: Option<String>,
+    /// Optional. Skip through the list until a given item is found.
+    pub start_item_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional, include image information in output.
+    pub enable_images: Option<bool>,
+    /// Optional, the max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>,
+    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
+    pub sort_by: Option<String>
+}
+
+/// struct for passing parameters to the method [`ShowApi::get_next_up`]
+#[derive(Clone, Debug)]
+pub struct GetNextUpParams {
+    /// The user id of the user to get the next up episodes for.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. Filter by series id.
+    pub series_id: Option<String>,
+    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
+    pub parent_id: Option<String>,
+    /// Optional. Include image information in output.
+    pub enable_images: Option<bool>,
+    /// Optional. The max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>,
+    /// Optional. Starting date of shows to show in Next Up section.
+    pub next_up_date_cutoff: Option<chrono::DateTime<chrono::FixedOffset>>,
+    /// Whether to enable the total records count. Defaults to true.
+    pub enable_total_record_count: Option<bool>,
+    /// Whether to include resumable episodes in next up results.
+    pub enable_resumable: Option<bool>,
+    /// Whether to include watched episodes in next up results.
+    pub enable_rewatching: Option<bool>
+}
+
+/// struct for passing parameters to the method [`ShowApi::get_seasons`]
+#[derive(Clone, Debug)]
+pub struct GetSeasonsParams {
+    /// The series id.
+    pub series_id: String,
+    /// The user id.
+    pub user_id: Option<String>,
+    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. Filter by special season.
+    pub is_special_season: Option<bool>,
+    /// Optional. Filter by items that are missing episodes or not.
+    pub is_missing: Option<bool>,
+    /// Optional. Return items that are siblings of a supplied item.
+    pub adjacent_to: Option<String>,
+    /// Optional. Include image information in output.
+    pub enable_images: Option<bool>,
+    /// Optional. The max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>
+}
+
+/// struct for passing parameters to the method [`ShowApi::get_upcoming_episodes`]
+#[derive(Clone, Debug)]
+pub struct GetUpcomingEpisodesParams {
+    /// The user id of the user to get the upcoming episodes for.
+    pub user_id: Option<String>,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Specify additional fields of information to return in the output.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
+    pub parent_id: Option<String>,
+    /// Optional. Include image information in output.
+    pub enable_images: Option<bool>,
+    /// Optional. The max number of images to return, per image type.
+    pub image_type_limit: Option<i32>,
+    /// Optional. The image types to include in the output.
+    pub enable_image_types: Option<Vec<models::ImageType>>,
+    /// Optional. Include user data.
+    pub enable_user_data: Option<bool>
+}
+
+
+#[async_trait]
+impl ShowApi for ShowApiClient {
+    async fn get_episodes(&self,  params: GetEpisodesParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetEpisodesError>> {
+        
+        let GetEpisodesParams {
+            series_id,
+            user_id,
+            fields,
+            season,
+            season_id,
+            is_missing,
+            adjacent_to,
+            start_item_id,
+            start_index,
+            limit,
+            enable_images,
+            image_type_limit,
+            enable_image_types,
+            enable_user_data,
+            sort_by,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Shows/{seriesId}/Episodes", local_var_configuration.base_path, seriesId=crate::apis::urlencode(series_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = season {
+            local_var_req_builder = local_var_req_builder.query(&[("season", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = season_id {
+            local_var_req_builder = local_var_req_builder.query(&[("seasonId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_missing {
+            local_var_req_builder = local_var_req_builder.query(&[("isMissing", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = adjacent_to {
+            local_var_req_builder = local_var_req_builder.query(&[("adjacentTo", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_item_id {
+            local_var_req_builder = local_var_req_builder.query(&[("startItemId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = sort_by {
+            local_var_req_builder = local_var_req_builder.query(&[("sortBy", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetEpisodesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_next_up(&self,  params: GetNextUpParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetNextUpError>> {
+        
+        let GetNextUpParams {
+            user_id,
+            start_index,
+            limit,
+            fields,
+            series_id,
+            parent_id,
+            enable_images,
+            image_type_limit,
+            enable_image_types,
+            enable_user_data,
+            next_up_date_cutoff,
+            enable_total_record_count,
+            enable_resumable,
+            enable_rewatching,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Shows/NextUp", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = series_id {
+            local_var_req_builder = local_var_req_builder.query(&[("seriesId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = next_up_date_cutoff {
+            local_var_req_builder = local_var_req_builder.query(&[("nextUpDateCutoff", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_total_record_count {
+            local_var_req_builder = local_var_req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_resumable {
+            local_var_req_builder = local_var_req_builder.query(&[("enableResumable", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_rewatching {
+            local_var_req_builder = local_var_req_builder.query(&[("enableRewatching", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetNextUpError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_seasons(&self,  params: GetSeasonsParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetSeasonsError>> {
+        
+        let GetSeasonsParams {
+            series_id,
+            user_id,
+            fields,
+            is_special_season,
+            is_missing,
+            adjacent_to,
+            enable_images,
+            image_type_limit,
+            enable_image_types,
+            enable_user_data,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Shows/{seriesId}/Seasons", local_var_configuration.base_path, seriesId=crate::apis::urlencode(series_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = is_special_season {
+            local_var_req_builder = local_var_req_builder.query(&[("isSpecialSeason", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_missing {
+            local_var_req_builder = local_var_req_builder.query(&[("isMissing", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = adjacent_to {
+            local_var_req_builder = local_var_req_builder.query(&[("adjacentTo", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSeasonsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_upcoming_episodes(&self,  params: GetUpcomingEpisodesParams ) -> Result<models::BaseItemDtoQueryResult, Error<GetUpcomingEpisodesError>> {
+        
+        let GetUpcomingEpisodesParams {
+            user_id,
+            start_index,
+            limit,
+            fields,
+            parent_id,
+            enable_images,
+            image_type_limit,
+            enable_image_types,
+            enable_user_data,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Shows/Upcoming", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_images {
+            local_var_req_builder = local_var_req_builder.query(&[("enableImages", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = image_type_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = enable_image_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = enable_user_data {
+            local_var_req_builder = local_var_req_builder.query(&[("enableUserData", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetUpcomingEpisodesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`ShowApi::get_episodes`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetEpisodesError {
@@ -26,7 +594,7 @@ pub enum GetEpisodesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_next_up`]
+/// struct for typed errors of method [`ShowApi::get_next_up`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetNextUpError {
@@ -36,7 +604,7 @@ pub enum GetNextUpError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_seasons`]
+/// struct for typed errors of method [`ShowApi::get_seasons`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSeasonsError {
@@ -47,7 +615,7 @@ pub enum GetSeasonsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_upcoming_episodes`]
+/// struct for typed errors of method [`ShowApi::get_upcoming_episodes`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetUpcomingEpisodesError {
@@ -55,388 +623,5 @@ pub enum GetUpcomingEpisodesError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_episodes(configuration: &configuration::Configuration, series_id: &str, user_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, season: Option<i32>, season_id: Option<&str>, is_missing: Option<bool>, adjacent_to: Option<&str>, start_item_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, sort_by: Option<&str>) -> Result<models::BaseItemDtoQueryResult, Error<GetEpisodesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_series_id = series_id;
-    let p_query_user_id = user_id;
-    let p_query_fields = fields;
-    let p_query_season = season;
-    let p_query_season_id = season_id;
-    let p_query_is_missing = is_missing;
-    let p_query_adjacent_to = adjacent_to;
-    let p_query_start_item_id = start_item_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_enable_images = enable_images;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-    let p_query_enable_user_data = enable_user_data;
-    let p_query_sort_by = sort_by;
-
-    let uri_str = format!("{}/Shows/{seriesId}/Episodes", configuration.base_path, seriesId=crate::apis::urlencode(p_path_series_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_season {
-        req_builder = req_builder.query(&[("season", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_season_id {
-        req_builder = req_builder.query(&[("seasonId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_missing {
-        req_builder = req_builder.query(&[("isMissing", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_adjacent_to {
-        req_builder = req_builder.query(&[("adjacentTo", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_item_id {
-        req_builder = req_builder.query(&[("startItemId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_sort_by {
-        req_builder = req_builder.query(&[("sortBy", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetEpisodesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_next_up(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, series_id: Option<&str>, parent_id: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, next_up_date_cutoff: Option<chrono::DateTime<chrono::FixedOffset>>, enable_total_record_count: Option<bool>, enable_resumable: Option<bool>, enable_rewatching: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetNextUpError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_fields = fields;
-    let p_query_series_id = series_id;
-    let p_query_parent_id = parent_id;
-    let p_query_enable_images = enable_images;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-    let p_query_enable_user_data = enable_user_data;
-    let p_query_next_up_date_cutoff = next_up_date_cutoff;
-    let p_query_enable_total_record_count = enable_total_record_count;
-    let p_query_enable_resumable = enable_resumable;
-    let p_query_enable_rewatching = enable_rewatching;
-
-    let uri_str = format!("{}/Shows/NextUp", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_series_id {
-        req_builder = req_builder.query(&[("seriesId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_next_up_date_cutoff {
-        req_builder = req_builder.query(&[("nextUpDateCutoff", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_total_record_count {
-        req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_resumable {
-        req_builder = req_builder.query(&[("enableResumable", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_rewatching {
-        req_builder = req_builder.query(&[("enableRewatching", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetNextUpError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_seasons(configuration: &configuration::Configuration, series_id: &str, user_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, is_special_season: Option<bool>, is_missing: Option<bool>, adjacent_to: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetSeasonsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_series_id = series_id;
-    let p_query_user_id = user_id;
-    let p_query_fields = fields;
-    let p_query_is_special_season = is_special_season;
-    let p_query_is_missing = is_missing;
-    let p_query_adjacent_to = adjacent_to;
-    let p_query_enable_images = enable_images;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-    let p_query_enable_user_data = enable_user_data;
-
-    let uri_str = format!("{}/Shows/{seriesId}/Seasons", configuration.base_path, seriesId=crate::apis::urlencode(p_path_series_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_is_special_season {
-        req_builder = req_builder.query(&[("isSpecialSeason", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_missing {
-        req_builder = req_builder.query(&[("isMissing", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_adjacent_to {
-        req_builder = req_builder.query(&[("adjacentTo", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSeasonsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_upcoming_episodes(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, parent_id: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetUpcomingEpisodesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_fields = fields;
-    let p_query_parent_id = parent_id;
-    let p_query_enable_images = enable_images;
-    let p_query_image_type_limit = image_type_limit;
-    let p_query_enable_image_types = enable_image_types;
-    let p_query_enable_user_data = enable_user_data;
-
-    let uri_str = format!("{}/Shows/Upcoming", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_images {
-        req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_image_type_limit {
-        req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_enable_image_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_enable_user_data {
-        req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::BaseItemDtoQueryResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::BaseItemDtoQueryResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetUpcomingEpisodesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

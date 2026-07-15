@@ -9,13 +9,1019 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait PluginApi: Send + Sync {
+
+    /// DELETE /Packages/Installing/{packageId}
+    ///
+    /// 
+    async fn cancel_package_installation(&self,  params: CancelPackageInstallationParams ) -> Result<(), Error<CancelPackageInstallationError>>;
+
+    /// POST /Plugins/{pluginId}/{version}/Disable
+    ///
+    /// 
+    async fn disable_plugin(&self,  params: DisablePluginParams ) -> Result<(), Error<DisablePluginError>>;
+
+    /// POST /Plugins/{pluginId}/{version}/Enable
+    ///
+    /// 
+    async fn enable_plugin(&self,  params: EnablePluginParams ) -> Result<(), Error<EnablePluginError>>;
+
+    /// GET /web/ConfigurationPages
+    ///
+    /// 
+    async fn get_configuration_pages(&self,  params: GetConfigurationPagesParams ) -> Result<Vec<models::ConfigurationPageInfo>, Error<GetConfigurationPagesError>>;
+
+    /// GET /web/ConfigurationPage
+    ///
+    /// 
+    async fn get_dashboard_configuration_page(&self,  params: GetDashboardConfigurationPageParams ) -> Result<std::path::PathBuf, Error<GetDashboardConfigurationPageError>>;
+
+    /// GET /Packages/{name}
+    ///
+    /// 
+    async fn get_package_info(&self,  params: GetPackageInfoParams ) -> Result<models::PackageInfo, Error<GetPackageInfoError>>;
+
+    /// GET /Packages
+    ///
+    /// 
+    async fn get_packages(&self, ) -> Result<Vec<models::PackageInfo>, Error<GetPackagesError>>;
+
+    /// GET /Plugins/{pluginId}/Configuration
+    ///
+    /// 
+    async fn get_plugin_configuration(&self,  params: GetPluginConfigurationParams ) -> Result<serde_json::Value, Error<GetPluginConfigurationError>>;
+
+    /// GET /Plugins/{pluginId}/{version}/Image
+    ///
+    /// 
+    async fn get_plugin_image(&self,  params: GetPluginImageParams ) -> Result<std::path::PathBuf, Error<GetPluginImageError>>;
+
+    /// POST /Plugins/{pluginId}/Manifest
+    ///
+    /// 
+    async fn get_plugin_manifest(&self,  params: GetPluginManifestParams ) -> Result<(), Error<GetPluginManifestError>>;
+
+    /// GET /Plugins
+    ///
+    /// 
+    async fn get_plugins(&self, ) -> Result<Vec<models::PluginInfo>, Error<GetPluginsError>>;
+
+    /// GET /Repositories
+    ///
+    /// 
+    async fn get_repositories(&self, ) -> Result<Vec<models::RepositoryInfo>, Error<GetRepositoriesError>>;
+
+    /// POST /Packages/Installed/{name}
+    ///
+    /// 
+    async fn install_package(&self,  params: InstallPackageParams ) -> Result<(), Error<InstallPackageError>>;
+
+    /// POST /Repositories
+    ///
+    /// 
+    async fn set_repositories(&self,  params: SetRepositoriesParams ) -> Result<(), Error<SetRepositoriesError>>;
+
+    /// DELETE /Plugins/{pluginId}
+    ///
+    /// 
+    async fn uninstall_plugin(&self,  params: UninstallPluginParams ) -> Result<(), Error<UninstallPluginError>>;
+
+    /// DELETE /Plugins/{pluginId}/{version}
+    ///
+    /// 
+    async fn uninstall_plugin_by_version(&self,  params: UninstallPluginByVersionParams ) -> Result<(), Error<UninstallPluginByVersionError>>;
+
+    /// POST /Plugins/{pluginId}/Configuration
+    ///
+    /// Accepts plugin configuration as JSON body.
+    async fn update_plugin_configuration(&self,  params: UpdatePluginConfigurationParams ) -> Result<(), Error<UpdatePluginConfigurationError>>;
+}
+
+pub struct PluginApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl PluginApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`cancel_package_installation`]
+/// struct for passing parameters to the method [`PluginApi::cancel_package_installation`]
+#[derive(Clone, Debug)]
+pub struct CancelPackageInstallationParams {
+    /// Installation Id.
+    pub package_id: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::disable_plugin`]
+#[derive(Clone, Debug)]
+pub struct DisablePluginParams {
+    /// Plugin id.
+    pub plugin_id: String,
+    /// Plugin version.
+    pub version: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::enable_plugin`]
+#[derive(Clone, Debug)]
+pub struct EnablePluginParams {
+    /// Plugin id.
+    pub plugin_id: String,
+    /// Plugin version.
+    pub version: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_configuration_pages`]
+#[derive(Clone, Debug)]
+pub struct GetConfigurationPagesParams {
+    /// Whether to enable in the main menu.
+    pub enable_in_main_menu: Option<bool>
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_dashboard_configuration_page`]
+#[derive(Clone, Debug)]
+pub struct GetDashboardConfigurationPageParams {
+    /// The name of the page.
+    pub name: Option<String>
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_package_info`]
+#[derive(Clone, Debug)]
+pub struct GetPackageInfoParams {
+    /// The name of the package.
+    pub name: String,
+    /// The GUID of the associated assembly.
+    pub assembly_guid: Option<String>
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_plugin_configuration`]
+#[derive(Clone, Debug)]
+pub struct GetPluginConfigurationParams {
+    /// Plugin id.
+    pub plugin_id: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_plugin_image`]
+#[derive(Clone, Debug)]
+pub struct GetPluginImageParams {
+    /// Plugin id.
+    pub plugin_id: String,
+    /// Plugin version.
+    pub version: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::get_plugin_manifest`]
+#[derive(Clone, Debug)]
+pub struct GetPluginManifestParams {
+    /// Plugin id.
+    pub plugin_id: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::install_package`]
+#[derive(Clone, Debug)]
+pub struct InstallPackageParams {
+    /// Package name.
+    pub name: String,
+    /// GUID of the associated assembly.
+    pub assembly_guid: Option<String>,
+    /// Optional version. Defaults to latest version.
+    pub version: Option<String>,
+    /// Optional. Specify the repository to install from.
+    pub repository_url: Option<String>
+}
+
+/// struct for passing parameters to the method [`PluginApi::set_repositories`]
+#[derive(Clone, Debug)]
+pub struct SetRepositoriesParams {
+    /// The list of package repositories.
+    pub repository_info: Vec<models::RepositoryInfo>
+}
+
+/// struct for passing parameters to the method [`PluginApi::uninstall_plugin`]
+#[derive(Clone, Debug)]
+pub struct UninstallPluginParams {
+    /// Plugin id.
+    pub plugin_id: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::uninstall_plugin_by_version`]
+#[derive(Clone, Debug)]
+pub struct UninstallPluginByVersionParams {
+    /// Plugin id.
+    pub plugin_id: String,
+    /// Plugin version.
+    pub version: String
+}
+
+/// struct for passing parameters to the method [`PluginApi::update_plugin_configuration`]
+#[derive(Clone, Debug)]
+pub struct UpdatePluginConfigurationParams {
+    /// Plugin id.
+    pub plugin_id: String
+}
+
+
+#[async_trait]
+impl PluginApi for PluginApiClient {
+    async fn cancel_package_installation(&self,  params: CancelPackageInstallationParams ) -> Result<(), Error<CancelPackageInstallationError>> {
+        
+        let CancelPackageInstallationParams {
+            package_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Packages/Installing/{packageId}", local_var_configuration.base_path, packageId=crate::apis::urlencode(package_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<CancelPackageInstallationError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn disable_plugin(&self,  params: DisablePluginParams ) -> Result<(), Error<DisablePluginError>> {
+        
+        let DisablePluginParams {
+            plugin_id,
+            version,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/{version}/Disable", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id), version=crate::apis::urlencode(version));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DisablePluginError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn enable_plugin(&self,  params: EnablePluginParams ) -> Result<(), Error<EnablePluginError>> {
+        
+        let EnablePluginParams {
+            plugin_id,
+            version,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/{version}/Enable", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id), version=crate::apis::urlencode(version));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<EnablePluginError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_configuration_pages(&self,  params: GetConfigurationPagesParams ) -> Result<Vec<models::ConfigurationPageInfo>, Error<GetConfigurationPagesError>> {
+        
+        let GetConfigurationPagesParams {
+            enable_in_main_menu,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/web/ConfigurationPages", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = enable_in_main_menu {
+            local_var_req_builder = local_var_req_builder.query(&[("enableInMainMenu", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ConfigurationPageInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::ConfigurationPageInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetConfigurationPagesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_dashboard_configuration_page(&self,  params: GetDashboardConfigurationPageParams ) -> Result<std::path::PathBuf, Error<GetDashboardConfigurationPageError>> {
+        
+        let GetDashboardConfigurationPageParams {
+            name,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/web/ConfigurationPage", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = name {
+            local_var_req_builder = local_var_req_builder.query(&[("name", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetDashboardConfigurationPageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_package_info(&self,  params: GetPackageInfoParams ) -> Result<models::PackageInfo, Error<GetPackageInfoError>> {
+        
+        let GetPackageInfoParams {
+            name,
+            assembly_guid,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Packages/{name}", local_var_configuration.base_path, name=crate::apis::urlencode(name));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = assembly_guid {
+            local_var_req_builder = local_var_req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PackageInfo`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::PackageInfo`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPackageInfoError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_packages(&self, ) -> Result<Vec<models::PackageInfo>, Error<GetPackagesError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Packages", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PackageInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::PackageInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPackagesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_plugin_configuration(&self,  params: GetPluginConfigurationParams ) -> Result<serde_json::Value, Error<GetPluginConfigurationError>> {
+        
+        let GetPluginConfigurationParams {
+            plugin_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/Configuration", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `serde_json::Value`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `serde_json::Value`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPluginConfigurationError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_plugin_image(&self,  params: GetPluginImageParams ) -> Result<std::path::PathBuf, Error<GetPluginImageError>> {
+        
+        let GetPluginImageParams {
+            plugin_id,
+            version,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/{version}/Image", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id), version=crate::apis::urlencode(version));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPluginImageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_plugin_manifest(&self,  params: GetPluginManifestParams ) -> Result<(), Error<GetPluginManifestError>> {
+        
+        let GetPluginManifestParams {
+            plugin_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/Manifest", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<GetPluginManifestError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_plugins(&self, ) -> Result<Vec<models::PluginInfo>, Error<GetPluginsError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PluginInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::PluginInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetPluginsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_repositories(&self, ) -> Result<Vec<models::RepositoryInfo>, Error<GetRepositoriesError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Repositories", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RepositoryInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RepositoryInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetRepositoriesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn install_package(&self,  params: InstallPackageParams ) -> Result<(), Error<InstallPackageError>> {
+        
+        let InstallPackageParams {
+            name,
+            assembly_guid,
+            version,
+            repository_url,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Packages/Installed/{name}", local_var_configuration.base_path, name=crate::apis::urlencode(name));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = assembly_guid {
+            local_var_req_builder = local_var_req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = version {
+            local_var_req_builder = local_var_req_builder.query(&[("version", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = repository_url {
+            local_var_req_builder = local_var_req_builder.query(&[("repositoryUrl", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<InstallPackageError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn set_repositories(&self,  params: SetRepositoriesParams ) -> Result<(), Error<SetRepositoriesError>> {
+        
+        let SetRepositoriesParams {
+            repository_info,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Repositories", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&repository_info);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<SetRepositoriesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn uninstall_plugin(&self,  params: UninstallPluginParams ) -> Result<(), Error<UninstallPluginError>> {
+        
+        let UninstallPluginParams {
+            plugin_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UninstallPluginError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn uninstall_plugin_by_version(&self,  params: UninstallPluginByVersionParams ) -> Result<(), Error<UninstallPluginByVersionError>> {
+        
+        let UninstallPluginByVersionParams {
+            plugin_id,
+            version,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/{version}", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id), version=crate::apis::urlencode(version));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UninstallPluginByVersionError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    /// Accepts plugin configuration as JSON body.
+    async fn update_plugin_configuration(&self,  params: UpdatePluginConfigurationParams ) -> Result<(), Error<UpdatePluginConfigurationError>> {
+        
+        let UpdatePluginConfigurationParams {
+            plugin_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Plugins/{pluginId}/Configuration", local_var_configuration.base_path, pluginId=crate::apis::urlencode(plugin_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UpdatePluginConfigurationError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`PluginApi::cancel_package_installation`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum CancelPackageInstallationError {
@@ -25,7 +1031,7 @@ pub enum CancelPackageInstallationError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`disable_plugin`]
+/// struct for typed errors of method [`PluginApi::disable_plugin`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DisablePluginError {
@@ -36,7 +1042,7 @@ pub enum DisablePluginError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`enable_plugin`]
+/// struct for typed errors of method [`PluginApi::enable_plugin`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum EnablePluginError {
@@ -47,7 +1053,7 @@ pub enum EnablePluginError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_configuration_pages`]
+/// struct for typed errors of method [`PluginApi::get_configuration_pages`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetConfigurationPagesError {
@@ -58,7 +1064,7 @@ pub enum GetConfigurationPagesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_dashboard_configuration_page`]
+/// struct for typed errors of method [`PluginApi::get_dashboard_configuration_page`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetDashboardConfigurationPageError {
@@ -67,7 +1073,7 @@ pub enum GetDashboardConfigurationPageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_package_info`]
+/// struct for typed errors of method [`PluginApi::get_package_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPackageInfoError {
@@ -77,7 +1083,7 @@ pub enum GetPackageInfoError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_packages`]
+/// struct for typed errors of method [`PluginApi::get_packages`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPackagesError {
@@ -87,7 +1093,7 @@ pub enum GetPackagesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_plugin_configuration`]
+/// struct for typed errors of method [`PluginApi::get_plugin_configuration`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPluginConfigurationError {
@@ -98,7 +1104,7 @@ pub enum GetPluginConfigurationError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_plugin_image`]
+/// struct for typed errors of method [`PluginApi::get_plugin_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPluginImageError {
@@ -109,7 +1115,7 @@ pub enum GetPluginImageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_plugin_manifest`]
+/// struct for typed errors of method [`PluginApi::get_plugin_manifest`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPluginManifestError {
@@ -120,7 +1126,7 @@ pub enum GetPluginManifestError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_plugins`]
+/// struct for typed errors of method [`PluginApi::get_plugins`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetPluginsError {
@@ -130,7 +1136,7 @@ pub enum GetPluginsError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_repositories`]
+/// struct for typed errors of method [`PluginApi::get_repositories`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRepositoriesError {
@@ -140,7 +1146,7 @@ pub enum GetRepositoriesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`install_package`]
+/// struct for typed errors of method [`PluginApi::install_package`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum InstallPackageError {
@@ -151,7 +1157,7 @@ pub enum InstallPackageError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`set_repositories`]
+/// struct for typed errors of method [`PluginApi::set_repositories`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SetRepositoriesError {
@@ -161,7 +1167,7 @@ pub enum SetRepositoriesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`uninstall_plugin`]
+/// struct for typed errors of method [`PluginApi::uninstall_plugin`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UninstallPluginError {
@@ -172,7 +1178,7 @@ pub enum UninstallPluginError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`uninstall_plugin_by_version`]
+/// struct for typed errors of method [`PluginApi::uninstall_plugin_by_version`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UninstallPluginByVersionError {
@@ -183,7 +1189,7 @@ pub enum UninstallPluginByVersionError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`update_plugin_configuration`]
+/// struct for typed errors of method [`PluginApi::update_plugin_configuration`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UpdatePluginConfigurationError {
@@ -192,647 +1198,5 @@ pub enum UpdatePluginConfigurationError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn cancel_package_installation(configuration: &configuration::Configuration, package_id: &str) -> Result<(), Error<CancelPackageInstallationError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_package_id = package_id;
-
-    let uri_str = format!("{}/Packages/Installing/{packageId}", configuration.base_path, packageId=crate::apis::urlencode(p_path_package_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<CancelPackageInstallationError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn disable_plugin(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<DisablePluginError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-    let p_path_version = version;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Disable", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DisablePluginError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn enable_plugin(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<EnablePluginError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-    let p_path_version = version;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Enable", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<EnablePluginError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_configuration_pages(configuration: &configuration::Configuration, enable_in_main_menu: Option<bool>) -> Result<Vec<models::ConfigurationPageInfo>, Error<GetConfigurationPagesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_enable_in_main_menu = enable_in_main_menu;
-
-    let uri_str = format!("{}/web/ConfigurationPages", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_enable_in_main_menu {
-        req_builder = req_builder.query(&[("enableInMainMenu", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::ConfigurationPageInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::ConfigurationPageInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetConfigurationPagesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_dashboard_configuration_page(configuration: &configuration::Configuration, name: Option<&str>) -> Result<reqwest::Response, Error<GetDashboardConfigurationPageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_name = name;
-
-    let uri_str = format!("{}/web/ConfigurationPage", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_name {
-        req_builder = req_builder.query(&[("name", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetDashboardConfigurationPageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_package_info(configuration: &configuration::Configuration, name: &str, assembly_guid: Option<&str>) -> Result<models::PackageInfo, Error<GetPackageInfoError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_query_assembly_guid = assembly_guid;
-
-    let uri_str = format!("{}/Packages/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_assembly_guid {
-        req_builder = req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::PackageInfo`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::PackageInfo`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPackageInfoError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_packages(configuration: &configuration::Configuration, ) -> Result<Vec<models::PackageInfo>, Error<GetPackagesError>> {
-
-    let uri_str = format!("{}/Packages", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PackageInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::PackageInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPackagesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_plugin_configuration(configuration: &configuration::Configuration, plugin_id: &str) -> Result<serde_json::Value, Error<GetPluginConfigurationError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `serde_json::Value`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `serde_json::Value`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPluginConfigurationError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_plugin_image(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<reqwest::Response, Error<GetPluginImageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-    let p_path_version = version;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Image", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPluginImageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_plugin_manifest(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<GetPluginManifestError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/Manifest", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPluginManifestError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_plugins(configuration: &configuration::Configuration, ) -> Result<Vec<models::PluginInfo>, Error<GetPluginsError>> {
-
-    let uri_str = format!("{}/Plugins", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::PluginInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::PluginInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetPluginsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_repositories(configuration: &configuration::Configuration, ) -> Result<Vec<models::RepositoryInfo>, Error<GetRepositoriesError>> {
-
-    let uri_str = format!("{}/Repositories", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RepositoryInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RepositoryInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetRepositoriesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn install_package(configuration: &configuration::Configuration, name: &str, assembly_guid: Option<&str>, version: Option<&str>, repository_url: Option<&str>) -> Result<(), Error<InstallPackageError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-    let p_query_assembly_guid = assembly_guid;
-    let p_query_version = version;
-    let p_query_repository_url = repository_url;
-
-    let uri_str = format!("{}/Packages/Installed/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref param_value) = p_query_assembly_guid {
-        req_builder = req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_version {
-        req_builder = req_builder.query(&[("version", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_repository_url {
-        req_builder = req_builder.query(&[("repositoryUrl", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<InstallPackageError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn set_repositories(configuration: &configuration::Configuration, repository_info: Vec<models::RepositoryInfo>) -> Result<(), Error<SetRepositoriesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_body_repository_info = repository_info;
-
-    let uri_str = format!("{}/Repositories", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_repository_info);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SetRepositoriesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn uninstall_plugin(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<UninstallPluginError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-
-    let uri_str = format!("{}/Plugins/{pluginId}", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UninstallPluginError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn uninstall_plugin_by_version(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<UninstallPluginByVersionError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-    let p_path_version = version;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UninstallPluginByVersionError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-/// Accepts plugin configuration as JSON body.
-pub async fn update_plugin_configuration(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<UpdatePluginConfigurationError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_plugin_id = plugin_id;
-
-    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UpdatePluginConfigurationError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

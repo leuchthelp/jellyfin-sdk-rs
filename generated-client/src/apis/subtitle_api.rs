@@ -9,13 +9,754 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait SubtitleApi: Send + Sync {
+
+    /// DELETE /Videos/{itemId}/Subtitles/{index}
+    ///
+    /// 
+    async fn delete_subtitle(&self,  params: DeleteSubtitleParams ) -> Result<(), Error<DeleteSubtitleError>>;
+
+    /// POST /Items/{itemId}/RemoteSearch/Subtitles/{subtitleId}
+    ///
+    /// 
+    async fn download_remote_subtitles(&self,  params: DownloadRemoteSubtitlesParams ) -> Result<(), Error<DownloadRemoteSubtitlesError>>;
+
+    /// GET /FallbackFont/Fonts/{name}
+    ///
+    /// 
+    async fn get_fallback_font(&self,  params: GetFallbackFontParams ) -> Result<std::path::PathBuf, Error<GetFallbackFontError>>;
+
+    /// GET /FallbackFont/Fonts
+    ///
+    /// 
+    async fn get_fallback_font_list(&self, ) -> Result<Vec<models::FontFile>, Error<GetFallbackFontListError>>;
+
+    /// GET /Providers/Subtitles/Subtitles/{subtitleId}
+    ///
+    /// 
+    async fn get_remote_subtitles(&self,  params: GetRemoteSubtitlesParams ) -> Result<std::path::PathBuf, Error<GetRemoteSubtitlesError>>;
+
+    /// GET /Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/Stream.{routeFormat}
+    ///
+    /// 
+    async fn get_subtitle(&self,  params: GetSubtitleParams ) -> Result<std::path::PathBuf, Error<GetSubtitleError>>;
+
+    /// GET /Videos/{itemId}/{mediaSourceId}/Subtitles/{index}/subtitles.m3u8
+    ///
+    /// 
+    async fn get_subtitle_playlist(&self,  params: GetSubtitlePlaylistParams ) -> Result<std::path::PathBuf, Error<GetSubtitlePlaylistError>>;
+
+    /// GET /Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/{routeStartPositionTicks}/Stream.{routeFormat}
+    ///
+    /// 
+    async fn get_subtitle_with_ticks(&self,  params: GetSubtitleWithTicksParams ) -> Result<std::path::PathBuf, Error<GetSubtitleWithTicksError>>;
+
+    /// GET /Items/{itemId}/RemoteSearch/Subtitles/{language}
+    ///
+    /// 
+    async fn search_remote_subtitles(&self,  params: SearchRemoteSubtitlesParams ) -> Result<Vec<models::RemoteSubtitleInfo>, Error<SearchRemoteSubtitlesError>>;
+
+    /// POST /Videos/{itemId}/Subtitles
+    ///
+    /// 
+    async fn upload_subtitle(&self,  params: UploadSubtitleParams ) -> Result<(), Error<UploadSubtitleError>>;
+}
+
+pub struct SubtitleApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl SubtitleApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`delete_subtitle`]
+/// struct for passing parameters to the method [`SubtitleApi::delete_subtitle`]
+#[derive(Clone, Debug)]
+pub struct DeleteSubtitleParams {
+    /// The item id.
+    pub item_id: String,
+    /// The index of the subtitle file.
+    pub index: i32
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::download_remote_subtitles`]
+#[derive(Clone, Debug)]
+pub struct DownloadRemoteSubtitlesParams {
+    /// The item id.
+    pub item_id: String,
+    /// The subtitle id.
+    pub subtitle_id: String
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::get_fallback_font`]
+#[derive(Clone, Debug)]
+pub struct GetFallbackFontParams {
+    /// The name of the fallback font file to get.
+    pub name: String
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::get_remote_subtitles`]
+#[derive(Clone, Debug)]
+pub struct GetRemoteSubtitlesParams {
+    /// The item id.
+    pub subtitle_id: String
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::get_subtitle`]
+#[derive(Clone, Debug)]
+pub struct GetSubtitleParams {
+    /// The (route) item id.
+    pub route_item_id: String,
+    /// The (route) media source id.
+    pub route_media_source_id: String,
+    /// The (route) subtitle stream index.
+    pub route_index: i32,
+    /// The (route) format of the returned subtitle.
+    pub route_format: String,
+    /// The item id.
+    pub item_id: Option<String>,
+    /// The media source id.
+    pub media_source_id: Option<String>,
+    /// The subtitle stream index.
+    pub index: Option<i32>,
+    /// The format of the returned subtitle.
+    pub format: Option<String>,
+    /// Optional. The end position of the subtitle in ticks.
+    pub end_position_ticks: Option<i64>,
+    /// Optional. Whether to copy the timestamps.
+    pub copy_timestamps: Option<bool>,
+    /// Optional. Whether to add a VTT time map.
+    pub add_vtt_time_map: Option<bool>,
+    /// The start position of the subtitle in ticks.
+    pub start_position_ticks: Option<i64>
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::get_subtitle_playlist`]
+#[derive(Clone, Debug)]
+pub struct GetSubtitlePlaylistParams {
+    /// The item id.
+    pub item_id: String,
+    /// The subtitle stream index.
+    pub index: i32,
+    /// The media source id.
+    pub media_source_id: String,
+    /// The subtitle segment length.
+    pub segment_length: i32
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::get_subtitle_with_ticks`]
+#[derive(Clone, Debug)]
+pub struct GetSubtitleWithTicksParams {
+    /// The (route) item id.
+    pub route_item_id: String,
+    /// The (route) media source id.
+    pub route_media_source_id: String,
+    /// The (route) subtitle stream index.
+    pub route_index: i32,
+    /// The (route) start position of the subtitle in ticks.
+    pub route_start_position_ticks: i64,
+    /// The (route) format of the returned subtitle.
+    pub route_format: String,
+    /// The item id.
+    pub item_id: Option<String>,
+    /// The media source id.
+    pub media_source_id: Option<String>,
+    /// The subtitle stream index.
+    pub index: Option<i32>,
+    /// The start position of the subtitle in ticks.
+    pub start_position_ticks: Option<i64>,
+    /// The format of the returned subtitle.
+    pub format: Option<String>,
+    /// Optional. The end position of the subtitle in ticks.
+    pub end_position_ticks: Option<i64>,
+    /// Optional. Whether to copy the timestamps.
+    pub copy_timestamps: Option<bool>,
+    /// Optional. Whether to add a VTT time map.
+    pub add_vtt_time_map: Option<bool>
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::search_remote_subtitles`]
+#[derive(Clone, Debug)]
+pub struct SearchRemoteSubtitlesParams {
+    /// The item id.
+    pub item_id: String,
+    /// The language of the subtitles.
+    pub language: String,
+    /// Optional. Only show subtitles which are a perfect match.
+    pub is_perfect_match: Option<bool>
+}
+
+/// struct for passing parameters to the method [`SubtitleApi::upload_subtitle`]
+#[derive(Clone, Debug)]
+pub struct UploadSubtitleParams {
+    /// The item the subtitle belongs to.
+    pub item_id: String,
+    /// The request body.
+    pub upload_subtitle_dto: models::UploadSubtitleDto
+}
+
+
+#[async_trait]
+impl SubtitleApi for SubtitleApiClient {
+    async fn delete_subtitle(&self,  params: DeleteSubtitleParams ) -> Result<(), Error<DeleteSubtitleError>> {
+        
+        let DeleteSubtitleParams {
+            item_id,
+            index,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Videos/{itemId}/Subtitles/{index}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), index=index);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::DELETE, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DeleteSubtitleError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn download_remote_subtitles(&self,  params: DownloadRemoteSubtitlesParams ) -> Result<(), Error<DownloadRemoteSubtitlesError>> {
+        
+        let DownloadRemoteSubtitlesParams {
+            item_id,
+            subtitle_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{subtitleId}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), subtitleId=crate::apis::urlencode(subtitle_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<DownloadRemoteSubtitlesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_fallback_font(&self,  params: GetFallbackFontParams ) -> Result<std::path::PathBuf, Error<GetFallbackFontError>> {
+        
+        let GetFallbackFontParams {
+            name,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/FallbackFont/Fonts/{name}", local_var_configuration.base_path, name=crate::apis::urlencode(name));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetFallbackFontError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_fallback_font_list(&self, ) -> Result<Vec<models::FontFile>, Error<GetFallbackFontListError>> {
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/FallbackFont/Fonts", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::FontFile&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::FontFile&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetFallbackFontListError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_remote_subtitles(&self,  params: GetRemoteSubtitlesParams ) -> Result<std::path::PathBuf, Error<GetRemoteSubtitlesError>> {
+        
+        let GetRemoteSubtitlesParams {
+            subtitle_id,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Providers/Subtitles/Subtitles/{subtitleId}", local_var_configuration.base_path, subtitleId=crate::apis::urlencode(subtitle_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetRemoteSubtitlesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_subtitle(&self,  params: GetSubtitleParams ) -> Result<std::path::PathBuf, Error<GetSubtitleError>> {
+        
+        let GetSubtitleParams {
+            route_item_id,
+            route_media_source_id,
+            route_index,
+            route_format,
+            item_id,
+            media_source_id,
+            index,
+            format,
+            end_position_ticks,
+            copy_timestamps,
+            add_vtt_time_map,
+            start_position_ticks,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/Stream.{routeFormat}", local_var_configuration.base_path, routeItemId=crate::apis::urlencode(route_item_id), routeMediaSourceId=crate::apis::urlencode(route_media_source_id), routeIndex=route_index, routeFormat=crate::apis::urlencode(route_format));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = item_id {
+            local_var_req_builder = local_var_req_builder.query(&[("itemId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = media_source_id {
+            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = index {
+            local_var_req_builder = local_var_req_builder.query(&[("index", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = end_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = copy_timestamps {
+            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = add_vtt_time_map {
+            local_var_req_builder = local_var_req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSubtitleError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_subtitle_playlist(&self,  params: GetSubtitlePlaylistParams ) -> Result<std::path::PathBuf, Error<GetSubtitlePlaylistError>> {
+        
+        let GetSubtitlePlaylistParams {
+            item_id,
+            index,
+            media_source_id,
+            segment_length,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Videos/{itemId}/{mediaSourceId}/Subtitles/{index}/subtitles.m3u8", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), index=index, mediaSourceId=crate::apis::urlencode(media_source_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        local_var_req_builder = local_var_req_builder.query(&[("segmentLength", &segment_length.to_string())]);
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSubtitlePlaylistError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_subtitle_with_ticks(&self,  params: GetSubtitleWithTicksParams ) -> Result<std::path::PathBuf, Error<GetSubtitleWithTicksError>> {
+        
+        let GetSubtitleWithTicksParams {
+            route_item_id,
+            route_media_source_id,
+            route_index,
+            route_start_position_ticks,
+            route_format,
+            item_id,
+            media_source_id,
+            index,
+            start_position_ticks,
+            format,
+            end_position_ticks,
+            copy_timestamps,
+            add_vtt_time_map,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/{routeStartPositionTicks}/Stream.{routeFormat}", local_var_configuration.base_path, routeItemId=crate::apis::urlencode(route_item_id), routeMediaSourceId=crate::apis::urlencode(route_media_source_id), routeIndex=route_index, routeStartPositionTicks=route_start_position_ticks, routeFormat=crate::apis::urlencode(route_format));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = item_id {
+            local_var_req_builder = local_var_req_builder.query(&[("itemId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = media_source_id {
+            local_var_req_builder = local_var_req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = index {
+            local_var_req_builder = local_var_req_builder.query(&[("index", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = start_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = format {
+            local_var_req_builder = local_var_req_builder.query(&[("format", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = end_position_ticks {
+            local_var_req_builder = local_var_req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = copy_timestamps {
+            local_var_req_builder = local_var_req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = add_vtt_time_map {
+            local_var_req_builder = local_var_req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `std::path::PathBuf`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `std::path::PathBuf`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSubtitleWithTicksError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn search_remote_subtitles(&self,  params: SearchRemoteSubtitlesParams ) -> Result<Vec<models::RemoteSubtitleInfo>, Error<SearchRemoteSubtitlesError>> {
+        
+        let SearchRemoteSubtitlesParams {
+            item_id,
+            language,
+            is_perfect_match,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{language}", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id), language=crate::apis::urlencode(language));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = is_perfect_match {
+            local_var_req_builder = local_var_req_builder.query(&[("isPerfectMatch", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSubtitleInfo&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSubtitleInfo&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<SearchRemoteSubtitlesError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn upload_subtitle(&self,  params: UploadSubtitleParams ) -> Result<(), Error<UploadSubtitleError>> {
+        
+        let UploadSubtitleParams {
+            item_id,
+            upload_subtitle_dto,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Videos/{itemId}/Subtitles", local_var_configuration.base_path, itemId=crate::apis::urlencode(item_id));
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::POST, local_var_uri_str.as_str());
+
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+        local_var_req_builder = local_var_req_builder.json(&upload_subtitle_dto);
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            Ok(())
+        } else {
+            let local_var_entity: Option<UploadSubtitleError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`SubtitleApi::delete_subtitle`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DeleteSubtitleError {
@@ -26,7 +767,7 @@ pub enum DeleteSubtitleError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`download_remote_subtitles`]
+/// struct for typed errors of method [`SubtitleApi::download_remote_subtitles`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum DownloadRemoteSubtitlesError {
@@ -37,7 +778,7 @@ pub enum DownloadRemoteSubtitlesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_fallback_font`]
+/// struct for typed errors of method [`SubtitleApi::get_fallback_font`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetFallbackFontError {
@@ -47,7 +788,7 @@ pub enum GetFallbackFontError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_fallback_font_list`]
+/// struct for typed errors of method [`SubtitleApi::get_fallback_font_list`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetFallbackFontListError {
@@ -57,7 +798,7 @@ pub enum GetFallbackFontListError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_remote_subtitles`]
+/// struct for typed errors of method [`SubtitleApi::get_remote_subtitles`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetRemoteSubtitlesError {
@@ -67,7 +808,7 @@ pub enum GetRemoteSubtitlesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_subtitle`]
+/// struct for typed errors of method [`SubtitleApi::get_subtitle`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSubtitleError {
@@ -75,7 +816,7 @@ pub enum GetSubtitleError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_subtitle_playlist`]
+/// struct for typed errors of method [`SubtitleApi::get_subtitle_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSubtitlePlaylistError {
@@ -86,7 +827,7 @@ pub enum GetSubtitlePlaylistError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_subtitle_with_ticks`]
+/// struct for typed errors of method [`SubtitleApi::get_subtitle_with_ticks`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSubtitleWithTicksError {
@@ -94,7 +835,7 @@ pub enum GetSubtitleWithTicksError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`search_remote_subtitles`]
+/// struct for typed errors of method [`SubtitleApi::search_remote_subtitles`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum SearchRemoteSubtitlesError {
@@ -105,7 +846,7 @@ pub enum SearchRemoteSubtitlesError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`upload_subtitle`]
+/// struct for typed errors of method [`SubtitleApi::upload_subtitle`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum UploadSubtitleError {
@@ -114,424 +855,5 @@ pub enum UploadSubtitleError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn delete_subtitle(configuration: &configuration::Configuration, item_id: &str, index: i32) -> Result<(), Error<DeleteSubtitleError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_index = index;
-
-    let uri_str = format!("{}/Videos/{itemId}/Subtitles/{index}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), index=p_path_index);
-    let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DeleteSubtitleError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn download_remote_subtitles(configuration: &configuration::Configuration, item_id: &str, subtitle_id: &str) -> Result<(), Error<DownloadRemoteSubtitlesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_subtitle_id = subtitle_id;
-
-    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{subtitleId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), subtitleId=crate::apis::urlencode(p_path_subtitle_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<DownloadRemoteSubtitlesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_fallback_font(configuration: &configuration::Configuration, name: &str) -> Result<reqwest::Response, Error<GetFallbackFontError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_name = name;
-
-    let uri_str = format!("{}/FallbackFont/Fonts/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetFallbackFontError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_fallback_font_list(configuration: &configuration::Configuration, ) -> Result<Vec<models::FontFile>, Error<GetFallbackFontListError>> {
-
-    let uri_str = format!("{}/FallbackFont/Fonts", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::FontFile&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::FontFile&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetFallbackFontListError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_remote_subtitles(configuration: &configuration::Configuration, subtitle_id: &str) -> Result<reqwest::Response, Error<GetRemoteSubtitlesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_subtitle_id = subtitle_id;
-
-    let uri_str = format!("{}/Providers/Subtitles/Subtitles/{subtitleId}", configuration.base_path, subtitleId=crate::apis::urlencode(p_path_subtitle_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetRemoteSubtitlesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_subtitle(configuration: &configuration::Configuration, route_item_id: &str, route_media_source_id: &str, route_index: i32, route_format: &str, item_id: Option<&str>, media_source_id: Option<&str>, index: Option<i32>, format: Option<&str>, end_position_ticks: Option<i64>, copy_timestamps: Option<bool>, add_vtt_time_map: Option<bool>, start_position_ticks: Option<i64>) -> Result<reqwest::Response, Error<GetSubtitleError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_route_item_id = route_item_id;
-    let p_path_route_media_source_id = route_media_source_id;
-    let p_path_route_index = route_index;
-    let p_path_route_format = route_format;
-    let p_query_item_id = item_id;
-    let p_query_media_source_id = media_source_id;
-    let p_query_index = index;
-    let p_query_format = format;
-    let p_query_end_position_ticks = end_position_ticks;
-    let p_query_copy_timestamps = copy_timestamps;
-    let p_query_add_vtt_time_map = add_vtt_time_map;
-    let p_query_start_position_ticks = start_position_ticks;
-
-    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(p_path_route_item_id), routeMediaSourceId=crate::apis::urlencode(p_path_route_media_source_id), routeIndex=p_path_route_index, routeFormat=crate::apis::urlencode(p_path_route_format));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_item_id {
-        req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_media_source_id {
-        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_index {
-        req_builder = req_builder.query(&[("index", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_end_position_ticks {
-        req_builder = req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_copy_timestamps {
-        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_add_vtt_time_map {
-        req_builder = req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_position_ticks {
-        req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSubtitleError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_subtitle_playlist(configuration: &configuration::Configuration, item_id: &str, index: i32, media_source_id: &str, segment_length: i32) -> Result<reqwest::Response, Error<GetSubtitlePlaylistError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_index = index;
-    let p_path_media_source_id = media_source_id;
-    let p_query_segment_length = segment_length;
-
-    let uri_str = format!("{}/Videos/{itemId}/{mediaSourceId}/Subtitles/{index}/subtitles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), index=p_path_index, mediaSourceId=crate::apis::urlencode(p_path_media_source_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    req_builder = req_builder.query(&[("segmentLength", &p_query_segment_length.to_string())]);
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSubtitlePlaylistError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_subtitle_with_ticks(configuration: &configuration::Configuration, route_item_id: &str, route_media_source_id: &str, route_index: i32, route_start_position_ticks: i64, route_format: &str, item_id: Option<&str>, media_source_id: Option<&str>, index: Option<i32>, start_position_ticks: Option<i64>, format: Option<&str>, end_position_ticks: Option<i64>, copy_timestamps: Option<bool>, add_vtt_time_map: Option<bool>) -> Result<reqwest::Response, Error<GetSubtitleWithTicksError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_route_item_id = route_item_id;
-    let p_path_route_media_source_id = route_media_source_id;
-    let p_path_route_index = route_index;
-    let p_path_route_start_position_ticks = route_start_position_ticks;
-    let p_path_route_format = route_format;
-    let p_query_item_id = item_id;
-    let p_query_media_source_id = media_source_id;
-    let p_query_index = index;
-    let p_query_start_position_ticks = start_position_ticks;
-    let p_query_format = format;
-    let p_query_end_position_ticks = end_position_ticks;
-    let p_query_copy_timestamps = copy_timestamps;
-    let p_query_add_vtt_time_map = add_vtt_time_map;
-
-    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/{routeStartPositionTicks}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(p_path_route_item_id), routeMediaSourceId=crate::apis::urlencode(p_path_route_media_source_id), routeIndex=p_path_route_index, routeStartPositionTicks=p_path_route_start_position_ticks, routeFormat=crate::apis::urlencode(p_path_route_format));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_item_id {
-        req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_media_source_id {
-        req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_index {
-        req_builder = req_builder.query(&[("index", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_start_position_ticks {
-        req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_format {
-        req_builder = req_builder.query(&[("format", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_end_position_ticks {
-        req_builder = req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_copy_timestamps {
-        req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_add_vtt_time_map {
-        req_builder = req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(resp)
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSubtitleWithTicksError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn search_remote_subtitles(configuration: &configuration::Configuration, item_id: &str, language: &str, is_perfect_match: Option<bool>) -> Result<Vec<models::RemoteSubtitleInfo>, Error<SearchRemoteSubtitlesError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_path_language = language;
-    let p_query_is_perfect_match = is_perfect_match;
-
-    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{language}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), language=crate::apis::urlencode(p_path_language));
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_is_perfect_match {
-        req_builder = req_builder.query(&[("isPerfectMatch", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RemoteSubtitleInfo&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RemoteSubtitleInfo&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<SearchRemoteSubtitlesError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn upload_subtitle(configuration: &configuration::Configuration, item_id: &str, upload_subtitle_dto: models::UploadSubtitleDto) -> Result<(), Error<UploadSubtitleError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_path_item_id = item_id;
-    let p_body_upload_subtitle_dto = upload_subtitle_dto;
-
-    let uri_str = format!("{}/Videos/{itemId}/Subtitles", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
-    let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
-
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-    req_builder = req_builder.json(&p_body_upload_subtitle_dto);
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-
-    if !status.is_client_error() && !status.is_server_error() {
-        Ok(())
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<UploadSubtitleError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

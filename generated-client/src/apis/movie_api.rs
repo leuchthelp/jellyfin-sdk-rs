@@ -9,13 +9,128 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait MovieApi: Send + Sync {
+
+    /// GET /Movies/Recommendations
+    ///
+    /// 
+    async fn get_movie_recommendations(&self,  params: GetMovieRecommendationsParams ) -> Result<Vec<models::RecommendationDto>, Error<GetMovieRecommendationsError>>;
+}
+
+pub struct MovieApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl MovieApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_movie_recommendations`]
+/// struct for passing parameters to the method [`MovieApi::get_movie_recommendations`]
+#[derive(Clone, Debug)]
+pub struct GetMovieRecommendationsParams {
+    /// Optional. Filter by user id, and attach user data.
+    pub user_id: Option<String>,
+    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
+    pub parent_id: Option<String>,
+    /// Optional. The fields to return.
+    pub fields: Option<Vec<models::ItemFields>>,
+    /// The max number of categories to return.
+    pub category_limit: Option<i32>,
+    /// The max number of items to return per category.
+    pub item_limit: Option<i32>
+}
+
+
+#[async_trait]
+impl MovieApi for MovieApiClient {
+    async fn get_movie_recommendations(&self,  params: GetMovieRecommendationsParams ) -> Result<Vec<models::RecommendationDto>, Error<GetMovieRecommendationsError>> {
+        
+        let GetMovieRecommendationsParams {
+            user_id,
+            parent_id,
+            fields,
+            category_limit,
+            item_limit,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Movies/Recommendations", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = fields {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = category_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("categoryLimit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = item_limit {
+            local_var_req_builder = local_var_req_builder.query(&[("itemLimit", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RecommendationDto&gt;`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `Vec&lt;models::RecommendationDto&gt;`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetMovieRecommendationsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`MovieApi::get_movie_recommendations`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetMovieRecommendationsError {
@@ -23,72 +138,5 @@ pub enum GetMovieRecommendationsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_movie_recommendations(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, category_limit: Option<i32>, item_limit: Option<i32>) -> Result<Vec<models::RecommendationDto>, Error<GetMovieRecommendationsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_parent_id = parent_id;
-    let p_query_fields = fields;
-    let p_query_category_limit = category_limit;
-    let p_query_item_limit = item_limit;
-
-    let uri_str = format!("{}/Movies/Recommendations", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_fields {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_category_limit {
-        req_builder = req_builder.query(&[("categoryLimit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_item_limit {
-        req_builder = req_builder.query(&[("itemLimit", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `Vec&lt;models::RecommendationDto&gt;`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `Vec&lt;models::RecommendationDto&gt;`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetMovieRecommendationsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

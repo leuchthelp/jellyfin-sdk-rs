@@ -9,13 +9,248 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait FilterApi: Send + Sync {
+
+    /// GET /Items/Filters2
+    ///
+    /// 
+    async fn get_query_filters(&self,  params: GetQueryFiltersParams ) -> Result<models::QueryFilters, Error<GetQueryFiltersError>>;
+
+    /// GET /Items/Filters
+    ///
+    /// 
+    async fn get_query_filters_legacy(&self,  params: GetQueryFiltersLegacyParams ) -> Result<models::QueryFiltersLegacy, Error<GetQueryFiltersLegacyError>>;
+}
+
+pub struct FilterApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl FilterApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_query_filters`]
+/// struct for passing parameters to the method [`FilterApi::get_query_filters`]
+#[derive(Clone, Debug)]
+pub struct GetQueryFiltersParams {
+    /// Optional. User id.
+    pub user_id: Option<String>,
+    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
+    pub parent_id: Option<String>,
+    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
+    pub include_item_types: Option<Vec<models::BaseItemKind>>,
+    /// Optional. Is item airing.
+    pub is_airing: Option<bool>,
+    /// Optional. Is item movie.
+    pub is_movie: Option<bool>,
+    /// Optional. Is item sports.
+    pub is_sports: Option<bool>,
+    /// Optional. Is item kids.
+    pub is_kids: Option<bool>,
+    /// Optional. Is item news.
+    pub is_news: Option<bool>,
+    /// Optional. Is item series.
+    pub is_series: Option<bool>,
+    /// Optional. Search recursive.
+    pub recursive: Option<bool>
+}
+
+/// struct for passing parameters to the method [`FilterApi::get_query_filters_legacy`]
+#[derive(Clone, Debug)]
+pub struct GetQueryFiltersLegacyParams {
+    /// Optional. User id.
+    pub user_id: Option<String>,
+    /// Optional. Parent id.
+    pub parent_id: Option<String>,
+    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
+    pub include_item_types: Option<Vec<models::BaseItemKind>>,
+    /// Optional. Filter by MediaType. Allows multiple, comma delimited.
+    pub media_types: Option<Vec<models::MediaType>>
+}
+
+
+#[async_trait]
+impl FilterApi for FilterApiClient {
+    async fn get_query_filters(&self,  params: GetQueryFiltersParams ) -> Result<models::QueryFilters, Error<GetQueryFiltersError>> {
+        
+        let GetQueryFiltersParams {
+            user_id,
+            parent_id,
+            include_item_types,
+            is_airing,
+            is_movie,
+            is_sports,
+            is_kids,
+            is_news,
+            is_series,
+            recursive,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/Filters2", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = is_airing {
+            local_var_req_builder = local_var_req_builder.query(&[("isAiring", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_movie {
+            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_sports {
+            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_kids {
+            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_news {
+            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_series {
+            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = recursive {
+            local_var_req_builder = local_var_req_builder.query(&[("recursive", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QueryFilters`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::QueryFilters`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetQueryFiltersError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+    async fn get_query_filters_legacy(&self,  params: GetQueryFiltersLegacyParams ) -> Result<models::QueryFiltersLegacy, Error<GetQueryFiltersLegacyError>> {
+        
+        let GetQueryFiltersLegacyParams {
+            user_id,
+            parent_id,
+            include_item_types,
+            media_types,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Items/Filters", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = media_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QueryFiltersLegacy`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::QueryFiltersLegacy`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetQueryFiltersLegacyError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`FilterApi::get_query_filters`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetQueryFiltersError {
@@ -25,7 +260,7 @@ pub enum GetQueryFiltersError {
     UnknownValue(serde_json::Value),
 }
 
-/// struct for typed errors of method [`get_query_filters_legacy`]
+/// struct for typed errors of method [`FilterApi::get_query_filters_legacy`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetQueryFiltersLegacyError {
@@ -33,157 +268,5 @@ pub enum GetQueryFiltersLegacyError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_query_filters(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, is_airing: Option<bool>, is_movie: Option<bool>, is_sports: Option<bool>, is_kids: Option<bool>, is_news: Option<bool>, is_series: Option<bool>, recursive: Option<bool>) -> Result<models::QueryFilters, Error<GetQueryFiltersError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_parent_id = parent_id;
-    let p_query_include_item_types = include_item_types;
-    let p_query_is_airing = is_airing;
-    let p_query_is_movie = is_movie;
-    let p_query_is_sports = is_sports;
-    let p_query_is_kids = is_kids;
-    let p_query_is_news = is_news;
-    let p_query_is_series = is_series;
-    let p_query_recursive = recursive;
-
-    let uri_str = format!("{}/Items/Filters2", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_is_airing {
-        req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_movie {
-        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_sports {
-        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_kids {
-        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_news {
-        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_series {
-        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_recursive {
-        req_builder = req_builder.query(&[("recursive", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QueryFilters`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::QueryFilters`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetQueryFiltersError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
-}
-
-pub async fn get_query_filters_legacy(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>) -> Result<models::QueryFiltersLegacy, Error<GetQueryFiltersLegacyError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_user_id = user_id;
-    let p_query_parent_id = parent_id;
-    let p_query_include_item_types = include_item_types;
-    let p_query_media_types = media_types;
-
-    let uri_str = format!("{}/Items/Filters", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_media_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::QueryFiltersLegacy`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::QueryFiltersLegacy`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetQueryFiltersLegacyError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 

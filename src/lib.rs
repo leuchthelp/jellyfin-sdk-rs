@@ -4,5 +4,5 @@ pub mod utils;
 pub mod required;
 
 pub use helpers::configure as configure;
-pub use openapi::apis as apis;
-pub use openapi::models as models;
+pub use jellyfin_generated_client::apis as apis;
+pub use jellyfin_generated_client::models as models;

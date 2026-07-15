@@ -9,13 +9,210 @@
  */
 
 
+use async_trait::async_trait;
 use reqwest;
+use std::sync::Arc;
 use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
-use super::{Error, configuration, ContentType};
+use super::{Error, configuration};
+use crate::apis::ContentType;
+
+#[async_trait]
+pub trait SearchApi: Send + Sync {
+
+    /// GET /Search/Hints
+    ///
+    /// 
+    async fn get_search_hints(&self,  params: GetSearchHintsParams ) -> Result<models::SearchHintResult, Error<GetSearchHintsError>>;
+}
+
+pub struct SearchApiClient {
+    configuration: Arc<configuration::Configuration>
+}
+
+impl SearchApiClient {
+    pub fn new(configuration: Arc<configuration::Configuration>) -> Self {
+        Self { configuration }
+    }
+}
 
 
-/// struct for typed errors of method [`get_search_hints`]
+/// struct for passing parameters to the method [`SearchApi::get_search_hints`]
+#[derive(Clone, Debug)]
+pub struct GetSearchHintsParams {
+    /// The search term to filter on.
+    pub search_term: String,
+    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
+    pub start_index: Option<i32>,
+    /// Optional. The maximum number of records to return.
+    pub limit: Option<i32>,
+    /// Optional. Supply a user id to search within a user's library or omit to search all.
+    pub user_id: Option<String>,
+    /// If specified, only results with the specified item types are returned. This allows multiple, comma delimited.
+    pub include_item_types: Option<Vec<models::BaseItemKind>>,
+    /// If specified, results with these item types are filtered out. This allows multiple, comma delimited.
+    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
+    /// If specified, only results with the specified media types are returned. This allows multiple, comma delimited.
+    pub media_types: Option<Vec<models::MediaType>>,
+    /// If specified, only children of the parent are returned.
+    pub parent_id: Option<String>,
+    /// Optional filter for movies.
+    pub is_movie: Option<bool>,
+    /// Optional filter for series.
+    pub is_series: Option<bool>,
+    /// Optional filter for news.
+    pub is_news: Option<bool>,
+    /// Optional filter for kids.
+    pub is_kids: Option<bool>,
+    /// Optional filter for sports.
+    pub is_sports: Option<bool>,
+    /// Optional filter whether to include people.
+    pub include_people: Option<bool>,
+    /// Optional filter whether to include media.
+    pub include_media: Option<bool>,
+    /// Optional filter whether to include genres.
+    pub include_genres: Option<bool>,
+    /// Optional filter whether to include studios.
+    pub include_studios: Option<bool>,
+    /// Optional filter whether to include artists.
+    pub include_artists: Option<bool>
+}
+
+
+#[async_trait]
+impl SearchApi for SearchApiClient {
+    async fn get_search_hints(&self,  params: GetSearchHintsParams ) -> Result<models::SearchHintResult, Error<GetSearchHintsError>> {
+        
+        let GetSearchHintsParams {
+            search_term,
+            start_index,
+            limit,
+            user_id,
+            include_item_types,
+            exclude_item_types,
+            media_types,
+            parent_id,
+            is_movie,
+            is_series,
+            is_news,
+            is_kids,
+            is_sports,
+            include_people,
+            include_media,
+            include_genres,
+            include_studios,
+            include_artists,
+        } = params;
+        
+
+        let local_var_configuration = &self.configuration;
+
+        let local_var_client = &local_var_configuration.client;
+
+        let local_var_uri_str = format!("{}/Search/Hints", local_var_configuration.base_path);
+        let mut local_var_req_builder = local_var_client.request(reqwest::Method::GET, local_var_uri_str.as_str());
+
+        if let Some(ref param_value) = start_index {
+            local_var_req_builder = local_var_req_builder.query(&[("startIndex", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = limit {
+            local_var_req_builder = local_var_req_builder.query(&[("limit", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = user_id {
+            local_var_req_builder = local_var_req_builder.query(&[("userId", &param_value.to_string())]);
+        }
+        local_var_req_builder = local_var_req_builder.query(&[("searchTerm", &search_term.to_string())]);
+        if let Some(ref param_value) = include_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = exclude_item_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = media_types {
+            local_var_req_builder = match "multi" {
+                "multi" => local_var_req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+                _ => local_var_req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+            };
+        }
+        if let Some(ref param_value) = parent_id {
+            local_var_req_builder = local_var_req_builder.query(&[("parentId", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_movie {
+            local_var_req_builder = local_var_req_builder.query(&[("isMovie", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_series {
+            local_var_req_builder = local_var_req_builder.query(&[("isSeries", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_news {
+            local_var_req_builder = local_var_req_builder.query(&[("isNews", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_kids {
+            local_var_req_builder = local_var_req_builder.query(&[("isKids", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = is_sports {
+            local_var_req_builder = local_var_req_builder.query(&[("isSports", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_people {
+            local_var_req_builder = local_var_req_builder.query(&[("includePeople", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_media {
+            local_var_req_builder = local_var_req_builder.query(&[("includeMedia", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_genres {
+            local_var_req_builder = local_var_req_builder.query(&[("includeGenres", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_studios {
+            local_var_req_builder = local_var_req_builder.query(&[("includeStudios", &param_value.to_string())]);
+        }
+        if let Some(ref param_value) = include_artists {
+            local_var_req_builder = local_var_req_builder.query(&[("includeArtists", &param_value.to_string())]);
+        }
+        if let Some(ref local_var_user_agent) = local_var_configuration.user_agent {
+            local_var_req_builder = local_var_req_builder.header(reqwest::header::USER_AGENT, local_var_user_agent.clone());
+        }
+        if let Some(ref local_var_apikey) = local_var_configuration.api_key {
+            let local_var_key = local_var_apikey.key.clone();
+            let local_var_value = match local_var_apikey.prefix {
+                Some(ref local_var_prefix) => format!("{} {}", local_var_prefix, local_var_key),
+                None => local_var_key,
+            };
+            local_var_req_builder = local_var_req_builder.header("Authorization", local_var_value);
+        };
+
+        let local_var_req = local_var_req_builder.build()?;
+        let local_var_resp = local_var_client.execute(local_var_req).await?;
+
+        let local_var_status = local_var_resp.status();
+        let local_var_content_type = local_var_resp
+            .headers()
+            .get("content-type")
+            .and_then(|v| v.to_str().ok())
+            .unwrap_or("application/octet-stream");
+        let local_var_content_type = super::ContentType::from(local_var_content_type);
+        let local_var_content = local_var_resp.text().await?;
+
+        if !local_var_status.is_client_error() && !local_var_status.is_server_error() {
+            match local_var_content_type {
+                ContentType::Json => serde_json::from_str(&local_var_content).map_err(Error::from),
+                ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SearchHintResult`"))),
+                ContentType::Unsupported(local_var_unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{local_var_unknown_type}` content type response that cannot be converted to `models::SearchHintResult`")))),
+            }
+        } else {
+            let local_var_entity: Option<GetSearchHintsError> = serde_json::from_str(&local_var_content).ok();
+            let local_var_error = ResponseContent { status: local_var_status, content: local_var_content, entity: local_var_entity };
+            Err(Error::ResponseError(local_var_error))
+        }
+    }
+
+}
+
+/// struct for typed errors of method [`SearchApi::get_search_hints`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum GetSearchHintsError {
@@ -23,128 +220,5 @@ pub enum GetSearchHintsError {
     Status401(),
     Status403(),
     UnknownValue(serde_json::Value),
-}
-
-
-pub async fn get_search_hints(configuration: &configuration::Configuration, search_term: &str, start_index: Option<i32>, limit: Option<i32>, user_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>, parent_id: Option<&str>, is_movie: Option<bool>, is_series: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, include_people: Option<bool>, include_media: Option<bool>, include_genres: Option<bool>, include_studios: Option<bool>, include_artists: Option<bool>) -> Result<models::SearchHintResult, Error<GetSearchHintsError>> {
-    // add a prefix to parameters to efficiently prevent name collisions
-    let p_query_search_term = search_term;
-    let p_query_start_index = start_index;
-    let p_query_limit = limit;
-    let p_query_user_id = user_id;
-    let p_query_include_item_types = include_item_types;
-    let p_query_exclude_item_types = exclude_item_types;
-    let p_query_media_types = media_types;
-    let p_query_parent_id = parent_id;
-    let p_query_is_movie = is_movie;
-    let p_query_is_series = is_series;
-    let p_query_is_news = is_news;
-    let p_query_is_kids = is_kids;
-    let p_query_is_sports = is_sports;
-    let p_query_include_people = include_people;
-    let p_query_include_media = include_media;
-    let p_query_include_genres = include_genres;
-    let p_query_include_studios = include_studios;
-    let p_query_include_artists = include_artists;
-
-    let uri_str = format!("{}/Search/Hints", configuration.base_path);
-    let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
-
-    if let Some(ref param_value) = p_query_start_index {
-        req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_limit {
-        req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_user_id {
-        req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
-    }
-    req_builder = req_builder.query(&[("searchTerm", &p_query_search_term.to_string())]);
-    if let Some(ref param_value) = p_query_include_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_exclude_item_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_media_types {
-        req_builder = match "multi" {
-            "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-            _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
-        };
-    }
-    if let Some(ref param_value) = p_query_parent_id {
-        req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_movie {
-        req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_series {
-        req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_news {
-        req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_kids {
-        req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_is_sports {
-        req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_people {
-        req_builder = req_builder.query(&[("includePeople", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_media {
-        req_builder = req_builder.query(&[("includeMedia", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_genres {
-        req_builder = req_builder.query(&[("includeGenres", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_studios {
-        req_builder = req_builder.query(&[("includeStudios", &param_value.to_string())]);
-    }
-    if let Some(ref param_value) = p_query_include_artists {
-        req_builder = req_builder.query(&[("includeArtists", &param_value.to_string())]);
-    }
-    if let Some(ref user_agent) = configuration.user_agent {
-        req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
-    }
-    if let Some(ref apikey) = configuration.api_key {
-        let key = apikey.key.clone();
-        let value = match apikey.prefix {
-            Some(ref prefix) => format!("{} {}", prefix, key),
-            None => key,
-        };
-        req_builder = req_builder.header("Authorization", value);
-    };
-
-    let req = req_builder.build()?;
-    let resp = configuration.client.execute(req).await?;
-
-    let status = resp.status();
-    let content_type = resp
-        .headers()
-        .get("content-type")
-        .and_then(|v| v.to_str().ok())
-        .unwrap_or("application/octet-stream");
-    let content_type = super::ContentType::from(content_type);
-
-    if !status.is_client_error() && !status.is_server_error() {
-        let content = resp.text().await?;
-        match content_type {
-            ContentType::Json => serde_json::from_str(&content).map_err(Error::from),
-            ContentType::Text => return Err(Error::from(serde_json::Error::custom("Received `text/plain` content type response that cannot be converted to `models::SearchHintResult`"))),
-            ContentType::Unsupported(unknown_type) => return Err(Error::from(serde_json::Error::custom(format!("Received `{unknown_type}` content type response that cannot be converted to `models::SearchHintResult`")))),
-        }
-    } else {
-        let content = resp.text().await?;
-        let entity: Option<GetSearchHintsError> = serde_json::from_str(&content).ok();
-        Err(Error::ResponseError(ResponseContent { status, content, entity }))
-    }
 }
 
