@@ -14,41 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`download_remote_image`]
-#[derive(Clone, Debug)]
-pub struct DownloadRemoteImageParams {
-    /// Item Id.
-    pub item_id: String,
-    /// The image type.
-    pub r#type: String,
-    /// The image url.
-    pub image_url: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_remote_image_providers`]
-#[derive(Clone, Debug)]
-pub struct GetRemoteImageProvidersParams {
-    /// Item Id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`get_remote_images`]
-#[derive(Clone, Debug)]
-pub struct GetRemoteImagesParams {
-    /// Item Id.
-    pub item_id: String,
-    /// The image type.
-    pub r#type: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. The image provider to use.
-    pub provider_name: Option<String>,
-    /// Optional. Include all languages.
-    pub include_all_languages: Option<bool>
-}
-
 
 /// struct for typed errors of method [`download_remote_image`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -84,13 +49,17 @@ pub enum GetRemoteImagesError {
 }
 
 
-pub async fn download_remote_image(configuration: &configuration::Configuration, params: DownloadRemoteImageParams) -> Result<(), Error<DownloadRemoteImageError>> {
+pub async fn download_remote_image(configuration: &configuration::Configuration, item_id: &str, r#type: &str, image_url: Option<&str>) -> Result<(), Error<DownloadRemoteImageError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_type = r#type;
+    let p_query_image_url = image_url;
 
-    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Download", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Download", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("type", &params.r#type.to_string())]);
-    if let Some(ref param_value) = params.image_url {
+    req_builder = req_builder.query(&[("type", &p_query_type.to_string())]);
+    if let Some(ref param_value) = p_query_image_url {
         req_builder = req_builder.query(&[("imageUrl", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -119,9 +88,11 @@ pub async fn download_remote_image(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn get_remote_image_providers(configuration: &configuration::Configuration, params: GetRemoteImageProvidersParams) -> Result<Vec<models::ImageProviderInfo>, Error<GetRemoteImageProvidersError>> {
+pub async fn get_remote_image_providers(configuration: &configuration::Configuration, item_id: &str) -> Result<Vec<models::ImageProviderInfo>, Error<GetRemoteImageProvidersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Providers", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages/Providers", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -161,24 +132,31 @@ pub async fn get_remote_image_providers(configuration: &configuration::Configura
     }
 }
 
-pub async fn get_remote_images(configuration: &configuration::Configuration, params: GetRemoteImagesParams) -> Result<models::RemoteImageResult, Error<GetRemoteImagesError>> {
+pub async fn get_remote_images(configuration: &configuration::Configuration, item_id: &str, r#type: Option<&str>, start_index: Option<i32>, limit: Option<i32>, provider_name: Option<&str>, include_all_languages: Option<bool>) -> Result<models::RemoteImageResult, Error<GetRemoteImagesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_type = r#type;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_provider_name = provider_name;
+    let p_query_include_all_languages = include_all_languages;
 
-    let uri_str = format!("{}/Items/{itemId}/RemoteImages", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/RemoteImages", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.r#type {
+    if let Some(ref param_value) = p_query_type {
         req_builder = req_builder.query(&[("type", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.provider_name {
+    if let Some(ref param_value) = p_query_provider_name {
         req_builder = req_builder.query(&[("providerName", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_all_languages {
+    if let Some(ref param_value) = p_query_include_all_languages {
         req_builder = req_builder.query(&[("includeAllLanguages", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

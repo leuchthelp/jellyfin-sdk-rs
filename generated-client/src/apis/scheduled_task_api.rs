@@ -14,45 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_task`]
-#[derive(Clone, Debug)]
-pub struct GetTaskParams {
-    /// Task Id.
-    pub task_id: String
-}
-
-/// struct for passing parameters to the method [`get_tasks`]
-#[derive(Clone, Debug)]
-pub struct GetTasksParams {
-    /// Optional filter tasks that are hidden, or not.
-    pub is_hidden: Option<bool>,
-    /// Optional filter tasks that are enabled, or not.
-    pub is_enabled: Option<bool>
-}
-
-/// struct for passing parameters to the method [`start_task`]
-#[derive(Clone, Debug)]
-pub struct StartTaskParams {
-    /// Task Id.
-    pub task_id: String
-}
-
-/// struct for passing parameters to the method [`stop_task`]
-#[derive(Clone, Debug)]
-pub struct StopTaskParams {
-    /// Task Id.
-    pub task_id: String
-}
-
-/// struct for passing parameters to the method [`update_task`]
-#[derive(Clone, Debug)]
-pub struct UpdateTaskParams {
-    /// Task Id.
-    pub task_id: String,
-    /// Triggers.
-    pub task_trigger_info: Vec<models::TaskTriggerInfo>
-}
-
 
 /// struct for typed errors of method [`get_task`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -109,9 +70,11 @@ pub enum UpdateTaskError {
 }
 
 
-pub async fn get_task(configuration: &configuration::Configuration, params: GetTaskParams) -> Result<models::TaskInfo, Error<GetTaskError>> {
+pub async fn get_task(configuration: &configuration::Configuration, task_id: &str) -> Result<models::TaskInfo, Error<GetTaskError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_task_id = task_id;
 
-    let uri_str = format!("{}/ScheduledTasks/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(params.task_id));
+    let uri_str = format!("{}/ScheduledTasks/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -151,15 +114,18 @@ pub async fn get_task(configuration: &configuration::Configuration, params: GetT
     }
 }
 
-pub async fn get_tasks(configuration: &configuration::Configuration, params: GetTasksParams) -> Result<Vec<models::TaskInfo>, Error<GetTasksError>> {
+pub async fn get_tasks(configuration: &configuration::Configuration, is_hidden: Option<bool>, is_enabled: Option<bool>) -> Result<Vec<models::TaskInfo>, Error<GetTasksError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_is_hidden = is_hidden;
+    let p_query_is_enabled = is_enabled;
 
     let uri_str = format!("{}/ScheduledTasks", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.is_hidden {
+    if let Some(ref param_value) = p_query_is_hidden {
         req_builder = req_builder.query(&[("isHidden", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_enabled {
+    if let Some(ref param_value) = p_query_is_enabled {
         req_builder = req_builder.query(&[("isEnabled", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -199,9 +165,11 @@ pub async fn get_tasks(configuration: &configuration::Configuration, params: Get
     }
 }
 
-pub async fn start_task(configuration: &configuration::Configuration, params: StartTaskParams) -> Result<(), Error<StartTaskError>> {
+pub async fn start_task(configuration: &configuration::Configuration, task_id: &str) -> Result<(), Error<StartTaskError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_task_id = task_id;
 
-    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(params.task_id));
+    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -230,9 +198,11 @@ pub async fn start_task(configuration: &configuration::Configuration, params: St
     }
 }
 
-pub async fn stop_task(configuration: &configuration::Configuration, params: StopTaskParams) -> Result<(), Error<StopTaskError>> {
+pub async fn stop_task(configuration: &configuration::Configuration, task_id: &str) -> Result<(), Error<StopTaskError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_task_id = task_id;
 
-    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(params.task_id));
+    let uri_str = format!("{}/ScheduledTasks/Running/{taskId}", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -261,9 +231,12 @@ pub async fn stop_task(configuration: &configuration::Configuration, params: Sto
     }
 }
 
-pub async fn update_task(configuration: &configuration::Configuration, params: UpdateTaskParams) -> Result<(), Error<UpdateTaskError>> {
+pub async fn update_task(configuration: &configuration::Configuration, task_id: &str, task_trigger_info: Vec<models::TaskTriggerInfo>) -> Result<(), Error<UpdateTaskError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_task_id = task_id;
+    let p_body_task_trigger_info = task_trigger_info;
 
-    let uri_str = format!("{}/ScheduledTasks/{taskId}/Triggers", configuration.base_path, taskId=crate::apis::urlencode(params.task_id));
+    let uri_str = format!("{}/ScheduledTasks/{taskId}/Triggers", configuration.base_path, taskId=crate::apis::urlencode(p_path_task_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -277,7 +250,7 @@ pub async fn update_task(configuration: &configuration::Configuration, params: U
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.task_trigger_info);
+    req_builder = req_builder.json(&p_body_task_trigger_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

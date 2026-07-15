@@ -14,64 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`authenticate_user_by_name`]
-#[derive(Clone, Debug)]
-pub struct AuthenticateUserByNameParams {
-    /// The M:Jellyfin.Api.Controllers.UserController.AuthenticateUserByName(Jellyfin.Api.Models.UserDtos.AuthenticateUserByName) request.
-    pub authenticate_user_by_name: models::AuthenticateUserByName
-}
-
-/// struct for passing parameters to the method [`authenticate_with_quick_connect`]
-#[derive(Clone, Debug)]
-pub struct AuthenticateWithQuickConnectParams {
-    /// The Jellyfin.Api.Models.UserDtos.QuickConnectDto request.
-    pub quick_connect_dto: models::QuickConnectDto
-}
-
-/// struct for passing parameters to the method [`authorize_quick_connect`]
-#[derive(Clone, Debug)]
-pub struct AuthorizeQuickConnectParams {
-    /// Quick connect code to authorize.
-    pub code: String,
-    /// The user the authorize. Access to the requested user is required.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`create_key`]
-#[derive(Clone, Debug)]
-pub struct CreateKeyParams {
-    /// Name of the app using the authentication key.
-    pub app: String
-}
-
-/// struct for passing parameters to the method [`forgot_password`]
-#[derive(Clone, Debug)]
-pub struct ForgotPasswordParams {
-    /// The forgot password request containing the entered username.
-    pub forgot_password_dto: models::ForgotPasswordDto
-}
-
-/// struct for passing parameters to the method [`forgot_password_pin`]
-#[derive(Clone, Debug)]
-pub struct ForgotPasswordPinParams {
-    /// The forgot password pin request containing the entered pin.
-    pub forgot_password_pin_dto: models::ForgotPasswordPinDto
-}
-
-/// struct for passing parameters to the method [`get_quick_connect_state`]
-#[derive(Clone, Debug)]
-pub struct GetQuickConnectStateParams {
-    /// Secret previously returned from the Initiate endpoint.
-    pub secret: String
-}
-
-/// struct for passing parameters to the method [`revoke_key`]
-#[derive(Clone, Debug)]
-pub struct RevokeKeyParams {
-    /// The access token to delete.
-    pub key: String
-}
-
 
 /// struct for typed errors of method [`authenticate_user_by_name`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -193,7 +135,9 @@ pub enum RevokeKeyError {
 }
 
 
-pub async fn authenticate_user_by_name(configuration: &configuration::Configuration, params: AuthenticateUserByNameParams) -> Result<models::AuthenticationResult, Error<AuthenticateUserByNameError>> {
+pub async fn authenticate_user_by_name(configuration: &configuration::Configuration, authenticate_user_by_name: models::AuthenticateUserByName) -> Result<models::AuthenticationResult, Error<AuthenticateUserByNameError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_authenticate_user_by_name = authenticate_user_by_name;
 
     let uri_str = format!("{}/Users/AuthenticateByName", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -201,7 +145,7 @@ pub async fn authenticate_user_by_name(configuration: &configuration::Configurat
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&params.authenticate_user_by_name);
+    req_builder = req_builder.json(&p_body_authenticate_user_by_name);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -228,7 +172,9 @@ pub async fn authenticate_user_by_name(configuration: &configuration::Configurat
     }
 }
 
-pub async fn authenticate_with_quick_connect(configuration: &configuration::Configuration, params: AuthenticateWithQuickConnectParams) -> Result<models::AuthenticationResult, Error<AuthenticateWithQuickConnectError>> {
+pub async fn authenticate_with_quick_connect(configuration: &configuration::Configuration, quick_connect_dto: models::QuickConnectDto) -> Result<models::AuthenticationResult, Error<AuthenticateWithQuickConnectError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_quick_connect_dto = quick_connect_dto;
 
     let uri_str = format!("{}/Users/AuthenticateWithQuickConnect", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -236,7 +182,7 @@ pub async fn authenticate_with_quick_connect(configuration: &configuration::Conf
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&params.quick_connect_dto);
+    req_builder = req_builder.json(&p_body_quick_connect_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -263,13 +209,16 @@ pub async fn authenticate_with_quick_connect(configuration: &configuration::Conf
     }
 }
 
-pub async fn authorize_quick_connect(configuration: &configuration::Configuration, params: AuthorizeQuickConnectParams) -> Result<bool, Error<AuthorizeQuickConnectError>> {
+pub async fn authorize_quick_connect(configuration: &configuration::Configuration, code: &str, user_id: Option<&str>) -> Result<bool, Error<AuthorizeQuickConnectError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_code = code;
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/QuickConnect/Authorize", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("code", &params.code.to_string())]);
-    if let Some(ref param_value) = params.user_id {
+    req_builder = req_builder.query(&[("code", &p_query_code.to_string())]);
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -309,12 +258,14 @@ pub async fn authorize_quick_connect(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn create_key(configuration: &configuration::Configuration, params: CreateKeyParams) -> Result<(), Error<CreateKeyError>> {
+pub async fn create_key(configuration: &configuration::Configuration, app: &str) -> Result<(), Error<CreateKeyError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_app = app;
 
     let uri_str = format!("{}/Auth/Keys", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("app", &params.app.to_string())]);
+    req_builder = req_builder.query(&[("app", &p_query_app.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -341,7 +292,9 @@ pub async fn create_key(configuration: &configuration::Configuration, params: Cr
     }
 }
 
-pub async fn forgot_password(configuration: &configuration::Configuration, params: ForgotPasswordParams) -> Result<models::ForgotPasswordResult, Error<ForgotPasswordError>> {
+pub async fn forgot_password(configuration: &configuration::Configuration, forgot_password_dto: models::ForgotPasswordDto) -> Result<models::ForgotPasswordResult, Error<ForgotPasswordError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_forgot_password_dto = forgot_password_dto;
 
     let uri_str = format!("{}/Users/ForgotPassword", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -349,7 +302,7 @@ pub async fn forgot_password(configuration: &configuration::Configuration, param
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&params.forgot_password_dto);
+    req_builder = req_builder.json(&p_body_forgot_password_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -376,7 +329,9 @@ pub async fn forgot_password(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn forgot_password_pin(configuration: &configuration::Configuration, params: ForgotPasswordPinParams) -> Result<models::PinRedeemResult, Error<ForgotPasswordPinError>> {
+pub async fn forgot_password_pin(configuration: &configuration::Configuration, forgot_password_pin_dto: models::ForgotPasswordPinDto) -> Result<models::PinRedeemResult, Error<ForgotPasswordPinError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_forgot_password_pin_dto = forgot_password_pin_dto;
 
     let uri_str = format!("{}/Users/ForgotPassword/Pin", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -384,7 +339,7 @@ pub async fn forgot_password_pin(configuration: &configuration::Configuration, p
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
-    req_builder = req_builder.json(&params.forgot_password_pin_dto);
+    req_builder = req_builder.json(&p_body_forgot_password_pin_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -411,7 +366,7 @@ pub async fn forgot_password_pin(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn get_auth_providers(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetAuthProvidersError>> {
+pub async fn get_auth_providers(configuration: &configuration::Configuration, ) -> Result<Vec<models::NameIdPair>, Error<GetAuthProvidersError>> {
 
     let uri_str = format!("{}/Auth/Providers", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -453,7 +408,7 @@ pub async fn get_auth_providers(configuration: &configuration::Configuration) ->
     }
 }
 
-pub async fn get_keys(configuration: &configuration::Configuration) -> Result<models::AuthenticationInfoQueryResult, Error<GetKeysError>> {
+pub async fn get_keys(configuration: &configuration::Configuration, ) -> Result<models::AuthenticationInfoQueryResult, Error<GetKeysError>> {
 
     let uri_str = format!("{}/Auth/Keys", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -495,7 +450,7 @@ pub async fn get_keys(configuration: &configuration::Configuration) -> Result<mo
     }
 }
 
-pub async fn get_password_reset_providers(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetPasswordResetProvidersError>> {
+pub async fn get_password_reset_providers(configuration: &configuration::Configuration, ) -> Result<Vec<models::NameIdPair>, Error<GetPasswordResetProvidersError>> {
 
     let uri_str = format!("{}/Auth/PasswordResetProviders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -537,7 +492,7 @@ pub async fn get_password_reset_providers(configuration: &configuration::Configu
     }
 }
 
-pub async fn get_quick_connect_enabled(configuration: &configuration::Configuration) -> Result<bool, Error<GetQuickConnectEnabledError>> {
+pub async fn get_quick_connect_enabled(configuration: &configuration::Configuration, ) -> Result<bool, Error<GetQuickConnectEnabledError>> {
 
     let uri_str = format!("{}/QuickConnect/Enabled", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -571,12 +526,14 @@ pub async fn get_quick_connect_enabled(configuration: &configuration::Configurat
     }
 }
 
-pub async fn get_quick_connect_state(configuration: &configuration::Configuration, params: GetQuickConnectStateParams) -> Result<models::QuickConnectResult, Error<GetQuickConnectStateError>> {
+pub async fn get_quick_connect_state(configuration: &configuration::Configuration, secret: &str) -> Result<models::QuickConnectResult, Error<GetQuickConnectStateError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_secret = secret;
 
     let uri_str = format!("{}/QuickConnect/Connect", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("secret", &params.secret.to_string())]);
+    req_builder = req_builder.query(&[("secret", &p_query_secret.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -606,7 +563,7 @@ pub async fn get_quick_connect_state(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn initiate_quick_connect(configuration: &configuration::Configuration) -> Result<models::QuickConnectResult, Error<InitiateQuickConnectError>> {
+pub async fn initiate_quick_connect(configuration: &configuration::Configuration, ) -> Result<models::QuickConnectResult, Error<InitiateQuickConnectError>> {
 
     let uri_str = format!("{}/QuickConnect/Initiate", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -640,9 +597,11 @@ pub async fn initiate_quick_connect(configuration: &configuration::Configuration
     }
 }
 
-pub async fn revoke_key(configuration: &configuration::Configuration, params: RevokeKeyParams) -> Result<(), Error<RevokeKeyError>> {
+pub async fn revoke_key(configuration: &configuration::Configuration, key: &str) -> Result<(), Error<RevokeKeyError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_key = key;
 
-    let uri_str = format!("{}/Auth/Keys/{key}", configuration.base_path, key=crate::apis::urlencode(params.key));
+    let uri_str = format!("{}/Auth/Keys/{key}", configuration.base_path, key=crate::apis::urlencode(p_path_key));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

@@ -14,500 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_audio_stream`]
-#[derive(Clone, Debug)]
-pub struct GetAudioStreamParams {
-    /// The item id.
-    pub item_id: String,
-    /// The audio container.
-    pub container: Option<String>,
-    /// Optional. If true, the original file will be streamed statically without any encoding. Use either no url extension or the original file extension. true/false.
-    pub r#static: Option<bool>,
-    /// The streaming parameters.
-    pub params: Option<String>,
-    /// The tag.
-    pub tag: Option<String>,
-    /// Optional. The dlna device profile id to utilize.
-    pub device_profile_id: Option<String>,
-    /// The play session id.
-    pub play_session_id: Option<String>,
-    /// The segment container.
-    pub segment_container: Option<String>,
-    /// The segment length.
-    pub segment_length: Option<i32>,
-    /// The minimum number of segments.
-    pub min_segments: Option<i32>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. Specify an audio codec to encode to, e.g. mp3. If omitted the server will auto-select using the url's extension.
-    pub audio_codec: Option<String>,
-    /// Whether or not to allow automatic stream copy if requested values match the original source. Defaults to true.
-    pub enable_auto_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the video stream url.
-    pub allow_video_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the audio stream url.
-    pub allow_audio_stream_copy: Option<bool>,
-    /// Optional. Specify a specific audio sample rate, e.g. 44100.
-    pub audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a specific number of audio channels to encode to, e.g. 2.
-    pub audio_channels: Option<i32>,
-    /// Optional. Specify a maximum number of audio channels to encode to, e.g. 2.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. Specify a specific an encoder profile (varies by encoder), e.g. main, baseline, high.
-    pub profile: Option<String>,
-    /// Optional. Specify a level for the encoder profile (varies by encoder), e.g. 3, 3.1.
-    pub level: Option<String>,
-    /// Optional. A specific video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub framerate: Option<f32>,
-    /// Optional. A specific maximum video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub max_framerate: Option<f32>,
-    /// Whether or not to copy timestamps when transcoding with an offset. Defaults to false.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The fixed horizontal resolution of the encoded video.
-    pub width: Option<i32>,
-    /// Optional. The fixed vertical resolution of the encoded video.
-    pub height: Option<i32>,
-    /// Optional. Specify a video bitrate to encode to, e.g. 500000. If omitted this will be left to encoder defaults.
-    pub video_bit_rate: Option<i32>,
-    /// Optional. The index of the subtitle stream to use. If omitted no subtitles will be used.
-    pub subtitle_stream_index: Option<i32>,
-    /// Optional. Specify the subtitle delivery method.
-    pub subtitle_method: Option<String>,
-    /// Optional.
-    pub max_ref_frames: Option<i32>,
-    /// Optional. The maximum video bit depth.
-    pub max_video_bit_depth: Option<i32>,
-    /// Optional. Whether to require avc.
-    pub require_avc: Option<bool>,
-    /// Optional. Whether to deinterlace the video.
-    pub de_interlace: Option<bool>,
-    /// Optional. Whether to require a non anamorphic stream.
-    pub require_non_anamorphic: Option<bool>,
-    /// Optional. The maximum number of audio channels to transcode.
-    pub transcoding_max_audio_channels: Option<i32>,
-    /// Optional. The limit of how many cpu cores to use.
-    pub cpu_core_limit: Option<i32>,
-    /// The live stream id.
-    pub live_stream_id: Option<String>,
-    /// Optional. Whether to enable the MpegtsM2Ts mode.
-    pub enable_mpegts_m2_ts_mode: Option<bool>,
-    /// Optional. Specify a video codec to encode to, e.g. h264. If omitted the server will auto-select using the url's extension.
-    pub video_codec: Option<String>,
-    /// Optional. Specify a subtitle codec to encode to.
-    pub subtitle_codec: Option<String>,
-    /// Optional. The transcoding reason.
-    pub transcode_reasons: Option<String>,
-    /// Optional. The index of the audio stream to use. If omitted the first audio stream will be used.
-    pub audio_stream_index: Option<i32>,
-    /// Optional. The index of the video stream to use. If omitted the first video stream will be used.
-    pub video_stream_index: Option<i32>,
-    /// Optional. The MediaBrowser.Model.Dlna.EncodingContext.
-    pub context: Option<String>,
-    /// Optional. The streaming options.
-    pub stream_options: Option<std::collections::HashMap<String, String>>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_audio_stream_by_container`]
-#[derive(Clone, Debug)]
-pub struct GetAudioStreamByContainerParams {
-    /// The item id.
-    pub item_id: String,
-    /// The audio container.
-    pub container: String,
-    /// Optional. If true, the original file will be streamed statically without any encoding. Use either no url extension or the original file extension. true/false.
-    pub r#static: Option<bool>,
-    /// The streaming parameters.
-    pub params: Option<String>,
-    /// The tag.
-    pub tag: Option<String>,
-    /// Optional. The dlna device profile id to utilize.
-    pub device_profile_id: Option<String>,
-    /// The play session id.
-    pub play_session_id: Option<String>,
-    /// The segment container.
-    pub segment_container: Option<String>,
-    /// The segment length.
-    pub segment_length: Option<i32>,
-    /// The minimum number of segments.
-    pub min_segments: Option<i32>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. Specify an audio codec to encode to, e.g. mp3. If omitted the server will auto-select using the url's extension.
-    pub audio_codec: Option<String>,
-    /// Whether or not to allow automatic stream copy if requested values match the original source. Defaults to true.
-    pub enable_auto_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the video stream url.
-    pub allow_video_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the audio stream url.
-    pub allow_audio_stream_copy: Option<bool>,
-    /// Optional. Specify a specific audio sample rate, e.g. 44100.
-    pub audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a specific number of audio channels to encode to, e.g. 2.
-    pub audio_channels: Option<i32>,
-    /// Optional. Specify a maximum number of audio channels to encode to, e.g. 2.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. Specify a specific an encoder profile (varies by encoder), e.g. main, baseline, high.
-    pub profile: Option<String>,
-    /// Optional. Specify a level for the encoder profile (varies by encoder), e.g. 3, 3.1.
-    pub level: Option<String>,
-    /// Optional. A specific video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub framerate: Option<f32>,
-    /// Optional. A specific maximum video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub max_framerate: Option<f32>,
-    /// Whether or not to copy timestamps when transcoding with an offset. Defaults to false.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The fixed horizontal resolution of the encoded video.
-    pub width: Option<i32>,
-    /// Optional. The fixed vertical resolution of the encoded video.
-    pub height: Option<i32>,
-    /// Optional. Specify a video bitrate to encode to, e.g. 500000. If omitted this will be left to encoder defaults.
-    pub video_bit_rate: Option<i32>,
-    /// Optional. The index of the subtitle stream to use. If omitted no subtitles will be used.
-    pub subtitle_stream_index: Option<i32>,
-    /// Optional. Specify the subtitle delivery method.
-    pub subtitle_method: Option<String>,
-    /// Optional.
-    pub max_ref_frames: Option<i32>,
-    /// Optional. The maximum video bit depth.
-    pub max_video_bit_depth: Option<i32>,
-    /// Optional. Whether to require avc.
-    pub require_avc: Option<bool>,
-    /// Optional. Whether to deinterlace the video.
-    pub de_interlace: Option<bool>,
-    /// Optional. Whether to require a non anamorphic stream.
-    pub require_non_anamorphic: Option<bool>,
-    /// Optional. The maximum number of audio channels to transcode.
-    pub transcoding_max_audio_channels: Option<i32>,
-    /// Optional. The limit of how many cpu cores to use.
-    pub cpu_core_limit: Option<i32>,
-    /// The live stream id.
-    pub live_stream_id: Option<String>,
-    /// Optional. Whether to enable the MpegtsM2Ts mode.
-    pub enable_mpegts_m2_ts_mode: Option<bool>,
-    /// Optional. Specify a video codec to encode to, e.g. h264. If omitted the server will auto-select using the url's extension.
-    pub video_codec: Option<String>,
-    /// Optional. Specify a subtitle codec to encode to.
-    pub subtitle_codec: Option<String>,
-    /// Optional. The transcoding reason.
-    pub transcode_reasons: Option<String>,
-    /// Optional. The index of the audio stream to use. If omitted the first audio stream will be used.
-    pub audio_stream_index: Option<i32>,
-    /// Optional. The index of the video stream to use. If omitted the first video stream will be used.
-    pub video_stream_index: Option<i32>,
-    /// Optional. The MediaBrowser.Model.Dlna.EncodingContext.
-    pub context: Option<String>,
-    /// Optional. The streaming options.
-    pub stream_options: Option<std::collections::HashMap<String, String>>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_universal_audio_stream`]
-#[derive(Clone, Debug)]
-pub struct GetUniversalAudioStreamParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. The audio container.
-    pub container: Option<Vec<String>>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. The user id.
-    pub user_id: Option<String>,
-    /// Optional. The audio codec to transcode to.
-    pub audio_codec: Option<String>,
-    /// Optional. The maximum number of audio channels.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. The number of how many audio channels to transcode to.
-    pub transcoding_audio_channels: Option<i32>,
-    /// Optional. The maximum streaming bitrate.
-    pub max_streaming_bitrate: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The container to transcode to.
-    pub transcoding_container: Option<String>,
-    /// Optional. The transcoding protocol.
-    pub transcoding_protocol: Option<String>,
-    /// Optional. The maximum audio sample rate.
-    pub max_audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Whether to enable remote media.
-    pub enable_remote_media: Option<bool>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>,
-    /// Whether to enable redirection. Defaults to true.
-    pub enable_redirection: Option<bool>
-}
-
-/// struct for passing parameters to the method [`head_audio_stream`]
-#[derive(Clone, Debug)]
-pub struct HeadAudioStreamParams {
-    /// The item id.
-    pub item_id: String,
-    /// The audio container.
-    pub container: Option<String>,
-    /// Optional. If true, the original file will be streamed statically without any encoding. Use either no url extension or the original file extension. true/false.
-    pub r#static: Option<bool>,
-    /// The streaming parameters.
-    pub params: Option<String>,
-    /// The tag.
-    pub tag: Option<String>,
-    /// Optional. The dlna device profile id to utilize.
-    pub device_profile_id: Option<String>,
-    /// The play session id.
-    pub play_session_id: Option<String>,
-    /// The segment container.
-    pub segment_container: Option<String>,
-    /// The segment length.
-    pub segment_length: Option<i32>,
-    /// The minimum number of segments.
-    pub min_segments: Option<i32>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. Specify an audio codec to encode to, e.g. mp3. If omitted the server will auto-select using the url's extension.
-    pub audio_codec: Option<String>,
-    /// Whether or not to allow automatic stream copy if requested values match the original source. Defaults to true.
-    pub enable_auto_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the video stream url.
-    pub allow_video_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the audio stream url.
-    pub allow_audio_stream_copy: Option<bool>,
-    /// Optional. Specify a specific audio sample rate, e.g. 44100.
-    pub audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a specific number of audio channels to encode to, e.g. 2.
-    pub audio_channels: Option<i32>,
-    /// Optional. Specify a maximum number of audio channels to encode to, e.g. 2.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. Specify a specific an encoder profile (varies by encoder), e.g. main, baseline, high.
-    pub profile: Option<String>,
-    /// Optional. Specify a level for the encoder profile (varies by encoder), e.g. 3, 3.1.
-    pub level: Option<String>,
-    /// Optional. A specific video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub framerate: Option<f32>,
-    /// Optional. A specific maximum video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub max_framerate: Option<f32>,
-    /// Whether or not to copy timestamps when transcoding with an offset. Defaults to false.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The fixed horizontal resolution of the encoded video.
-    pub width: Option<i32>,
-    /// Optional. The fixed vertical resolution of the encoded video.
-    pub height: Option<i32>,
-    /// Optional. Specify a video bitrate to encode to, e.g. 500000. If omitted this will be left to encoder defaults.
-    pub video_bit_rate: Option<i32>,
-    /// Optional. The index of the subtitle stream to use. If omitted no subtitles will be used.
-    pub subtitle_stream_index: Option<i32>,
-    /// Optional. Specify the subtitle delivery method.
-    pub subtitle_method: Option<String>,
-    /// Optional.
-    pub max_ref_frames: Option<i32>,
-    /// Optional. The maximum video bit depth.
-    pub max_video_bit_depth: Option<i32>,
-    /// Optional. Whether to require avc.
-    pub require_avc: Option<bool>,
-    /// Optional. Whether to deinterlace the video.
-    pub de_interlace: Option<bool>,
-    /// Optional. Whether to require a non anamorphic stream.
-    pub require_non_anamorphic: Option<bool>,
-    /// Optional. The maximum number of audio channels to transcode.
-    pub transcoding_max_audio_channels: Option<i32>,
-    /// Optional. The limit of how many cpu cores to use.
-    pub cpu_core_limit: Option<i32>,
-    /// The live stream id.
-    pub live_stream_id: Option<String>,
-    /// Optional. Whether to enable the MpegtsM2Ts mode.
-    pub enable_mpegts_m2_ts_mode: Option<bool>,
-    /// Optional. Specify a video codec to encode to, e.g. h264. If omitted the server will auto-select using the url's extension.
-    pub video_codec: Option<String>,
-    /// Optional. Specify a subtitle codec to encode to.
-    pub subtitle_codec: Option<String>,
-    /// Optional. The transcoding reason.
-    pub transcode_reasons: Option<String>,
-    /// Optional. The index of the audio stream to use. If omitted the first audio stream will be used.
-    pub audio_stream_index: Option<i32>,
-    /// Optional. The index of the video stream to use. If omitted the first video stream will be used.
-    pub video_stream_index: Option<i32>,
-    /// Optional. The MediaBrowser.Model.Dlna.EncodingContext.
-    pub context: Option<String>,
-    /// Optional. The streaming options.
-    pub stream_options: Option<std::collections::HashMap<String, String>>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>
-}
-
-/// struct for passing parameters to the method [`head_audio_stream_by_container`]
-#[derive(Clone, Debug)]
-pub struct HeadAudioStreamByContainerParams {
-    /// The item id.
-    pub item_id: String,
-    /// The audio container.
-    pub container: String,
-    /// Optional. If true, the original file will be streamed statically without any encoding. Use either no url extension or the original file extension. true/false.
-    pub r#static: Option<bool>,
-    /// The streaming parameters.
-    pub params: Option<String>,
-    /// The tag.
-    pub tag: Option<String>,
-    /// Optional. The dlna device profile id to utilize.
-    pub device_profile_id: Option<String>,
-    /// The play session id.
-    pub play_session_id: Option<String>,
-    /// The segment container.
-    pub segment_container: Option<String>,
-    /// The segment length.
-    pub segment_length: Option<i32>,
-    /// The minimum number of segments.
-    pub min_segments: Option<i32>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. Specify an audio codec to encode to, e.g. mp3. If omitted the server will auto-select using the url's extension.
-    pub audio_codec: Option<String>,
-    /// Whether or not to allow automatic stream copy if requested values match the original source. Defaults to true.
-    pub enable_auto_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the video stream url.
-    pub allow_video_stream_copy: Option<bool>,
-    /// Whether or not to allow copying of the audio stream url.
-    pub allow_audio_stream_copy: Option<bool>,
-    /// Optional. Specify a specific audio sample rate, e.g. 44100.
-    pub audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a specific number of audio channels to encode to, e.g. 2.
-    pub audio_channels: Option<i32>,
-    /// Optional. Specify a maximum number of audio channels to encode to, e.g. 2.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. Specify a specific an encoder profile (varies by encoder), e.g. main, baseline, high.
-    pub profile: Option<String>,
-    /// Optional. Specify a level for the encoder profile (varies by encoder), e.g. 3, 3.1.
-    pub level: Option<String>,
-    /// Optional. A specific video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub framerate: Option<f32>,
-    /// Optional. A specific maximum video framerate to encode to, e.g. 23.976. Generally this should be omitted unless the device has specific requirements.
-    pub max_framerate: Option<f32>,
-    /// Whether or not to copy timestamps when transcoding with an offset. Defaults to false.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The fixed horizontal resolution of the encoded video.
-    pub width: Option<i32>,
-    /// Optional. The fixed vertical resolution of the encoded video.
-    pub height: Option<i32>,
-    /// Optional. Specify a video bitrate to encode to, e.g. 500000. If omitted this will be left to encoder defaults.
-    pub video_bit_rate: Option<i32>,
-    /// Optional. The index of the subtitle stream to use. If omitted no subtitles will be used.
-    pub subtitle_stream_index: Option<i32>,
-    /// Optional. Specify the subtitle delivery method.
-    pub subtitle_method: Option<String>,
-    /// Optional.
-    pub max_ref_frames: Option<i32>,
-    /// Optional. The maximum video bit depth.
-    pub max_video_bit_depth: Option<i32>,
-    /// Optional. Whether to require avc.
-    pub require_avc: Option<bool>,
-    /// Optional. Whether to deinterlace the video.
-    pub de_interlace: Option<bool>,
-    /// Optional. Whether to require a non anamorphic stream.
-    pub require_non_anamorphic: Option<bool>,
-    /// Optional. The maximum number of audio channels to transcode.
-    pub transcoding_max_audio_channels: Option<i32>,
-    /// Optional. The limit of how many cpu cores to use.
-    pub cpu_core_limit: Option<i32>,
-    /// The live stream id.
-    pub live_stream_id: Option<String>,
-    /// Optional. Whether to enable the MpegtsM2Ts mode.
-    pub enable_mpegts_m2_ts_mode: Option<bool>,
-    /// Optional. Specify a video codec to encode to, e.g. h264. If omitted the server will auto-select using the url's extension.
-    pub video_codec: Option<String>,
-    /// Optional. Specify a subtitle codec to encode to.
-    pub subtitle_codec: Option<String>,
-    /// Optional. The transcoding reason.
-    pub transcode_reasons: Option<String>,
-    /// Optional. The index of the audio stream to use. If omitted the first audio stream will be used.
-    pub audio_stream_index: Option<i32>,
-    /// Optional. The index of the video stream to use. If omitted the first video stream will be used.
-    pub video_stream_index: Option<i32>,
-    /// Optional. The MediaBrowser.Model.Dlna.EncodingContext.
-    pub context: Option<String>,
-    /// Optional. The streaming options.
-    pub stream_options: Option<std::collections::HashMap<String, String>>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>
-}
-
-/// struct for passing parameters to the method [`head_universal_audio_stream`]
-#[derive(Clone, Debug)]
-pub struct HeadUniversalAudioStreamParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. The audio container.
-    pub container: Option<Vec<String>>,
-    /// The media version id, if playing an alternate version.
-    pub media_source_id: Option<String>,
-    /// The device id of the client requesting. Used to stop encoding processes when needed.
-    pub device_id: Option<String>,
-    /// Optional. The user id.
-    pub user_id: Option<String>,
-    /// Optional. The audio codec to transcode to.
-    pub audio_codec: Option<String>,
-    /// Optional. The maximum number of audio channels.
-    pub max_audio_channels: Option<i32>,
-    /// Optional. The number of how many audio channels to transcode to.
-    pub transcoding_audio_channels: Option<i32>,
-    /// Optional. The maximum streaming bitrate.
-    pub max_streaming_bitrate: Option<i32>,
-    /// Optional. Specify an audio bitrate to encode to, e.g. 128000. If omitted this will be left to encoder defaults.
-    pub audio_bit_rate: Option<i32>,
-    /// Optional. Specify a starting offset, in ticks. 1 tick = 10000 ms.
-    pub start_time_ticks: Option<i64>,
-    /// Optional. The container to transcode to.
-    pub transcoding_container: Option<String>,
-    /// Optional. The transcoding protocol.
-    pub transcoding_protocol: Option<String>,
-    /// Optional. The maximum audio sample rate.
-    pub max_audio_sample_rate: Option<i32>,
-    /// Optional. The maximum audio bit depth.
-    pub max_audio_bit_depth: Option<i32>,
-    /// Optional. Whether to enable remote media.
-    pub enable_remote_media: Option<bool>,
-    /// Optional. Whether to enable Audio Encoding.
-    pub enable_audio_vbr_encoding: Option<bool>,
-    /// Whether to enable redirection. Defaults to true.
-    pub enable_redirection: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_audio_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -564,154 +70,204 @@ pub enum HeadUniversalAudioStreamError {
 }
 
 
-pub async fn get_audio_stream(configuration: &configuration::Configuration, params: GetAudioStreamParams) -> Result<reqwest::Response, Error<GetAudioStreamError>> {
+pub async fn get_audio_stream(configuration: &configuration::Configuration, item_id: &str, container: Option<&str>, r#static: Option<bool>, params: Option<&str>, tag: Option<&str>, device_profile_id: Option<&str>, play_session_id: Option<&str>, segment_container: Option<&str>, segment_length: Option<i32>, min_segments: Option<i32>, media_source_id: Option<&str>, device_id: Option<&str>, audio_codec: Option<&str>, enable_auto_stream_copy: Option<bool>, allow_video_stream_copy: Option<bool>, allow_audio_stream_copy: Option<bool>, audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, audio_bit_rate: Option<i32>, audio_channels: Option<i32>, max_audio_channels: Option<i32>, profile: Option<&str>, level: Option<&str>, framerate: Option<f32>, max_framerate: Option<f32>, copy_timestamps: Option<bool>, start_time_ticks: Option<i64>, width: Option<i32>, height: Option<i32>, video_bit_rate: Option<i32>, subtitle_stream_index: Option<i32>, subtitle_method: Option<&str>, max_ref_frames: Option<i32>, max_video_bit_depth: Option<i32>, require_avc: Option<bool>, de_interlace: Option<bool>, require_non_anamorphic: Option<bool>, transcoding_max_audio_channels: Option<i32>, cpu_core_limit: Option<i32>, live_stream_id: Option<&str>, enable_mpegts_m2_ts_mode: Option<bool>, video_codec: Option<&str>, subtitle_codec: Option<&str>, transcode_reasons: Option<&str>, audio_stream_index: Option<i32>, video_stream_index: Option<i32>, context: Option<&str>, stream_options: Option<std::collections::HashMap<String, String>>, enable_audio_vbr_encoding: Option<bool>) -> Result<reqwest::Response, Error<GetAudioStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_container = container;
+    let p_query_static = r#static;
+    let p_query_params = params;
+    let p_query_tag = tag;
+    let p_query_device_profile_id = device_profile_id;
+    let p_query_play_session_id = play_session_id;
+    let p_query_segment_container = segment_container;
+    let p_query_segment_length = segment_length;
+    let p_query_min_segments = min_segments;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_enable_auto_stream_copy = enable_auto_stream_copy;
+    let p_query_allow_video_stream_copy = allow_video_stream_copy;
+    let p_query_allow_audio_stream_copy = allow_audio_stream_copy;
+    let p_query_audio_sample_rate = audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_audio_channels = audio_channels;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_profile = profile;
+    let p_query_level = level;
+    let p_query_framerate = framerate;
+    let p_query_max_framerate = max_framerate;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_width = width;
+    let p_query_height = height;
+    let p_query_video_bit_rate = video_bit_rate;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_subtitle_method = subtitle_method;
+    let p_query_max_ref_frames = max_ref_frames;
+    let p_query_max_video_bit_depth = max_video_bit_depth;
+    let p_query_require_avc = require_avc;
+    let p_query_de_interlace = de_interlace;
+    let p_query_require_non_anamorphic = require_non_anamorphic;
+    let p_query_transcoding_max_audio_channels = transcoding_max_audio_channels;
+    let p_query_cpu_core_limit = cpu_core_limit;
+    let p_query_live_stream_id = live_stream_id;
+    let p_query_enable_mpegts_m2_ts_mode = enable_mpegts_m2_ts_mode;
+    let p_query_video_codec = video_codec;
+    let p_query_subtitle_codec = subtitle_codec;
+    let p_query_transcode_reasons = transcode_reasons;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_video_stream_index = video_stream_index;
+    let p_query_context = context;
+    let p_query_stream_options = stream_options;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
 
-    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.container {
+    if let Some(ref param_value) = p_query_container {
         req_builder = req_builder.query(&[("container", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.r#static {
+    if let Some(ref param_value) = p_query_static {
         req_builder = req_builder.query(&[("static", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.params {
+    if let Some(ref param_value) = p_query_params {
         req_builder = req_builder.query(&[("params", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.tag {
+    if let Some(ref param_value) = p_query_tag {
         req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_profile_id {
+    if let Some(ref param_value) = p_query_device_profile_id {
         req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.play_session_id {
+    if let Some(ref param_value) = p_query_play_session_id {
         req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_container {
+    if let Some(ref param_value) = p_query_segment_container {
         req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_length {
+    if let Some(ref param_value) = p_query_segment_length {
         req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_segments {
+    if let Some(ref param_value) = p_query_min_segments {
         req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_auto_stream_copy {
+    if let Some(ref param_value) = p_query_enable_auto_stream_copy {
         req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_video_stream_copy {
+    if let Some(ref param_value) = p_query_allow_video_stream_copy {
         req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_audio_stream_copy {
+    if let Some(ref param_value) = p_query_allow_audio_stream_copy {
         req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_sample_rate {
+    if let Some(ref param_value) = p_query_audio_sample_rate {
         req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_channels {
+    if let Some(ref param_value) = p_query_audio_channels {
         req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.profile {
+    if let Some(ref param_value) = p_query_profile {
         req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.level {
+    if let Some(ref param_value) = p_query_level {
         req_builder = req_builder.query(&[("level", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.framerate {
+    if let Some(ref param_value) = p_query_framerate {
         req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_framerate {
+    if let Some(ref param_value) = p_query_max_framerate {
         req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.width {
+    if let Some(ref param_value) = p_query_width {
         req_builder = req_builder.query(&[("width", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.height {
+    if let Some(ref param_value) = p_query_height {
         req_builder = req_builder.query(&[("height", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_bit_rate {
+    if let Some(ref param_value) = p_query_video_bit_rate {
         req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_method {
+    if let Some(ref param_value) = p_query_subtitle_method {
         req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_ref_frames {
+    if let Some(ref param_value) = p_query_max_ref_frames {
         req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_video_bit_depth {
+    if let Some(ref param_value) = p_query_max_video_bit_depth {
         req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_avc {
+    if let Some(ref param_value) = p_query_require_avc {
         req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.de_interlace {
+    if let Some(ref param_value) = p_query_de_interlace {
         req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_non_anamorphic {
+    if let Some(ref param_value) = p_query_require_non_anamorphic {
         req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_max_audio_channels {
         req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.cpu_core_limit {
+    if let Some(ref param_value) = p_query_cpu_core_limit {
         req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.live_stream_id {
+    if let Some(ref param_value) = p_query_live_stream_id {
         req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+    if let Some(ref param_value) = p_query_enable_mpegts_m2_ts_mode {
         req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_codec {
+    if let Some(ref param_value) = p_query_video_codec {
         req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_codec {
+    if let Some(ref param_value) = p_query_subtitle_codec {
         req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcode_reasons {
+    if let Some(ref param_value) = p_query_transcode_reasons {
         req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_stream_index {
+    if let Some(ref param_value) = p_query_video_stream_index {
         req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.context {
+    if let Some(ref param_value) = p_query_context {
         req_builder = req_builder.query(&[("context", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.stream_options {
+    if let Some(ref param_value) = p_query_stream_options {
         let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
         req_builder = req_builder.query(&params);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -732,151 +288,201 @@ pub async fn get_audio_stream(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_audio_stream_by_container(configuration: &configuration::Configuration, params: GetAudioStreamByContainerParams) -> Result<reqwest::Response, Error<GetAudioStreamByContainerError>> {
+pub async fn get_audio_stream_by_container(configuration: &configuration::Configuration, item_id: &str, container: &str, r#static: Option<bool>, params: Option<&str>, tag: Option<&str>, device_profile_id: Option<&str>, play_session_id: Option<&str>, segment_container: Option<&str>, segment_length: Option<i32>, min_segments: Option<i32>, media_source_id: Option<&str>, device_id: Option<&str>, audio_codec: Option<&str>, enable_auto_stream_copy: Option<bool>, allow_video_stream_copy: Option<bool>, allow_audio_stream_copy: Option<bool>, audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, audio_bit_rate: Option<i32>, audio_channels: Option<i32>, max_audio_channels: Option<i32>, profile: Option<&str>, level: Option<&str>, framerate: Option<f32>, max_framerate: Option<f32>, copy_timestamps: Option<bool>, start_time_ticks: Option<i64>, width: Option<i32>, height: Option<i32>, video_bit_rate: Option<i32>, subtitle_stream_index: Option<i32>, subtitle_method: Option<&str>, max_ref_frames: Option<i32>, max_video_bit_depth: Option<i32>, require_avc: Option<bool>, de_interlace: Option<bool>, require_non_anamorphic: Option<bool>, transcoding_max_audio_channels: Option<i32>, cpu_core_limit: Option<i32>, live_stream_id: Option<&str>, enable_mpegts_m2_ts_mode: Option<bool>, video_codec: Option<&str>, subtitle_codec: Option<&str>, transcode_reasons: Option<&str>, audio_stream_index: Option<i32>, video_stream_index: Option<i32>, context: Option<&str>, stream_options: Option<std::collections::HashMap<String, String>>, enable_audio_vbr_encoding: Option<bool>) -> Result<reqwest::Response, Error<GetAudioStreamByContainerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_container = container;
+    let p_query_static = r#static;
+    let p_query_params = params;
+    let p_query_tag = tag;
+    let p_query_device_profile_id = device_profile_id;
+    let p_query_play_session_id = play_session_id;
+    let p_query_segment_container = segment_container;
+    let p_query_segment_length = segment_length;
+    let p_query_min_segments = min_segments;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_enable_auto_stream_copy = enable_auto_stream_copy;
+    let p_query_allow_video_stream_copy = allow_video_stream_copy;
+    let p_query_allow_audio_stream_copy = allow_audio_stream_copy;
+    let p_query_audio_sample_rate = audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_audio_channels = audio_channels;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_profile = profile;
+    let p_query_level = level;
+    let p_query_framerate = framerate;
+    let p_query_max_framerate = max_framerate;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_width = width;
+    let p_query_height = height;
+    let p_query_video_bit_rate = video_bit_rate;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_subtitle_method = subtitle_method;
+    let p_query_max_ref_frames = max_ref_frames;
+    let p_query_max_video_bit_depth = max_video_bit_depth;
+    let p_query_require_avc = require_avc;
+    let p_query_de_interlace = de_interlace;
+    let p_query_require_non_anamorphic = require_non_anamorphic;
+    let p_query_transcoding_max_audio_channels = transcoding_max_audio_channels;
+    let p_query_cpu_core_limit = cpu_core_limit;
+    let p_query_live_stream_id = live_stream_id;
+    let p_query_enable_mpegts_m2_ts_mode = enable_mpegts_m2_ts_mode;
+    let p_query_video_codec = video_codec;
+    let p_query_subtitle_codec = subtitle_codec;
+    let p_query_transcode_reasons = transcode_reasons;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_video_stream_index = video_stream_index;
+    let p_query_context = context;
+    let p_query_stream_options = stream_options;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
 
-    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), container=crate::apis::urlencode(params.container));
+    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), container=crate::apis::urlencode(p_path_container));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.r#static {
+    if let Some(ref param_value) = p_query_static {
         req_builder = req_builder.query(&[("static", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.params {
+    if let Some(ref param_value) = p_query_params {
         req_builder = req_builder.query(&[("params", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.tag {
+    if let Some(ref param_value) = p_query_tag {
         req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_profile_id {
+    if let Some(ref param_value) = p_query_device_profile_id {
         req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.play_session_id {
+    if let Some(ref param_value) = p_query_play_session_id {
         req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_container {
+    if let Some(ref param_value) = p_query_segment_container {
         req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_length {
+    if let Some(ref param_value) = p_query_segment_length {
         req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_segments {
+    if let Some(ref param_value) = p_query_min_segments {
         req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_auto_stream_copy {
+    if let Some(ref param_value) = p_query_enable_auto_stream_copy {
         req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_video_stream_copy {
+    if let Some(ref param_value) = p_query_allow_video_stream_copy {
         req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_audio_stream_copy {
+    if let Some(ref param_value) = p_query_allow_audio_stream_copy {
         req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_sample_rate {
+    if let Some(ref param_value) = p_query_audio_sample_rate {
         req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_channels {
+    if let Some(ref param_value) = p_query_audio_channels {
         req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.profile {
+    if let Some(ref param_value) = p_query_profile {
         req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.level {
+    if let Some(ref param_value) = p_query_level {
         req_builder = req_builder.query(&[("level", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.framerate {
+    if let Some(ref param_value) = p_query_framerate {
         req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_framerate {
+    if let Some(ref param_value) = p_query_max_framerate {
         req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.width {
+    if let Some(ref param_value) = p_query_width {
         req_builder = req_builder.query(&[("width", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.height {
+    if let Some(ref param_value) = p_query_height {
         req_builder = req_builder.query(&[("height", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_bit_rate {
+    if let Some(ref param_value) = p_query_video_bit_rate {
         req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_method {
+    if let Some(ref param_value) = p_query_subtitle_method {
         req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_ref_frames {
+    if let Some(ref param_value) = p_query_max_ref_frames {
         req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_video_bit_depth {
+    if let Some(ref param_value) = p_query_max_video_bit_depth {
         req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_avc {
+    if let Some(ref param_value) = p_query_require_avc {
         req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.de_interlace {
+    if let Some(ref param_value) = p_query_de_interlace {
         req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_non_anamorphic {
+    if let Some(ref param_value) = p_query_require_non_anamorphic {
         req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_max_audio_channels {
         req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.cpu_core_limit {
+    if let Some(ref param_value) = p_query_cpu_core_limit {
         req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.live_stream_id {
+    if let Some(ref param_value) = p_query_live_stream_id {
         req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+    if let Some(ref param_value) = p_query_enable_mpegts_m2_ts_mode {
         req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_codec {
+    if let Some(ref param_value) = p_query_video_codec {
         req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_codec {
+    if let Some(ref param_value) = p_query_subtitle_codec {
         req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcode_reasons {
+    if let Some(ref param_value) = p_query_transcode_reasons {
         req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_stream_index {
+    if let Some(ref param_value) = p_query_video_stream_index {
         req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.context {
+    if let Some(ref param_value) = p_query_context {
         req_builder = req_builder.query(&[("context", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.stream_options {
+    if let Some(ref param_value) = p_query_stream_options {
         let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
         req_builder = req_builder.query(&params);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -897,63 +503,82 @@ pub async fn get_audio_stream_by_container(configuration: &configuration::Config
     }
 }
 
-pub async fn get_universal_audio_stream(configuration: &configuration::Configuration, params: GetUniversalAudioStreamParams) -> Result<reqwest::Response, Error<GetUniversalAudioStreamError>> {
+pub async fn get_universal_audio_stream(configuration: &configuration::Configuration, item_id: &str, container: Option<Vec<String>>, media_source_id: Option<&str>, device_id: Option<&str>, user_id: Option<&str>, audio_codec: Option<&str>, max_audio_channels: Option<i32>, transcoding_audio_channels: Option<i32>, max_streaming_bitrate: Option<i32>, audio_bit_rate: Option<i32>, start_time_ticks: Option<i64>, transcoding_container: Option<&str>, transcoding_protocol: Option<&str>, max_audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, enable_remote_media: Option<bool>, enable_audio_vbr_encoding: Option<bool>, enable_redirection: Option<bool>) -> Result<reqwest::Response, Error<GetUniversalAudioStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_container = container;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_user_id = user_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_transcoding_audio_channels = transcoding_audio_channels;
+    let p_query_max_streaming_bitrate = max_streaming_bitrate;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_transcoding_container = transcoding_container;
+    let p_query_transcoding_protocol = transcoding_protocol;
+    let p_query_max_audio_sample_rate = max_audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_enable_remote_media = enable_remote_media;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
+    let p_query_enable_redirection = enable_redirection;
 
-    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.container {
+    if let Some(ref param_value) = p_query_container {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_audio_channels {
         req_builder = req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_streaming_bitrate {
+    if let Some(ref param_value) = p_query_max_streaming_bitrate {
         req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_container {
+    if let Some(ref param_value) = p_query_transcoding_container {
         req_builder = req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_protocol {
+    if let Some(ref param_value) = p_query_transcoding_protocol {
         req_builder = req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_sample_rate {
+    if let Some(ref param_value) = p_query_max_audio_sample_rate {
         req_builder = req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_remote_media {
+    if let Some(ref param_value) = p_query_enable_remote_media {
         req_builder = req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_redirection {
+    if let Some(ref param_value) = p_query_enable_redirection {
         req_builder = req_builder.query(&[("enableRedirection", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -982,154 +607,204 @@ pub async fn get_universal_audio_stream(configuration: &configuration::Configura
     }
 }
 
-pub async fn head_audio_stream(configuration: &configuration::Configuration, params: HeadAudioStreamParams) -> Result<reqwest::Response, Error<HeadAudioStreamError>> {
+pub async fn head_audio_stream(configuration: &configuration::Configuration, item_id: &str, container: Option<&str>, r#static: Option<bool>, params: Option<&str>, tag: Option<&str>, device_profile_id: Option<&str>, play_session_id: Option<&str>, segment_container: Option<&str>, segment_length: Option<i32>, min_segments: Option<i32>, media_source_id: Option<&str>, device_id: Option<&str>, audio_codec: Option<&str>, enable_auto_stream_copy: Option<bool>, allow_video_stream_copy: Option<bool>, allow_audio_stream_copy: Option<bool>, audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, audio_bit_rate: Option<i32>, audio_channels: Option<i32>, max_audio_channels: Option<i32>, profile: Option<&str>, level: Option<&str>, framerate: Option<f32>, max_framerate: Option<f32>, copy_timestamps: Option<bool>, start_time_ticks: Option<i64>, width: Option<i32>, height: Option<i32>, video_bit_rate: Option<i32>, subtitle_stream_index: Option<i32>, subtitle_method: Option<&str>, max_ref_frames: Option<i32>, max_video_bit_depth: Option<i32>, require_avc: Option<bool>, de_interlace: Option<bool>, require_non_anamorphic: Option<bool>, transcoding_max_audio_channels: Option<i32>, cpu_core_limit: Option<i32>, live_stream_id: Option<&str>, enable_mpegts_m2_ts_mode: Option<bool>, video_codec: Option<&str>, subtitle_codec: Option<&str>, transcode_reasons: Option<&str>, audio_stream_index: Option<i32>, video_stream_index: Option<i32>, context: Option<&str>, stream_options: Option<std::collections::HashMap<String, String>>, enable_audio_vbr_encoding: Option<bool>) -> Result<reqwest::Response, Error<HeadAudioStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_container = container;
+    let p_query_static = r#static;
+    let p_query_params = params;
+    let p_query_tag = tag;
+    let p_query_device_profile_id = device_profile_id;
+    let p_query_play_session_id = play_session_id;
+    let p_query_segment_container = segment_container;
+    let p_query_segment_length = segment_length;
+    let p_query_min_segments = min_segments;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_enable_auto_stream_copy = enable_auto_stream_copy;
+    let p_query_allow_video_stream_copy = allow_video_stream_copy;
+    let p_query_allow_audio_stream_copy = allow_audio_stream_copy;
+    let p_query_audio_sample_rate = audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_audio_channels = audio_channels;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_profile = profile;
+    let p_query_level = level;
+    let p_query_framerate = framerate;
+    let p_query_max_framerate = max_framerate;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_width = width;
+    let p_query_height = height;
+    let p_query_video_bit_rate = video_bit_rate;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_subtitle_method = subtitle_method;
+    let p_query_max_ref_frames = max_ref_frames;
+    let p_query_max_video_bit_depth = max_video_bit_depth;
+    let p_query_require_avc = require_avc;
+    let p_query_de_interlace = de_interlace;
+    let p_query_require_non_anamorphic = require_non_anamorphic;
+    let p_query_transcoding_max_audio_channels = transcoding_max_audio_channels;
+    let p_query_cpu_core_limit = cpu_core_limit;
+    let p_query_live_stream_id = live_stream_id;
+    let p_query_enable_mpegts_m2_ts_mode = enable_mpegts_m2_ts_mode;
+    let p_query_video_codec = video_codec;
+    let p_query_subtitle_codec = subtitle_codec;
+    let p_query_transcode_reasons = transcode_reasons;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_video_stream_index = video_stream_index;
+    let p_query_context = context;
+    let p_query_stream_options = stream_options;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
 
-    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/stream", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
 
-    if let Some(ref param_value) = params.container {
+    if let Some(ref param_value) = p_query_container {
         req_builder = req_builder.query(&[("container", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.r#static {
+    if let Some(ref param_value) = p_query_static {
         req_builder = req_builder.query(&[("static", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.params {
+    if let Some(ref param_value) = p_query_params {
         req_builder = req_builder.query(&[("params", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.tag {
+    if let Some(ref param_value) = p_query_tag {
         req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_profile_id {
+    if let Some(ref param_value) = p_query_device_profile_id {
         req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.play_session_id {
+    if let Some(ref param_value) = p_query_play_session_id {
         req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_container {
+    if let Some(ref param_value) = p_query_segment_container {
         req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_length {
+    if let Some(ref param_value) = p_query_segment_length {
         req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_segments {
+    if let Some(ref param_value) = p_query_min_segments {
         req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_auto_stream_copy {
+    if let Some(ref param_value) = p_query_enable_auto_stream_copy {
         req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_video_stream_copy {
+    if let Some(ref param_value) = p_query_allow_video_stream_copy {
         req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_audio_stream_copy {
+    if let Some(ref param_value) = p_query_allow_audio_stream_copy {
         req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_sample_rate {
+    if let Some(ref param_value) = p_query_audio_sample_rate {
         req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_channels {
+    if let Some(ref param_value) = p_query_audio_channels {
         req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.profile {
+    if let Some(ref param_value) = p_query_profile {
         req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.level {
+    if let Some(ref param_value) = p_query_level {
         req_builder = req_builder.query(&[("level", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.framerate {
+    if let Some(ref param_value) = p_query_framerate {
         req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_framerate {
+    if let Some(ref param_value) = p_query_max_framerate {
         req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.width {
+    if let Some(ref param_value) = p_query_width {
         req_builder = req_builder.query(&[("width", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.height {
+    if let Some(ref param_value) = p_query_height {
         req_builder = req_builder.query(&[("height", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_bit_rate {
+    if let Some(ref param_value) = p_query_video_bit_rate {
         req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_method {
+    if let Some(ref param_value) = p_query_subtitle_method {
         req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_ref_frames {
+    if let Some(ref param_value) = p_query_max_ref_frames {
         req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_video_bit_depth {
+    if let Some(ref param_value) = p_query_max_video_bit_depth {
         req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_avc {
+    if let Some(ref param_value) = p_query_require_avc {
         req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.de_interlace {
+    if let Some(ref param_value) = p_query_de_interlace {
         req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_non_anamorphic {
+    if let Some(ref param_value) = p_query_require_non_anamorphic {
         req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_max_audio_channels {
         req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.cpu_core_limit {
+    if let Some(ref param_value) = p_query_cpu_core_limit {
         req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.live_stream_id {
+    if let Some(ref param_value) = p_query_live_stream_id {
         req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+    if let Some(ref param_value) = p_query_enable_mpegts_m2_ts_mode {
         req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_codec {
+    if let Some(ref param_value) = p_query_video_codec {
         req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_codec {
+    if let Some(ref param_value) = p_query_subtitle_codec {
         req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcode_reasons {
+    if let Some(ref param_value) = p_query_transcode_reasons {
         req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_stream_index {
+    if let Some(ref param_value) = p_query_video_stream_index {
         req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.context {
+    if let Some(ref param_value) = p_query_context {
         req_builder = req_builder.query(&[("context", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.stream_options {
+    if let Some(ref param_value) = p_query_stream_options {
         let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
         req_builder = req_builder.query(&params);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1150,151 +825,201 @@ pub async fn head_audio_stream(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn head_audio_stream_by_container(configuration: &configuration::Configuration, params: HeadAudioStreamByContainerParams) -> Result<reqwest::Response, Error<HeadAudioStreamByContainerError>> {
+pub async fn head_audio_stream_by_container(configuration: &configuration::Configuration, item_id: &str, container: &str, r#static: Option<bool>, params: Option<&str>, tag: Option<&str>, device_profile_id: Option<&str>, play_session_id: Option<&str>, segment_container: Option<&str>, segment_length: Option<i32>, min_segments: Option<i32>, media_source_id: Option<&str>, device_id: Option<&str>, audio_codec: Option<&str>, enable_auto_stream_copy: Option<bool>, allow_video_stream_copy: Option<bool>, allow_audio_stream_copy: Option<bool>, audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, audio_bit_rate: Option<i32>, audio_channels: Option<i32>, max_audio_channels: Option<i32>, profile: Option<&str>, level: Option<&str>, framerate: Option<f32>, max_framerate: Option<f32>, copy_timestamps: Option<bool>, start_time_ticks: Option<i64>, width: Option<i32>, height: Option<i32>, video_bit_rate: Option<i32>, subtitle_stream_index: Option<i32>, subtitle_method: Option<&str>, max_ref_frames: Option<i32>, max_video_bit_depth: Option<i32>, require_avc: Option<bool>, de_interlace: Option<bool>, require_non_anamorphic: Option<bool>, transcoding_max_audio_channels: Option<i32>, cpu_core_limit: Option<i32>, live_stream_id: Option<&str>, enable_mpegts_m2_ts_mode: Option<bool>, video_codec: Option<&str>, subtitle_codec: Option<&str>, transcode_reasons: Option<&str>, audio_stream_index: Option<i32>, video_stream_index: Option<i32>, context: Option<&str>, stream_options: Option<std::collections::HashMap<String, String>>, enable_audio_vbr_encoding: Option<bool>) -> Result<reqwest::Response, Error<HeadAudioStreamByContainerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_container = container;
+    let p_query_static = r#static;
+    let p_query_params = params;
+    let p_query_tag = tag;
+    let p_query_device_profile_id = device_profile_id;
+    let p_query_play_session_id = play_session_id;
+    let p_query_segment_container = segment_container;
+    let p_query_segment_length = segment_length;
+    let p_query_min_segments = min_segments;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_enable_auto_stream_copy = enable_auto_stream_copy;
+    let p_query_allow_video_stream_copy = allow_video_stream_copy;
+    let p_query_allow_audio_stream_copy = allow_audio_stream_copy;
+    let p_query_audio_sample_rate = audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_audio_channels = audio_channels;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_profile = profile;
+    let p_query_level = level;
+    let p_query_framerate = framerate;
+    let p_query_max_framerate = max_framerate;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_width = width;
+    let p_query_height = height;
+    let p_query_video_bit_rate = video_bit_rate;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_subtitle_method = subtitle_method;
+    let p_query_max_ref_frames = max_ref_frames;
+    let p_query_max_video_bit_depth = max_video_bit_depth;
+    let p_query_require_avc = require_avc;
+    let p_query_de_interlace = de_interlace;
+    let p_query_require_non_anamorphic = require_non_anamorphic;
+    let p_query_transcoding_max_audio_channels = transcoding_max_audio_channels;
+    let p_query_cpu_core_limit = cpu_core_limit;
+    let p_query_live_stream_id = live_stream_id;
+    let p_query_enable_mpegts_m2_ts_mode = enable_mpegts_m2_ts_mode;
+    let p_query_video_codec = video_codec;
+    let p_query_subtitle_codec = subtitle_codec;
+    let p_query_transcode_reasons = transcode_reasons;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_video_stream_index = video_stream_index;
+    let p_query_context = context;
+    let p_query_stream_options = stream_options;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
 
-    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), container=crate::apis::urlencode(params.container));
+    let uri_str = format!("{}/Audio/{itemId}/stream.{container}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), container=crate::apis::urlencode(p_path_container));
     let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
 
-    if let Some(ref param_value) = params.r#static {
+    if let Some(ref param_value) = p_query_static {
         req_builder = req_builder.query(&[("static", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.params {
+    if let Some(ref param_value) = p_query_params {
         req_builder = req_builder.query(&[("params", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.tag {
+    if let Some(ref param_value) = p_query_tag {
         req_builder = req_builder.query(&[("tag", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_profile_id {
+    if let Some(ref param_value) = p_query_device_profile_id {
         req_builder = req_builder.query(&[("deviceProfileId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.play_session_id {
+    if let Some(ref param_value) = p_query_play_session_id {
         req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_container {
+    if let Some(ref param_value) = p_query_segment_container {
         req_builder = req_builder.query(&[("segmentContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.segment_length {
+    if let Some(ref param_value) = p_query_segment_length {
         req_builder = req_builder.query(&[("segmentLength", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_segments {
+    if let Some(ref param_value) = p_query_min_segments {
         req_builder = req_builder.query(&[("minSegments", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_auto_stream_copy {
+    if let Some(ref param_value) = p_query_enable_auto_stream_copy {
         req_builder = req_builder.query(&[("enableAutoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_video_stream_copy {
+    if let Some(ref param_value) = p_query_allow_video_stream_copy {
         req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_audio_stream_copy {
+    if let Some(ref param_value) = p_query_allow_audio_stream_copy {
         req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_sample_rate {
+    if let Some(ref param_value) = p_query_audio_sample_rate {
         req_builder = req_builder.query(&[("audioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_channels {
+    if let Some(ref param_value) = p_query_audio_channels {
         req_builder = req_builder.query(&[("audioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.profile {
+    if let Some(ref param_value) = p_query_profile {
         req_builder = req_builder.query(&[("profile", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.level {
+    if let Some(ref param_value) = p_query_level {
         req_builder = req_builder.query(&[("level", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.framerate {
+    if let Some(ref param_value) = p_query_framerate {
         req_builder = req_builder.query(&[("framerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_framerate {
+    if let Some(ref param_value) = p_query_max_framerate {
         req_builder = req_builder.query(&[("maxFramerate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.width {
+    if let Some(ref param_value) = p_query_width {
         req_builder = req_builder.query(&[("width", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.height {
+    if let Some(ref param_value) = p_query_height {
         req_builder = req_builder.query(&[("height", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_bit_rate {
+    if let Some(ref param_value) = p_query_video_bit_rate {
         req_builder = req_builder.query(&[("videoBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_method {
+    if let Some(ref param_value) = p_query_subtitle_method {
         req_builder = req_builder.query(&[("subtitleMethod", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_ref_frames {
+    if let Some(ref param_value) = p_query_max_ref_frames {
         req_builder = req_builder.query(&[("maxRefFrames", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_video_bit_depth {
+    if let Some(ref param_value) = p_query_max_video_bit_depth {
         req_builder = req_builder.query(&[("maxVideoBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_avc {
+    if let Some(ref param_value) = p_query_require_avc {
         req_builder = req_builder.query(&[("requireAvc", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.de_interlace {
+    if let Some(ref param_value) = p_query_de_interlace {
         req_builder = req_builder.query(&[("deInterlace", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.require_non_anamorphic {
+    if let Some(ref param_value) = p_query_require_non_anamorphic {
         req_builder = req_builder.query(&[("requireNonAnamorphic", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_max_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_max_audio_channels {
         req_builder = req_builder.query(&[("transcodingMaxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.cpu_core_limit {
+    if let Some(ref param_value) = p_query_cpu_core_limit {
         req_builder = req_builder.query(&[("cpuCoreLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.live_stream_id {
+    if let Some(ref param_value) = p_query_live_stream_id {
         req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_mpegts_m2_ts_mode {
+    if let Some(ref param_value) = p_query_enable_mpegts_m2_ts_mode {
         req_builder = req_builder.query(&[("enableMpegtsM2TsMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_codec {
+    if let Some(ref param_value) = p_query_video_codec {
         req_builder = req_builder.query(&[("videoCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_codec {
+    if let Some(ref param_value) = p_query_subtitle_codec {
         req_builder = req_builder.query(&[("subtitleCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcode_reasons {
+    if let Some(ref param_value) = p_query_transcode_reasons {
         req_builder = req_builder.query(&[("transcodeReasons", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.video_stream_index {
+    if let Some(ref param_value) = p_query_video_stream_index {
         req_builder = req_builder.query(&[("videoStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.context {
+    if let Some(ref param_value) = p_query_context {
         req_builder = req_builder.query(&[("context", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.stream_options {
+    if let Some(ref param_value) = p_query_stream_options {
         let params = crate::apis::parse_deep_object("streamOptions", &serde_json::to_value(param_value)?);
         req_builder = req_builder.query(&params);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1315,63 +1040,82 @@ pub async fn head_audio_stream_by_container(configuration: &configuration::Confi
     }
 }
 
-pub async fn head_universal_audio_stream(configuration: &configuration::Configuration, params: HeadUniversalAudioStreamParams) -> Result<reqwest::Response, Error<HeadUniversalAudioStreamError>> {
+pub async fn head_universal_audio_stream(configuration: &configuration::Configuration, item_id: &str, container: Option<Vec<String>>, media_source_id: Option<&str>, device_id: Option<&str>, user_id: Option<&str>, audio_codec: Option<&str>, max_audio_channels: Option<i32>, transcoding_audio_channels: Option<i32>, max_streaming_bitrate: Option<i32>, audio_bit_rate: Option<i32>, start_time_ticks: Option<i64>, transcoding_container: Option<&str>, transcoding_protocol: Option<&str>, max_audio_sample_rate: Option<i32>, max_audio_bit_depth: Option<i32>, enable_remote_media: Option<bool>, enable_audio_vbr_encoding: Option<bool>, enable_redirection: Option<bool>) -> Result<reqwest::Response, Error<HeadUniversalAudioStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_container = container;
+    let p_query_media_source_id = media_source_id;
+    let p_query_device_id = device_id;
+    let p_query_user_id = user_id;
+    let p_query_audio_codec = audio_codec;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_transcoding_audio_channels = transcoding_audio_channels;
+    let p_query_max_streaming_bitrate = max_streaming_bitrate;
+    let p_query_audio_bit_rate = audio_bit_rate;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_transcoding_container = transcoding_container;
+    let p_query_transcoding_protocol = transcoding_protocol;
+    let p_query_max_audio_sample_rate = max_audio_sample_rate;
+    let p_query_max_audio_bit_depth = max_audio_bit_depth;
+    let p_query_enable_remote_media = enable_remote_media;
+    let p_query_enable_audio_vbr_encoding = enable_audio_vbr_encoding;
+    let p_query_enable_redirection = enable_redirection;
 
-    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/universal", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::HEAD, &uri_str);
 
-    if let Some(ref param_value) = params.container {
+    if let Some(ref param_value) = p_query_container {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("container".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("container", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_codec {
+    if let Some(ref param_value) = p_query_audio_codec {
         req_builder = req_builder.query(&[("audioCodec", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_audio_channels {
+    if let Some(ref param_value) = p_query_transcoding_audio_channels {
         req_builder = req_builder.query(&[("transcodingAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_streaming_bitrate {
+    if let Some(ref param_value) = p_query_max_streaming_bitrate {
         req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_bit_rate {
+    if let Some(ref param_value) = p_query_audio_bit_rate {
         req_builder = req_builder.query(&[("audioBitRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_container {
+    if let Some(ref param_value) = p_query_transcoding_container {
         req_builder = req_builder.query(&[("transcodingContainer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.transcoding_protocol {
+    if let Some(ref param_value) = p_query_transcoding_protocol {
         req_builder = req_builder.query(&[("transcodingProtocol", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_sample_rate {
+    if let Some(ref param_value) = p_query_max_audio_sample_rate {
         req_builder = req_builder.query(&[("maxAudioSampleRate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_bit_depth {
+    if let Some(ref param_value) = p_query_max_audio_bit_depth {
         req_builder = req_builder.query(&[("maxAudioBitDepth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_remote_media {
+    if let Some(ref param_value) = p_query_enable_remote_media {
         req_builder = req_builder.query(&[("enableRemoteMedia", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_audio_vbr_encoding {
+    if let Some(ref param_value) = p_query_enable_audio_vbr_encoding {
         req_builder = req_builder.query(&[("enableAudioVbrEncoding", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_redirection {
+    if let Some(ref param_value) = p_query_enable_redirection {
         req_builder = req_builder.query(&[("enableRedirection", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

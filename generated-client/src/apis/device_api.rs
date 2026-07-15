@@ -14,43 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`delete_device`]
-#[derive(Clone, Debug)]
-pub struct DeleteDeviceParams {
-    /// Device Ids.
-    pub id: Option<Vec<String>>
-}
-
-/// struct for passing parameters to the method [`get_device_info`]
-#[derive(Clone, Debug)]
-pub struct GetDeviceInfoParams {
-    /// Device Id.
-    pub id: String
-}
-
-/// struct for passing parameters to the method [`get_device_options`]
-#[derive(Clone, Debug)]
-pub struct GetDeviceOptionsParams {
-    /// Device Id.
-    pub id: String
-}
-
-/// struct for passing parameters to the method [`get_devices`]
-#[derive(Clone, Debug)]
-pub struct GetDevicesParams {
-    /// Gets or sets the user identifier.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_device_options`]
-#[derive(Clone, Debug)]
-pub struct UpdateDeviceOptionsParams {
-    /// Device Id.
-    pub id: String,
-    /// Device Options.
-    pub device_options_dto: models::DeviceOptionsDto
-}
-
 
 /// struct for typed errors of method [`delete_device`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -106,12 +69,14 @@ pub enum UpdateDeviceOptionsError {
 }
 
 
-pub async fn delete_device(configuration: &configuration::Configuration, params: DeleteDeviceParams) -> Result<(), Error<DeleteDeviceError>> {
+pub async fn delete_device(configuration: &configuration::Configuration, id: Option<Vec<String>>) -> Result<(), Error<DeleteDeviceError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
 
     let uri_str = format!("{}/Devices", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("id".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("id", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -143,12 +108,14 @@ pub async fn delete_device(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn get_device_info(configuration: &configuration::Configuration, params: GetDeviceInfoParams) -> Result<models::DeviceInfoDto, Error<GetDeviceInfoError>> {
+pub async fn get_device_info(configuration: &configuration::Configuration, id: &str) -> Result<models::DeviceInfoDto, Error<GetDeviceInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
 
     let uri_str = format!("{}/Devices/Info", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("id", &params.id.to_string())]);
+    req_builder = req_builder.query(&[("id", &p_query_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -186,12 +153,14 @@ pub async fn get_device_info(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_device_options(configuration: &configuration::Configuration, params: GetDeviceOptionsParams) -> Result<models::DeviceOptionsDto, Error<GetDeviceOptionsError>> {
+pub async fn get_device_options(configuration: &configuration::Configuration, id: &str) -> Result<models::DeviceOptionsDto, Error<GetDeviceOptionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
 
     let uri_str = format!("{}/Devices/Options", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("id", &params.id.to_string())]);
+    req_builder = req_builder.query(&[("id", &p_query_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -229,12 +198,14 @@ pub async fn get_device_options(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_devices(configuration: &configuration::Configuration, params: GetDevicesParams) -> Result<models::DeviceInfoDtoQueryResult, Error<GetDevicesError>> {
+pub async fn get_devices(configuration: &configuration::Configuration, user_id: Option<&str>) -> Result<models::DeviceInfoDtoQueryResult, Error<GetDevicesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/Devices", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -274,12 +245,15 @@ pub async fn get_devices(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn update_device_options(configuration: &configuration::Configuration, params: UpdateDeviceOptionsParams) -> Result<(), Error<UpdateDeviceOptionsError>> {
+pub async fn update_device_options(configuration: &configuration::Configuration, id: &str, device_options_dto: models::DeviceOptionsDto) -> Result<(), Error<UpdateDeviceOptionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
+    let p_body_device_options_dto = device_options_dto;
 
     let uri_str = format!("{}/Devices/Options", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("id", &params.id.to_string())]);
+    req_builder = req_builder.query(&[("id", &p_query_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -291,7 +265,7 @@ pub async fn update_device_options(configuration: &configuration::Configuration,
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.device_options_dto);
+    req_builder = req_builder.json(&p_body_device_options_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

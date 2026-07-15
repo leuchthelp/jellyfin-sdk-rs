@@ -14,50 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_year`]
-#[derive(Clone, Debug)]
-pub struct GetYearParams {
-    /// The year.
-    pub year: i32,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_years`]
-#[derive(Clone, Debug)]
-pub struct GetYearsParams {
-    /// Skips over a given number of items within the results. Use for paging.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Sort Order - Ascending,Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. If specified, results will be excluded based on item type. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. If specified, results will be included based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// User Id.
-    pub user_id: Option<String>,
-    /// Search recursively.
-    pub recursive: Option<bool>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_year`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -81,12 +37,15 @@ pub enum GetYearsError {
 }
 
 
-pub async fn get_year(configuration: &configuration::Configuration, params: GetYearParams) -> Result<models::BaseItemDto, Error<GetYearError>> {
+pub async fn get_year(configuration: &configuration::Configuration, year: i32, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetYearError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_year = year;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Years/{year}", configuration.base_path, year=params.year);
+    let uri_str = format!("{}/Years/{year}", configuration.base_path, year=p_path_year);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -126,75 +85,91 @@ pub async fn get_year(configuration: &configuration::Configuration, params: GetY
     }
 }
 
-pub async fn get_years(configuration: &configuration::Configuration, params: GetYearsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetYearsError>> {
+pub async fn get_years(configuration: &configuration::Configuration, start_index: Option<i32>, limit: Option<i32>, sort_order: Option<Vec<models::SortOrder>>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>, sort_by: Option<Vec<models::ItemSortBy>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, user_id: Option<&str>, recursive: Option<bool>, enable_images: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetYearsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_sort_order = sort_order;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_include_item_types = include_item_types;
+    let p_query_media_types = media_types;
+    let p_query_sort_by = sort_by;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_user_id = user_id;
+    let p_query_recursive = recursive;
+    let p_query_enable_images = enable_images;
 
     let uri_str = format!("{}/Years", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.recursive {
+    if let Some(ref param_value) = p_query_recursive {
         req_builder = req_builder.query(&[("recursive", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

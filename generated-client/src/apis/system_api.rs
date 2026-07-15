@@ -16,82 +16,6 @@ use super::{Error, configuration, ContentType};
 use tokio::fs::File as TokioFile;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-/// struct for passing parameters to the method [`get_log_entries`]
-#[derive(Clone, Debug)]
-pub struct GetLogEntriesParams {
-    /// The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// The minimum date.
-    pub min_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// The maximum date.
-    pub max_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Filter log entries if it has user id, or not.
-    pub has_user_id: Option<bool>,
-    /// Filter by name.
-    pub name: Option<String>,
-    /// Filter by overview.
-    pub overview: Option<String>,
-    /// Filter by short overview.
-    pub short_overview: Option<String>,
-    /// Filter by type.
-    pub r#type: Option<String>,
-    /// Filter by item id.
-    pub item_id: Option<String>,
-    /// Filter by username.
-    pub username: Option<String>,
-    /// Filter by log severity.
-    pub severity: Option<String>,
-    /// Specify one or more sort orders. Format: SortBy=Name,Type.
-    pub sort_by: Option<Vec<models::ActivityLogSortBy>>,
-    /// Sort Order..
-    pub sort_order: Option<Vec<models::SortOrder>>
-}
-
-/// struct for passing parameters to the method [`get_log_file`]
-#[derive(Clone, Debug)]
-pub struct GetLogFileParams {
-    /// The name of the log file to get.
-    pub name: String
-}
-
-/// struct for passing parameters to the method [`get_named_configuration`]
-#[derive(Clone, Debug)]
-pub struct GetNamedConfigurationParams {
-    /// Configuration key.
-    pub key: String
-}
-
-/// struct for passing parameters to the method [`log_file`]
-#[derive(Clone, Debug)]
-pub struct LogFileParams {
-    pub body: Option<std::path::PathBuf>
-}
-
-/// struct for passing parameters to the method [`update_branding_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdateBrandingConfigurationParams {
-    /// Branding configuration.
-    pub branding_options_dto: models::BrandingOptionsDto
-}
-
-/// struct for passing parameters to the method [`update_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdateConfigurationParams {
-    /// Configuration.
-    pub server_configuration: models::ServerConfiguration
-}
-
-/// struct for passing parameters to the method [`update_named_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdateNamedConfigurationParams {
-    /// Configuration key.
-    pub key: String,
-    /// Configuration.
-    pub body: Option<serde_json::Value>
-}
-
 
 /// struct for typed errors of method [`get_configuration`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -278,7 +202,7 @@ pub enum UpdateNamedConfigurationError {
 }
 
 
-pub async fn get_configuration(configuration: &configuration::Configuration) -> Result<models::ServerConfiguration, Error<GetConfigurationError>> {
+pub async fn get_configuration(configuration: &configuration::Configuration, ) -> Result<models::ServerConfiguration, Error<GetConfigurationError>> {
 
     let uri_str = format!("{}/System/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -320,7 +244,7 @@ pub async fn get_configuration(configuration: &configuration::Configuration) -> 
     }
 }
 
-pub async fn get_default_metadata_options(configuration: &configuration::Configuration) -> Result<models::MetadataOptions, Error<GetDefaultMetadataOptionsError>> {
+pub async fn get_default_metadata_options(configuration: &configuration::Configuration, ) -> Result<models::MetadataOptions, Error<GetDefaultMetadataOptionsError>> {
 
     let uri_str = format!("{}/System/Configuration/MetadataOptions/Default", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -362,7 +286,7 @@ pub async fn get_default_metadata_options(configuration: &configuration::Configu
     }
 }
 
-pub async fn get_endpoint_info(configuration: &configuration::Configuration) -> Result<models::EndPointInfo, Error<GetEndpointInfoError>> {
+pub async fn get_endpoint_info(configuration: &configuration::Configuration, ) -> Result<models::EndPointInfo, Error<GetEndpointInfoError>> {
 
     let uri_str = format!("{}/System/Endpoint", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -404,54 +328,69 @@ pub async fn get_endpoint_info(configuration: &configuration::Configuration) -> 
     }
 }
 
-pub async fn get_log_entries(configuration: &configuration::Configuration, params: GetLogEntriesParams) -> Result<models::ActivityLogEntryQueryResult, Error<GetLogEntriesError>> {
+pub async fn get_log_entries(configuration: &configuration::Configuration, start_index: Option<i32>, limit: Option<i32>, min_date: Option<chrono::DateTime<chrono::FixedOffset>>, max_date: Option<chrono::DateTime<chrono::FixedOffset>>, has_user_id: Option<bool>, name: Option<&str>, overview: Option<&str>, short_overview: Option<&str>, r#type: Option<&str>, item_id: Option<&str>, username: Option<&str>, severity: Option<&str>, sort_by: Option<Vec<models::ActivityLogSortBy>>, sort_order: Option<Vec<models::SortOrder>>) -> Result<models::ActivityLogEntryQueryResult, Error<GetLogEntriesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_min_date = min_date;
+    let p_query_max_date = max_date;
+    let p_query_has_user_id = has_user_id;
+    let p_query_name = name;
+    let p_query_overview = overview;
+    let p_query_short_overview = short_overview;
+    let p_query_type = r#type;
+    let p_query_item_id = item_id;
+    let p_query_username = username;
+    let p_query_severity = severity;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
 
     let uri_str = format!("{}/System/ActivityLog/Entries", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_date {
+    if let Some(ref param_value) = p_query_min_date {
         req_builder = req_builder.query(&[("minDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_date {
+    if let Some(ref param_value) = p_query_max_date {
         req_builder = req_builder.query(&[("maxDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_user_id {
+    if let Some(ref param_value) = p_query_has_user_id {
         req_builder = req_builder.query(&[("hasUserId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.overview {
+    if let Some(ref param_value) = p_query_overview {
         req_builder = req_builder.query(&[("overview", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.short_overview {
+    if let Some(ref param_value) = p_query_short_overview {
         req_builder = req_builder.query(&[("shortOverview", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.r#type {
+    if let Some(ref param_value) = p_query_type {
         req_builder = req_builder.query(&[("type", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.item_id {
+    if let Some(ref param_value) = p_query_item_id {
         req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.username {
+    if let Some(ref param_value) = p_query_username {
         req_builder = req_builder.query(&[("username", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.severity {
+    if let Some(ref param_value) = p_query_severity {
         req_builder = req_builder.query(&[("severity", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -494,12 +433,14 @@ pub async fn get_log_entries(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_log_file(configuration: &configuration::Configuration, params: GetLogFileParams) -> Result<reqwest::Response, Error<GetLogFileError>> {
+pub async fn get_log_file(configuration: &configuration::Configuration, name: &str) -> Result<reqwest::Response, Error<GetLogFileError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
 
     let uri_str = format!("{}/System/Logs/Log", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("name", &params.name.to_string())]);
+    req_builder = req_builder.query(&[("name", &p_query_name.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -526,9 +467,11 @@ pub async fn get_log_file(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_named_configuration(configuration: &configuration::Configuration, params: GetNamedConfigurationParams) -> Result<reqwest::Response, Error<GetNamedConfigurationError>> {
+pub async fn get_named_configuration(configuration: &configuration::Configuration, key: &str) -> Result<reqwest::Response, Error<GetNamedConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_key = key;
 
-    let uri_str = format!("{}/System/Configuration/{key}", configuration.base_path, key=crate::apis::urlencode(params.key));
+    let uri_str = format!("{}/System/Configuration/{key}", configuration.base_path, key=crate::apis::urlencode(p_path_key));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -557,7 +500,7 @@ pub async fn get_named_configuration(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn get_ping_system(configuration: &configuration::Configuration) -> Result<String, Error<GetPingSystemError>> {
+pub async fn get_ping_system(configuration: &configuration::Configuration, ) -> Result<String, Error<GetPingSystemError>> {
 
     let uri_str = format!("{}/System/Ping", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -591,7 +534,7 @@ pub async fn get_ping_system(configuration: &configuration::Configuration) -> Re
     }
 }
 
-pub async fn get_public_system_info(configuration: &configuration::Configuration) -> Result<models::PublicSystemInfo, Error<GetPublicSystemInfoError>> {
+pub async fn get_public_system_info(configuration: &configuration::Configuration, ) -> Result<models::PublicSystemInfo, Error<GetPublicSystemInfoError>> {
 
     let uri_str = format!("{}/System/Info/Public", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -625,7 +568,7 @@ pub async fn get_public_system_info(configuration: &configuration::Configuration
     }
 }
 
-pub async fn get_server_logs(configuration: &configuration::Configuration) -> Result<Vec<models::LogFile>, Error<GetServerLogsError>> {
+pub async fn get_server_logs(configuration: &configuration::Configuration, ) -> Result<Vec<models::LogFile>, Error<GetServerLogsError>> {
 
     let uri_str = format!("{}/System/Logs", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -667,7 +610,7 @@ pub async fn get_server_logs(configuration: &configuration::Configuration) -> Re
     }
 }
 
-pub async fn get_system_info(configuration: &configuration::Configuration) -> Result<models::SystemInfo, Error<GetSystemInfoError>> {
+pub async fn get_system_info(configuration: &configuration::Configuration, ) -> Result<models::SystemInfo, Error<GetSystemInfoError>> {
 
     let uri_str = format!("{}/System/Info", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -709,7 +652,7 @@ pub async fn get_system_info(configuration: &configuration::Configuration) -> Re
     }
 }
 
-pub async fn get_system_storage(configuration: &configuration::Configuration) -> Result<models::SystemStorageDto, Error<GetSystemStorageError>> {
+pub async fn get_system_storage(configuration: &configuration::Configuration, ) -> Result<models::SystemStorageDto, Error<GetSystemStorageError>> {
 
     let uri_str = format!("{}/System/Info/Storage", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -751,7 +694,7 @@ pub async fn get_system_storage(configuration: &configuration::Configuration) ->
     }
 }
 
-pub async fn get_utc_time(configuration: &configuration::Configuration) -> Result<models::UtcTimeResponse, Error<GetUtcTimeError>> {
+pub async fn get_utc_time(configuration: &configuration::Configuration, ) -> Result<models::UtcTimeResponse, Error<GetUtcTimeError>> {
 
     let uri_str = format!("{}/GetUtcTime", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -785,7 +728,9 @@ pub async fn get_utc_time(configuration: &configuration::Configuration) -> Resul
     }
 }
 
-pub async fn log_file(configuration: &configuration::Configuration, params: LogFileParams) -> Result<models::ClientLogDocumentResponseDto, Error<LogFileError>> {
+pub async fn log_file(configuration: &configuration::Configuration, body: Option<std::path::PathBuf>) -> Result<models::ClientLogDocumentResponseDto, Error<LogFileError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_body = body;
 
     let uri_str = format!("{}/ClientLog/Document", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -801,7 +746,7 @@ pub async fn log_file(configuration: &configuration::Configuration, params: LogF
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    if let Some(param_value) = params.body {
+    if let Some(param_value) = p_body_body {
         let file = TokioFile::open(param_value).await?;
         let stream = FramedRead::new(file, BytesCodec::new());
         req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));
@@ -832,7 +777,7 @@ pub async fn log_file(configuration: &configuration::Configuration, params: LogF
     }
 }
 
-pub async fn post_ping_system(configuration: &configuration::Configuration) -> Result<String, Error<PostPingSystemError>> {
+pub async fn post_ping_system(configuration: &configuration::Configuration, ) -> Result<String, Error<PostPingSystemError>> {
 
     let uri_str = format!("{}/System/Ping", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -866,7 +811,7 @@ pub async fn post_ping_system(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn restart_application(configuration: &configuration::Configuration) -> Result<(), Error<RestartApplicationError>> {
+pub async fn restart_application(configuration: &configuration::Configuration, ) -> Result<(), Error<RestartApplicationError>> {
 
     let uri_str = format!("{}/System/Restart", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -897,7 +842,7 @@ pub async fn restart_application(configuration: &configuration::Configuration) -
     }
 }
 
-pub async fn shutdown_application(configuration: &configuration::Configuration) -> Result<(), Error<ShutdownApplicationError>> {
+pub async fn shutdown_application(configuration: &configuration::Configuration, ) -> Result<(), Error<ShutdownApplicationError>> {
 
     let uri_str = format!("{}/System/Shutdown", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -928,7 +873,9 @@ pub async fn shutdown_application(configuration: &configuration::Configuration) 
     }
 }
 
-pub async fn update_branding_configuration(configuration: &configuration::Configuration, params: UpdateBrandingConfigurationParams) -> Result<(), Error<UpdateBrandingConfigurationError>> {
+pub async fn update_branding_configuration(configuration: &configuration::Configuration, branding_options_dto: models::BrandingOptionsDto) -> Result<(), Error<UpdateBrandingConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_branding_options_dto = branding_options_dto;
 
     let uri_str = format!("{}/System/Configuration/Branding", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -944,7 +891,7 @@ pub async fn update_branding_configuration(configuration: &configuration::Config
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.branding_options_dto);
+    req_builder = req_builder.json(&p_body_branding_options_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -960,7 +907,9 @@ pub async fn update_branding_configuration(configuration: &configuration::Config
     }
 }
 
-pub async fn update_configuration(configuration: &configuration::Configuration, params: UpdateConfigurationParams) -> Result<(), Error<UpdateConfigurationError>> {
+pub async fn update_configuration(configuration: &configuration::Configuration, server_configuration: models::ServerConfiguration) -> Result<(), Error<UpdateConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_server_configuration = server_configuration;
 
     let uri_str = format!("{}/System/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -976,7 +925,7 @@ pub async fn update_configuration(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.server_configuration);
+    req_builder = req_builder.json(&p_body_server_configuration);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -992,9 +941,12 @@ pub async fn update_configuration(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn update_named_configuration(configuration: &configuration::Configuration, params: UpdateNamedConfigurationParams) -> Result<(), Error<UpdateNamedConfigurationError>> {
+pub async fn update_named_configuration(configuration: &configuration::Configuration, key: &str, body: Option<serde_json::Value>) -> Result<(), Error<UpdateNamedConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_key = key;
+    let p_body_body = body;
 
-    let uri_str = format!("{}/System/Configuration/{key}", configuration.base_path, key=crate::apis::urlencode(params.key));
+    let uri_str = format!("{}/System/Configuration/{key}", configuration.base_path, key=crate::apis::urlencode(p_path_key));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1008,7 +960,7 @@ pub async fn update_named_configuration(configuration: &configuration::Configura
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.body);
+    req_builder = req_builder.json(&p_body_body);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

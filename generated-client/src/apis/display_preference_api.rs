@@ -14,30 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_display_preferences`]
-#[derive(Clone, Debug)]
-pub struct GetDisplayPreferencesParams {
-    /// Display preferences id.
-    pub display_preferences_id: String,
-    /// Client.
-    pub client: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_display_preferences`]
-#[derive(Clone, Debug)]
-pub struct UpdateDisplayPreferencesParams {
-    /// Display preferences id.
-    pub display_preferences_id: String,
-    /// Client.
-    pub client: String,
-    /// New Display Preferences object.
-    pub display_preferences_dto: models::DisplayPreferencesDto,
-    /// User Id.
-    pub user_id: Option<String>
-}
-
 
 /// struct for typed errors of method [`get_display_preferences`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -60,15 +36,19 @@ pub enum UpdateDisplayPreferencesError {
 }
 
 
-pub async fn get_display_preferences(configuration: &configuration::Configuration, params: GetDisplayPreferencesParams) -> Result<models::DisplayPreferencesDto, Error<GetDisplayPreferencesError>> {
+pub async fn get_display_preferences(configuration: &configuration::Configuration, display_preferences_id: &str, client: &str, user_id: Option<&str>) -> Result<models::DisplayPreferencesDto, Error<GetDisplayPreferencesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_display_preferences_id = display_preferences_id;
+    let p_query_client = client;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/DisplayPreferences/{displayPreferencesId}", configuration.base_path, displayPreferencesId=crate::apis::urlencode(params.display_preferences_id));
+    let uri_str = format!("{}/DisplayPreferences/{displayPreferencesId}", configuration.base_path, displayPreferencesId=crate::apis::urlencode(p_path_display_preferences_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    req_builder = req_builder.query(&[("client", &params.client.to_string())]);
+    req_builder = req_builder.query(&[("client", &p_query_client.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -106,15 +86,20 @@ pub async fn get_display_preferences(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn update_display_preferences(configuration: &configuration::Configuration, params: UpdateDisplayPreferencesParams) -> Result<(), Error<UpdateDisplayPreferencesError>> {
+pub async fn update_display_preferences(configuration: &configuration::Configuration, display_preferences_id: &str, client: &str, display_preferences_dto: models::DisplayPreferencesDto, user_id: Option<&str>) -> Result<(), Error<UpdateDisplayPreferencesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_display_preferences_id = display_preferences_id;
+    let p_query_client = client;
+    let p_body_display_preferences_dto = display_preferences_dto;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/DisplayPreferences/{displayPreferencesId}", configuration.base_path, displayPreferencesId=crate::apis::urlencode(params.display_preferences_id));
+    let uri_str = format!("{}/DisplayPreferences/{displayPreferencesId}", configuration.base_path, displayPreferencesId=crate::apis::urlencode(p_path_display_preferences_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    req_builder = req_builder.query(&[("client", &params.client.to_string())]);
+    req_builder = req_builder.query(&[("client", &p_query_client.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -126,7 +111,7 @@ pub async fn update_display_preferences(configuration: &configuration::Configura
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.display_preferences_dto);
+    req_builder = req_builder.json(&p_body_display_preferences_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

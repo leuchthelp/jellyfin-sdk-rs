@@ -14,27 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`set_remote_access`]
-#[derive(Clone, Debug)]
-pub struct SetRemoteAccessParams {
-    /// The startup remote access dto.
-    pub startup_remote_access_dto: models::StartupRemoteAccessDto
-}
-
-/// struct for passing parameters to the method [`update_initial_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdateInitialConfigurationParams {
-    /// The updated startup configuration.
-    pub startup_configuration_dto: models::StartupConfigurationDto
-}
-
-/// struct for passing parameters to the method [`update_startup_user`]
-#[derive(Clone, Debug)]
-pub struct UpdateStartupUserParams {
-    /// The DTO containing username and password.
-    pub startup_user_dto: Option<models::StartupUserDto>
-}
-
 
 /// struct for typed errors of method [`complete_wizard`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -107,7 +86,7 @@ pub enum UpdateStartupUserError {
 }
 
 
-pub async fn complete_wizard(configuration: &configuration::Configuration) -> Result<(), Error<CompleteWizardError>> {
+pub async fn complete_wizard(configuration: &configuration::Configuration, ) -> Result<(), Error<CompleteWizardError>> {
 
     let uri_str = format!("{}/Startup/Complete", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -139,7 +118,7 @@ pub async fn complete_wizard(configuration: &configuration::Configuration) -> Re
 }
 
 #[deprecated]
-pub async fn get_first_user(configuration: &configuration::Configuration) -> Result<models::StartupUserDto, Error<GetFirstUserError>> {
+pub async fn get_first_user(configuration: &configuration::Configuration, ) -> Result<models::StartupUserDto, Error<GetFirstUserError>> {
 
     let uri_str = format!("{}/Startup/User", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -182,7 +161,7 @@ pub async fn get_first_user(configuration: &configuration::Configuration) -> Res
 }
 
 #[deprecated]
-pub async fn get_first_user2(configuration: &configuration::Configuration) -> Result<models::StartupUserDto, Error<GetFirstUser2Error>> {
+pub async fn get_first_user2(configuration: &configuration::Configuration, ) -> Result<models::StartupUserDto, Error<GetFirstUser2Error>> {
 
     let uri_str = format!("{}/Startup/FirstUser", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -225,7 +204,7 @@ pub async fn get_first_user2(configuration: &configuration::Configuration) -> Re
 }
 
 #[deprecated]
-pub async fn get_startup_configuration(configuration: &configuration::Configuration) -> Result<models::StartupConfigurationDto, Error<GetStartupConfigurationError>> {
+pub async fn get_startup_configuration(configuration: &configuration::Configuration, ) -> Result<models::StartupConfigurationDto, Error<GetStartupConfigurationError>> {
 
     let uri_str = format!("{}/Startup/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -268,7 +247,9 @@ pub async fn get_startup_configuration(configuration: &configuration::Configurat
 }
 
 #[deprecated]
-pub async fn set_remote_access(configuration: &configuration::Configuration, params: SetRemoteAccessParams) -> Result<(), Error<SetRemoteAccessError>> {
+pub async fn set_remote_access(configuration: &configuration::Configuration, startup_remote_access_dto: models::StartupRemoteAccessDto) -> Result<(), Error<SetRemoteAccessError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_startup_remote_access_dto = startup_remote_access_dto;
 
     let uri_str = format!("{}/Startup/RemoteAccess", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -284,7 +265,7 @@ pub async fn set_remote_access(configuration: &configuration::Configuration, par
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.startup_remote_access_dto);
+    req_builder = req_builder.json(&p_body_startup_remote_access_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -301,7 +282,9 @@ pub async fn set_remote_access(configuration: &configuration::Configuration, par
 }
 
 #[deprecated]
-pub async fn update_initial_configuration(configuration: &configuration::Configuration, params: UpdateInitialConfigurationParams) -> Result<(), Error<UpdateInitialConfigurationError>> {
+pub async fn update_initial_configuration(configuration: &configuration::Configuration, startup_configuration_dto: models::StartupConfigurationDto) -> Result<(), Error<UpdateInitialConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_startup_configuration_dto = startup_configuration_dto;
 
     let uri_str = format!("{}/Startup/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -317,7 +300,7 @@ pub async fn update_initial_configuration(configuration: &configuration::Configu
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.startup_configuration_dto);
+    req_builder = req_builder.json(&p_body_startup_configuration_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -333,7 +316,9 @@ pub async fn update_initial_configuration(configuration: &configuration::Configu
     }
 }
 
-pub async fn update_startup_user(configuration: &configuration::Configuration, params: UpdateStartupUserParams) -> Result<(), Error<UpdateStartupUserError>> {
+pub async fn update_startup_user(configuration: &configuration::Configuration, startup_user_dto: Option<models::StartupUserDto>) -> Result<(), Error<UpdateStartupUserError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_startup_user_dto = startup_user_dto;
 
     let uri_str = format!("{}/Startup/User", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -349,7 +334,7 @@ pub async fn update_startup_user(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.startup_user_dto);
+    req_builder = req_builder.json(&p_body_startup_user_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

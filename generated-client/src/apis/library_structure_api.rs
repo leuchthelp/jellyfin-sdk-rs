@@ -14,75 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`add_media_path`]
-#[derive(Clone, Debug)]
-pub struct AddMediaPathParams {
-    /// The media path dto.
-    pub media_path_dto: models::MediaPathDto,
-    /// Whether to refresh the library.
-    pub refresh_library: Option<bool>
-}
-
-/// struct for passing parameters to the method [`add_virtual_folder`]
-#[derive(Clone, Debug)]
-pub struct AddVirtualFolderParams {
-    /// The name of the virtual folder.
-    pub name: Option<String>,
-    /// The type of the collection.
-    pub collection_type: Option<String>,
-    /// The paths of the virtual folder.
-    pub paths: Option<Vec<String>>,
-    /// Whether to refresh the library.
-    pub refresh_library: Option<bool>,
-    /// The library options.
-    pub add_virtual_folder_dto: Option<models::AddVirtualFolderDto>
-}
-
-/// struct for passing parameters to the method [`remove_media_path`]
-#[derive(Clone, Debug)]
-pub struct RemoveMediaPathParams {
-    /// The name of the library.
-    pub name: Option<String>,
-    /// The path to remove.
-    pub path: Option<String>,
-    /// Whether to refresh the library.
-    pub refresh_library: Option<bool>
-}
-
-/// struct for passing parameters to the method [`remove_virtual_folder`]
-#[derive(Clone, Debug)]
-pub struct RemoveVirtualFolderParams {
-    /// The name of the folder.
-    pub name: Option<String>,
-    /// Whether to refresh the library.
-    pub refresh_library: Option<bool>
-}
-
-/// struct for passing parameters to the method [`rename_virtual_folder`]
-#[derive(Clone, Debug)]
-pub struct RenameVirtualFolderParams {
-    /// The name of the virtual folder.
-    pub name: Option<String>,
-    /// The new name.
-    pub new_name: Option<String>,
-    /// Whether to refresh the library.
-    pub refresh_library: Option<bool>
-}
-
-/// struct for passing parameters to the method [`update_library_options`]
-#[derive(Clone, Debug)]
-pub struct UpdateLibraryOptionsParams {
-    /// The library name and options.
-    pub update_library_options_dto: Option<models::UpdateLibraryOptionsDto>
-}
-
-/// struct for passing parameters to the method [`update_media_path`]
-#[derive(Clone, Debug)]
-pub struct UpdateMediaPathParams {
-    /// The name of the library and path infos.
-    pub update_media_path_request_dto: models::UpdateMediaPathRequestDto
-}
-
 
 /// struct for typed errors of method [`add_media_path`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -169,12 +100,15 @@ pub enum UpdateMediaPathError {
 }
 
 
-pub async fn add_media_path(configuration: &configuration::Configuration, params: AddMediaPathParams) -> Result<(), Error<AddMediaPathError>> {
+pub async fn add_media_path(configuration: &configuration::Configuration, media_path_dto: models::MediaPathDto, refresh_library: Option<bool>) -> Result<(), Error<AddMediaPathError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_media_path_dto = media_path_dto;
+    let p_query_refresh_library = refresh_library;
 
     let uri_str = format!("{}/Library/VirtualFolders/Paths", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.refresh_library {
+    if let Some(ref param_value) = p_query_refresh_library {
         req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -188,7 +122,7 @@ pub async fn add_media_path(configuration: &configuration::Configuration, params
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.media_path_dto);
+    req_builder = req_builder.json(&p_body_media_path_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -204,24 +138,30 @@ pub async fn add_media_path(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn add_virtual_folder(configuration: &configuration::Configuration, params: AddVirtualFolderParams) -> Result<(), Error<AddVirtualFolderError>> {
+pub async fn add_virtual_folder(configuration: &configuration::Configuration, name: Option<&str>, collection_type: Option<&str>, paths: Option<Vec<String>>, refresh_library: Option<bool>, add_virtual_folder_dto: Option<models::AddVirtualFolderDto>) -> Result<(), Error<AddVirtualFolderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_collection_type = collection_type;
+    let p_query_paths = paths;
+    let p_query_refresh_library = refresh_library;
+    let p_body_add_virtual_folder_dto = add_virtual_folder_dto;
 
     let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.collection_type {
+    if let Some(ref param_value) = p_query_collection_type {
         req_builder = req_builder.query(&[("collectionType", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.paths {
+    if let Some(ref param_value) = p_query_paths {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("paths".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("paths", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.refresh_library {
+    if let Some(ref param_value) = p_query_refresh_library {
         req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -235,7 +175,7 @@ pub async fn add_virtual_folder(configuration: &configuration::Configuration, pa
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.add_virtual_folder_dto);
+    req_builder = req_builder.json(&p_body_add_virtual_folder_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -251,7 +191,7 @@ pub async fn add_virtual_folder(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_virtual_folders(configuration: &configuration::Configuration) -> Result<Vec<models::VirtualFolderInfo>, Error<GetVirtualFoldersError>> {
+pub async fn get_virtual_folders(configuration: &configuration::Configuration, ) -> Result<Vec<models::VirtualFolderInfo>, Error<GetVirtualFoldersError>> {
 
     let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -293,18 +233,22 @@ pub async fn get_virtual_folders(configuration: &configuration::Configuration) -
     }
 }
 
-pub async fn remove_media_path(configuration: &configuration::Configuration, params: RemoveMediaPathParams) -> Result<(), Error<RemoveMediaPathError>> {
+pub async fn remove_media_path(configuration: &configuration::Configuration, name: Option<&str>, path: Option<&str>, refresh_library: Option<bool>) -> Result<(), Error<RemoveMediaPathError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_path = path;
+    let p_query_refresh_library = refresh_library;
 
     let uri_str = format!("{}/Library/VirtualFolders/Paths", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.path {
+    if let Some(ref param_value) = p_query_path {
         req_builder = req_builder.query(&[("path", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.refresh_library {
+    if let Some(ref param_value) = p_query_refresh_library {
         req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -333,15 +277,18 @@ pub async fn remove_media_path(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn remove_virtual_folder(configuration: &configuration::Configuration, params: RemoveVirtualFolderParams) -> Result<(), Error<RemoveVirtualFolderError>> {
+pub async fn remove_virtual_folder(configuration: &configuration::Configuration, name: Option<&str>, refresh_library: Option<bool>) -> Result<(), Error<RemoveVirtualFolderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_refresh_library = refresh_library;
 
     let uri_str = format!("{}/Library/VirtualFolders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.refresh_library {
+    if let Some(ref param_value) = p_query_refresh_library {
         req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -370,18 +317,22 @@ pub async fn remove_virtual_folder(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn rename_virtual_folder(configuration: &configuration::Configuration, params: RenameVirtualFolderParams) -> Result<(), Error<RenameVirtualFolderError>> {
+pub async fn rename_virtual_folder(configuration: &configuration::Configuration, name: Option<&str>, new_name: Option<&str>, refresh_library: Option<bool>) -> Result<(), Error<RenameVirtualFolderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_new_name = new_name;
+    let p_query_refresh_library = refresh_library;
 
     let uri_str = format!("{}/Library/VirtualFolders/Name", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.new_name {
+    if let Some(ref param_value) = p_query_new_name {
         req_builder = req_builder.query(&[("newName", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.refresh_library {
+    if let Some(ref param_value) = p_query_refresh_library {
         req_builder = req_builder.query(&[("refreshLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -410,7 +361,9 @@ pub async fn rename_virtual_folder(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn update_library_options(configuration: &configuration::Configuration, params: UpdateLibraryOptionsParams) -> Result<(), Error<UpdateLibraryOptionsError>> {
+pub async fn update_library_options(configuration: &configuration::Configuration, update_library_options_dto: Option<models::UpdateLibraryOptionsDto>) -> Result<(), Error<UpdateLibraryOptionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_update_library_options_dto = update_library_options_dto;
 
     let uri_str = format!("{}/Library/VirtualFolders/LibraryOptions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -426,7 +379,7 @@ pub async fn update_library_options(configuration: &configuration::Configuration
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_library_options_dto);
+    req_builder = req_builder.json(&p_body_update_library_options_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -442,7 +395,9 @@ pub async fn update_library_options(configuration: &configuration::Configuration
     }
 }
 
-pub async fn update_media_path(configuration: &configuration::Configuration, params: UpdateMediaPathParams) -> Result<(), Error<UpdateMediaPathError>> {
+pub async fn update_media_path(configuration: &configuration::Configuration, update_media_path_request_dto: models::UpdateMediaPathRequestDto) -> Result<(), Error<UpdateMediaPathError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_update_media_path_request_dto = update_media_path_request_dto;
 
     let uri_str = format!("{}/Library/VirtualFolders/Paths/Update", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -458,7 +413,7 @@ pub async fn update_media_path(configuration: &configuration::Configuration, par
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_media_path_request_dto);
+    req_builder = req_builder.json(&p_body_update_media_path_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

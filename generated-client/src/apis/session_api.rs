@@ -14,179 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`add_user_to_session`]
-#[derive(Clone, Debug)]
-pub struct AddUserToSessionParams {
-    /// The session id.
-    pub session_id: String,
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`display_content`]
-#[derive(Clone, Debug)]
-pub struct DisplayContentParams {
-    /// The session Id.
-    pub session_id: String,
-    /// The type of item to browse to.
-    pub item_type: String,
-    /// The Id of the item.
-    pub item_id: String,
-    /// The name of the item.
-    pub item_name: String
-}
-
-/// struct for passing parameters to the method [`get_sessions`]
-#[derive(Clone, Debug)]
-pub struct GetSessionsParams {
-    /// Filter by sessions that a given user is allowed to remote control.
-    pub controllable_by_user_id: Option<String>,
-    /// Filter by device Id.
-    pub device_id: Option<String>,
-    /// Optional. Filter by sessions that were active in the last n seconds.
-    pub active_within_seconds: Option<i32>
-}
-
-/// struct for passing parameters to the method [`ping_playback_session`]
-#[derive(Clone, Debug)]
-pub struct PingPlaybackSessionParams {
-    /// Playback session id.
-    pub play_session_id: String
-}
-
-/// struct for passing parameters to the method [`play`]
-#[derive(Clone, Debug)]
-pub struct PlayParams {
-    /// The session id.
-    pub session_id: String,
-    /// The type of play command to issue (PlayNow, PlayNext, PlayLast). Clients who have not yet implemented play next and play last may play now.
-    pub play_command: String,
-    /// The ids of the items to play, comma delimited.
-    pub item_ids: Vec<uuid::Uuid>,
-    /// The starting position of the first item.
-    pub start_position_ticks: Option<i64>,
-    /// Optional. The media source id.
-    pub media_source_id: Option<String>,
-    /// Optional. The index of the audio stream to play.
-    pub audio_stream_index: Option<i32>,
-    /// Optional. The index of the subtitle stream to play.
-    pub subtitle_stream_index: Option<i32>,
-    /// Optional. The start index.
-    pub start_index: Option<i32>
-}
-
-/// struct for passing parameters to the method [`post_capabilities`]
-#[derive(Clone, Debug)]
-pub struct PostCapabilitiesParams {
-    /// The session id.
-    pub id: Option<String>,
-    /// A list of playable media types, comma delimited. Audio, Video, Book, Photo.
-    pub playable_media_types: Option<Vec<models::MediaType>>,
-    /// A list of supported remote control commands, comma delimited.
-    pub supported_commands: Option<Vec<models::GeneralCommandType>>,
-    /// Determines whether media can be played remotely..
-    pub supports_media_control: Option<bool>,
-    /// Determines whether the device supports a unique identifier.
-    pub supports_persistent_identifier: Option<bool>
-}
-
-/// struct for passing parameters to the method [`post_full_capabilities`]
-#[derive(Clone, Debug)]
-pub struct PostFullCapabilitiesParams {
-    /// The MediaBrowser.Model.Session.ClientCapabilities.
-    pub client_capabilities_dto: models::ClientCapabilitiesDto,
-    /// The session id.
-    pub id: Option<String>
-}
-
-/// struct for passing parameters to the method [`remove_user_from_session`]
-#[derive(Clone, Debug)]
-pub struct RemoveUserFromSessionParams {
-    /// The session id.
-    pub session_id: String,
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`report_playback_progress`]
-#[derive(Clone, Debug)]
-pub struct ReportPlaybackProgressParams {
-    /// The playback progress info.
-    pub playback_progress_info: Option<models::PlaybackProgressInfo>
-}
-
-/// struct for passing parameters to the method [`report_playback_start`]
-#[derive(Clone, Debug)]
-pub struct ReportPlaybackStartParams {
-    /// The playback start info.
-    pub playback_start_info: Option<models::PlaybackStartInfo>
-}
-
-/// struct for passing parameters to the method [`report_playback_stopped`]
-#[derive(Clone, Debug)]
-pub struct ReportPlaybackStoppedParams {
-    /// The playback stop info.
-    pub playback_stop_info: Option<models::PlaybackStopInfo>
-}
-
-/// struct for passing parameters to the method [`report_viewing`]
-#[derive(Clone, Debug)]
-pub struct ReportViewingParams {
-    /// The item id.
-    pub item_id: String,
-    /// The session id.
-    pub session_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`send_full_general_command`]
-#[derive(Clone, Debug)]
-pub struct SendFullGeneralCommandParams {
-    /// The session id.
-    pub session_id: String,
-    /// The MediaBrowser.Model.Session.GeneralCommand.
-    pub general_command: models::GeneralCommand
-}
-
-/// struct for passing parameters to the method [`send_general_command`]
-#[derive(Clone, Debug)]
-pub struct SendGeneralCommandParams {
-    /// The session id.
-    pub session_id: String,
-    /// The command to send.
-    pub command: String
-}
-
-/// struct for passing parameters to the method [`send_message_command`]
-#[derive(Clone, Debug)]
-pub struct SendMessageCommandParams {
-    /// The session id.
-    pub session_id: String,
-    /// The MediaBrowser.Model.Session.MessageCommand object containing Header, Message Text, and TimeoutMs.
-    pub message_command: models::MessageCommand
-}
-
-/// struct for passing parameters to the method [`send_playstate_command`]
-#[derive(Clone, Debug)]
-pub struct SendPlaystateCommandParams {
-    /// The session id.
-    pub session_id: String,
-    /// The MediaBrowser.Model.Session.PlaystateCommand.
-    pub command: String,
-    /// The optional position ticks.
-    pub seek_position_ticks: Option<i64>,
-    /// The optional controlling user id.
-    pub controlling_user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`send_system_command`]
-#[derive(Clone, Debug)]
-pub struct SendSystemCommandParams {
-    /// The session id.
-    pub session_id: String,
-    /// The command to send.
-    pub command: String
-}
-
 
 /// struct for typed errors of method [`add_user_to_session`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -369,9 +196,12 @@ pub enum SendSystemCommandError {
 }
 
 
-pub async fn add_user_to_session(configuration: &configuration::Configuration, params: AddUserToSessionParams) -> Result<(), Error<AddUserToSessionError>> {
+pub async fn add_user_to_session(configuration: &configuration::Configuration, session_id: &str, user_id: &str) -> Result<(), Error<AddUserToSessionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id), userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -400,14 +230,19 @@ pub async fn add_user_to_session(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn display_content(configuration: &configuration::Configuration, params: DisplayContentParams) -> Result<(), Error<DisplayContentError>> {
+pub async fn display_content(configuration: &configuration::Configuration, session_id: &str, item_type: &str, item_id: &str, item_name: &str) -> Result<(), Error<DisplayContentError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_query_item_type = item_type;
+    let p_query_item_id = item_id;
+    let p_query_item_name = item_name;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Viewing", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/Viewing", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("itemType", &params.item_type.to_string())]);
-    req_builder = req_builder.query(&[("itemId", &params.item_id.to_string())]);
-    req_builder = req_builder.query(&[("itemName", &params.item_name.to_string())]);
+    req_builder = req_builder.query(&[("itemType", &p_query_item_type.to_string())]);
+    req_builder = req_builder.query(&[("itemId", &p_query_item_id.to_string())]);
+    req_builder = req_builder.query(&[("itemName", &p_query_item_name.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -434,18 +269,22 @@ pub async fn display_content(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_sessions(configuration: &configuration::Configuration, params: GetSessionsParams) -> Result<Vec<models::SessionInfoDto>, Error<GetSessionsError>> {
+pub async fn get_sessions(configuration: &configuration::Configuration, controllable_by_user_id: Option<&str>, device_id: Option<&str>, active_within_seconds: Option<i32>) -> Result<Vec<models::SessionInfoDto>, Error<GetSessionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_controllable_by_user_id = controllable_by_user_id;
+    let p_query_device_id = device_id;
+    let p_query_active_within_seconds = active_within_seconds;
 
     let uri_str = format!("{}/Sessions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.controllable_by_user_id {
+    if let Some(ref param_value) = p_query_controllable_by_user_id {
         req_builder = req_builder.query(&[("controllableByUserId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.device_id {
+    if let Some(ref param_value) = p_query_device_id {
         req_builder = req_builder.query(&[("deviceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.active_within_seconds {
+    if let Some(ref param_value) = p_query_active_within_seconds {
         req_builder = req_builder.query(&[("activeWithinSeconds", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -485,12 +324,14 @@ pub async fn get_sessions(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn ping_playback_session(configuration: &configuration::Configuration, params: PingPlaybackSessionParams) -> Result<(), Error<PingPlaybackSessionError>> {
+pub async fn ping_playback_session(configuration: &configuration::Configuration, play_session_id: &str) -> Result<(), Error<PingPlaybackSessionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_play_session_id = play_session_id;
 
     let uri_str = format!("{}/Sessions/Playing/Ping", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("playSessionId", &params.play_session_id.to_string())]);
+    req_builder = req_builder.query(&[("playSessionId", &p_query_play_session_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -517,29 +358,38 @@ pub async fn ping_playback_session(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn play(configuration: &configuration::Configuration, params: PlayParams) -> Result<(), Error<PlayError>> {
+pub async fn play(configuration: &configuration::Configuration, session_id: &str, play_command: &str, item_ids: Vec<uuid::Uuid>, start_position_ticks: Option<i64>, media_source_id: Option<&str>, audio_stream_index: Option<i32>, subtitle_stream_index: Option<i32>, start_index: Option<i32>) -> Result<(), Error<PlayError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_query_play_command = play_command;
+    let p_query_item_ids = item_ids;
+    let p_query_start_position_ticks = start_position_ticks;
+    let p_query_media_source_id = media_source_id;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_start_index = start_index;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Playing", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/Playing", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("playCommand", &params.play_command.to_string())]);
+    req_builder = req_builder.query(&[("playCommand", &p_query_play_command.to_string())]);
     req_builder = match "multi" {
-        "multi" => req_builder.query(&params.item_ids.into_iter().map(|p| ("itemIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-        _ => req_builder.query(&[("itemIds", &params.item_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        "multi" => req_builder.query(&p_query_item_ids.into_iter().map(|p| ("itemIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+        _ => req_builder.query(&[("itemIds", &p_query_item_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
     };
-    if let Some(ref param_value) = params.start_position_ticks {
+    if let Some(ref param_value) = p_query_start_position_ticks {
         req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -568,30 +418,36 @@ pub async fn play(configuration: &configuration::Configuration, params: PlayPara
     }
 }
 
-pub async fn post_capabilities(configuration: &configuration::Configuration, params: PostCapabilitiesParams) -> Result<(), Error<PostCapabilitiesError>> {
+pub async fn post_capabilities(configuration: &configuration::Configuration, id: Option<&str>, playable_media_types: Option<Vec<models::MediaType>>, supported_commands: Option<Vec<models::GeneralCommandType>>, supports_media_control: Option<bool>, supports_persistent_identifier: Option<bool>) -> Result<(), Error<PostCapabilitiesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
+    let p_query_playable_media_types = playable_media_types;
+    let p_query_supported_commands = supported_commands;
+    let p_query_supports_media_control = supports_media_control;
+    let p_query_supports_persistent_identifier = supports_persistent_identifier;
 
     let uri_str = format!("{}/Sessions/Capabilities", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = req_builder.query(&[("id", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.playable_media_types {
+    if let Some(ref param_value) = p_query_playable_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("playableMediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("playableMediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.supported_commands {
+    if let Some(ref param_value) = p_query_supported_commands {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("supportedCommands".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("supportedCommands", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.supports_media_control {
+    if let Some(ref param_value) = p_query_supports_media_control {
         req_builder = req_builder.query(&[("supportsMediaControl", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.supports_persistent_identifier {
+    if let Some(ref param_value) = p_query_supports_persistent_identifier {
         req_builder = req_builder.query(&[("supportsPersistentIdentifier", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -620,12 +476,15 @@ pub async fn post_capabilities(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn post_full_capabilities(configuration: &configuration::Configuration, params: PostFullCapabilitiesParams) -> Result<(), Error<PostFullCapabilitiesError>> {
+pub async fn post_full_capabilities(configuration: &configuration::Configuration, client_capabilities_dto: models::ClientCapabilitiesDto, id: Option<&str>) -> Result<(), Error<PostFullCapabilitiesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_client_capabilities_dto = client_capabilities_dto;
+    let p_query_id = id;
 
     let uri_str = format!("{}/Sessions/Capabilities/Full", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = req_builder.query(&[("id", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -639,7 +498,7 @@ pub async fn post_full_capabilities(configuration: &configuration::Configuration
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.client_capabilities_dto);
+    req_builder = req_builder.json(&p_body_client_capabilities_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -655,9 +514,12 @@ pub async fn post_full_capabilities(configuration: &configuration::Configuration
     }
 }
 
-pub async fn remove_user_from_session(configuration: &configuration::Configuration, params: RemoveUserFromSessionParams) -> Result<(), Error<RemoveUserFromSessionError>> {
+pub async fn remove_user_from_session(configuration: &configuration::Configuration, session_id: &str, user_id: &str) -> Result<(), Error<RemoveUserFromSessionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id), userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/User/{userId}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -686,7 +548,9 @@ pub async fn remove_user_from_session(configuration: &configuration::Configurati
     }
 }
 
-pub async fn report_playback_progress(configuration: &configuration::Configuration, params: ReportPlaybackProgressParams) -> Result<(), Error<ReportPlaybackProgressError>> {
+pub async fn report_playback_progress(configuration: &configuration::Configuration, playback_progress_info: Option<models::PlaybackProgressInfo>) -> Result<(), Error<ReportPlaybackProgressError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_playback_progress_info = playback_progress_info;
 
     let uri_str = format!("{}/Sessions/Playing/Progress", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -702,7 +566,7 @@ pub async fn report_playback_progress(configuration: &configuration::Configurati
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.playback_progress_info);
+    req_builder = req_builder.json(&p_body_playback_progress_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -718,7 +582,9 @@ pub async fn report_playback_progress(configuration: &configuration::Configurati
     }
 }
 
-pub async fn report_playback_start(configuration: &configuration::Configuration, params: ReportPlaybackStartParams) -> Result<(), Error<ReportPlaybackStartError>> {
+pub async fn report_playback_start(configuration: &configuration::Configuration, playback_start_info: Option<models::PlaybackStartInfo>) -> Result<(), Error<ReportPlaybackStartError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_playback_start_info = playback_start_info;
 
     let uri_str = format!("{}/Sessions/Playing", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -734,7 +600,7 @@ pub async fn report_playback_start(configuration: &configuration::Configuration,
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.playback_start_info);
+    req_builder = req_builder.json(&p_body_playback_start_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -750,7 +616,9 @@ pub async fn report_playback_start(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn report_playback_stopped(configuration: &configuration::Configuration, params: ReportPlaybackStoppedParams) -> Result<(), Error<ReportPlaybackStoppedError>> {
+pub async fn report_playback_stopped(configuration: &configuration::Configuration, playback_stop_info: Option<models::PlaybackStopInfo>) -> Result<(), Error<ReportPlaybackStoppedError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_playback_stop_info = playback_stop_info;
 
     let uri_str = format!("{}/Sessions/Playing/Stopped", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -766,7 +634,7 @@ pub async fn report_playback_stopped(configuration: &configuration::Configuratio
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.playback_stop_info);
+    req_builder = req_builder.json(&p_body_playback_stop_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -782,7 +650,7 @@ pub async fn report_playback_stopped(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn report_session_ended(configuration: &configuration::Configuration) -> Result<(), Error<ReportSessionEndedError>> {
+pub async fn report_session_ended(configuration: &configuration::Configuration, ) -> Result<(), Error<ReportSessionEndedError>> {
 
     let uri_str = format!("{}/Sessions/Logout", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -813,15 +681,18 @@ pub async fn report_session_ended(configuration: &configuration::Configuration) 
     }
 }
 
-pub async fn report_viewing(configuration: &configuration::Configuration, params: ReportViewingParams) -> Result<(), Error<ReportViewingError>> {
+pub async fn report_viewing(configuration: &configuration::Configuration, item_id: &str, session_id: Option<&str>) -> Result<(), Error<ReportViewingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_item_id = item_id;
+    let p_query_session_id = session_id;
 
     let uri_str = format!("{}/Sessions/Viewing", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.session_id {
+    if let Some(ref param_value) = p_query_session_id {
         req_builder = req_builder.query(&[("sessionId", &param_value.to_string())]);
     }
-    req_builder = req_builder.query(&[("itemId", &params.item_id.to_string())]);
+    req_builder = req_builder.query(&[("itemId", &p_query_item_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -848,9 +719,12 @@ pub async fn report_viewing(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn send_full_general_command(configuration: &configuration::Configuration, params: SendFullGeneralCommandParams) -> Result<(), Error<SendFullGeneralCommandError>> {
+pub async fn send_full_general_command(configuration: &configuration::Configuration, session_id: &str, general_command: models::GeneralCommand) -> Result<(), Error<SendFullGeneralCommandError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_body_general_command = general_command;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Command", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/Command", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -864,7 +738,7 @@ pub async fn send_full_general_command(configuration: &configuration::Configurat
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.general_command);
+    req_builder = req_builder.json(&p_body_general_command);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -880,9 +754,12 @@ pub async fn send_full_general_command(configuration: &configuration::Configurat
     }
 }
 
-pub async fn send_general_command(configuration: &configuration::Configuration, params: SendGeneralCommandParams) -> Result<(), Error<SendGeneralCommandError>> {
+pub async fn send_general_command(configuration: &configuration::Configuration, session_id: &str, command: &str) -> Result<(), Error<SendGeneralCommandError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_path_command = command;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Command/{command}", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id), command=crate::apis::urlencode(params.command));
+    let uri_str = format!("{}/Sessions/{sessionId}/Command/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -911,9 +788,12 @@ pub async fn send_general_command(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn send_message_command(configuration: &configuration::Configuration, params: SendMessageCommandParams) -> Result<(), Error<SendMessageCommandError>> {
+pub async fn send_message_command(configuration: &configuration::Configuration, session_id: &str, message_command: models::MessageCommand) -> Result<(), Error<SendMessageCommandError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_body_message_command = message_command;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Message", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id));
+    let uri_str = format!("{}/Sessions/{sessionId}/Message", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -927,7 +807,7 @@ pub async fn send_message_command(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.message_command);
+    req_builder = req_builder.json(&p_body_message_command);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -943,15 +823,20 @@ pub async fn send_message_command(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn send_playstate_command(configuration: &configuration::Configuration, params: SendPlaystateCommandParams) -> Result<(), Error<SendPlaystateCommandError>> {
+pub async fn send_playstate_command(configuration: &configuration::Configuration, session_id: &str, command: &str, seek_position_ticks: Option<i64>, controlling_user_id: Option<&str>) -> Result<(), Error<SendPlaystateCommandError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_path_command = command;
+    let p_query_seek_position_ticks = seek_position_ticks;
+    let p_query_controlling_user_id = controlling_user_id;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/Playing/{command}", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id), command=crate::apis::urlencode(params.command));
+    let uri_str = format!("{}/Sessions/{sessionId}/Playing/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.seek_position_ticks {
+    if let Some(ref param_value) = p_query_seek_position_ticks {
         req_builder = req_builder.query(&[("seekPositionTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.controlling_user_id {
+    if let Some(ref param_value) = p_query_controlling_user_id {
         req_builder = req_builder.query(&[("controllingUserId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -980,9 +865,12 @@ pub async fn send_playstate_command(configuration: &configuration::Configuration
     }
 }
 
-pub async fn send_system_command(configuration: &configuration::Configuration, params: SendSystemCommandParams) -> Result<(), Error<SendSystemCommandError>> {
+pub async fn send_system_command(configuration: &configuration::Configuration, session_id: &str, command: &str) -> Result<(), Error<SendSystemCommandError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_session_id = session_id;
+    let p_path_command = command;
 
-    let uri_str = format!("{}/Sessions/{sessionId}/System/{command}", configuration.base_path, sessionId=crate::apis::urlencode(params.session_id), command=crate::apis::urlencode(params.command));
+    let uri_str = format!("{}/Sessions/{sessionId}/System/{command}", configuration.base_path, sessionId=crate::apis::urlencode(p_path_session_id), command=crate::apis::urlencode(p_path_command));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

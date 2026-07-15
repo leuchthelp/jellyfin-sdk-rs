@@ -14,122 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_episodes`]
-#[derive(Clone, Debug)]
-pub struct GetEpisodesParams {
-    /// The series id.
-    pub series_id: String,
-    /// The user id.
-    pub user_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional filter by season number.
-    pub season: Option<i32>,
-    /// Optional. Filter by season id.
-    pub season_id: Option<String>,
-    /// Optional. Filter by items that are missing episodes or not.
-    pub is_missing: Option<bool>,
-    /// Optional. Return items that are siblings of a supplied item.
-    pub adjacent_to: Option<String>,
-    /// Optional. Skip through the list until a given item is found.
-    pub start_item_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional, include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional, the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_next_up`]
-#[derive(Clone, Debug)]
-pub struct GetNextUpParams {
-    /// The user id of the user to get the next up episodes for.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Filter by series id.
-    pub series_id: Option<String>,
-    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. Starting date of shows to show in Next Up section.
-    pub next_up_date_cutoff: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Whether to enable the total records count. Defaults to true.
-    pub enable_total_record_count: Option<bool>,
-    /// Whether to include resumable episodes in next up results.
-    pub enable_resumable: Option<bool>,
-    /// Whether to include watched episodes in next up results.
-    pub enable_rewatching: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_seasons`]
-#[derive(Clone, Debug)]
-pub struct GetSeasonsParams {
-    /// The series id.
-    pub series_id: String,
-    /// The user id.
-    pub user_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Filter by special season.
-    pub is_special_season: Option<bool>,
-    /// Optional. Filter by items that are missing episodes or not.
-    pub is_missing: Option<bool>,
-    /// Optional. Return items that are siblings of a supplied item.
-    pub adjacent_to: Option<String>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_upcoming_episodes`]
-#[derive(Clone, Debug)]
-pub struct GetUpcomingEpisodesParams {
-    /// The user id of the user to get the upcoming episodes for.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_episodes`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -174,57 +58,73 @@ pub enum GetUpcomingEpisodesError {
 }
 
 
-pub async fn get_episodes(configuration: &configuration::Configuration, params: GetEpisodesParams) -> Result<models::BaseItemDtoQueryResult, Error<GetEpisodesError>> {
+pub async fn get_episodes(configuration: &configuration::Configuration, series_id: &str, user_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, season: Option<i32>, season_id: Option<&str>, is_missing: Option<bool>, adjacent_to: Option<&str>, start_item_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, sort_by: Option<&str>) -> Result<models::BaseItemDtoQueryResult, Error<GetEpisodesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_series_id = series_id;
+    let p_query_user_id = user_id;
+    let p_query_fields = fields;
+    let p_query_season = season;
+    let p_query_season_id = season_id;
+    let p_query_is_missing = is_missing;
+    let p_query_adjacent_to = adjacent_to;
+    let p_query_start_item_id = start_item_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_sort_by = sort_by;
 
-    let uri_str = format!("{}/Shows/{seriesId}/Episodes", configuration.base_path, seriesId=crate::apis::urlencode(params.series_id));
+    let uri_str = format!("{}/Shows/{seriesId}/Episodes", configuration.base_path, seriesId=crate::apis::urlencode(p_path_series_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.season {
+    if let Some(ref param_value) = p_query_season {
         req_builder = req_builder.query(&[("season", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.season_id {
+    if let Some(ref param_value) = p_query_season_id {
         req_builder = req_builder.query(&[("seasonId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_missing {
+    if let Some(ref param_value) = p_query_is_missing {
         req_builder = req_builder.query(&[("isMissing", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.adjacent_to {
+    if let Some(ref param_value) = p_query_adjacent_to {
         req_builder = req_builder.query(&[("adjacentTo", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_item_id {
+    if let Some(ref param_value) = p_query_start_item_id {
         req_builder = req_builder.query(&[("startItemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = req_builder.query(&[("sortBy", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -264,57 +164,72 @@ pub async fn get_episodes(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_next_up(configuration: &configuration::Configuration, params: GetNextUpParams) -> Result<models::BaseItemDtoQueryResult, Error<GetNextUpError>> {
+pub async fn get_next_up(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, series_id: Option<&str>, parent_id: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, next_up_date_cutoff: Option<chrono::DateTime<chrono::FixedOffset>>, enable_total_record_count: Option<bool>, enable_resumable: Option<bool>, enable_rewatching: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetNextUpError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_series_id = series_id;
+    let p_query_parent_id = parent_id;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_next_up_date_cutoff = next_up_date_cutoff;
+    let p_query_enable_total_record_count = enable_total_record_count;
+    let p_query_enable_resumable = enable_resumable;
+    let p_query_enable_rewatching = enable_rewatching;
 
     let uri_str = format!("{}/Shows/NextUp", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.series_id {
+    if let Some(ref param_value) = p_query_series_id {
         req_builder = req_builder.query(&[("seriesId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.next_up_date_cutoff {
+    if let Some(ref param_value) = p_query_next_up_date_cutoff {
         req_builder = req_builder.query(&[("nextUpDateCutoff", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_resumable {
+    if let Some(ref param_value) = p_query_enable_resumable {
         req_builder = req_builder.query(&[("enableResumable", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_rewatching {
+    if let Some(ref param_value) = p_query_enable_rewatching {
         req_builder = req_builder.query(&[("enableRewatching", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -354,42 +269,53 @@ pub async fn get_next_up(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn get_seasons(configuration: &configuration::Configuration, params: GetSeasonsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSeasonsError>> {
+pub async fn get_seasons(configuration: &configuration::Configuration, series_id: &str, user_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, is_special_season: Option<bool>, is_missing: Option<bool>, adjacent_to: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetSeasonsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_series_id = series_id;
+    let p_query_user_id = user_id;
+    let p_query_fields = fields;
+    let p_query_is_special_season = is_special_season;
+    let p_query_is_missing = is_missing;
+    let p_query_adjacent_to = adjacent_to;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
 
-    let uri_str = format!("{}/Shows/{seriesId}/Seasons", configuration.base_path, seriesId=crate::apis::urlencode(params.series_id));
+    let uri_str = format!("{}/Shows/{seriesId}/Seasons", configuration.base_path, seriesId=crate::apis::urlencode(p_path_series_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_special_season {
+    if let Some(ref param_value) = p_query_is_special_season {
         req_builder = req_builder.query(&[("isSpecialSeason", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_missing {
+    if let Some(ref param_value) = p_query_is_missing {
         req_builder = req_builder.query(&[("isMissing", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.adjacent_to {
+    if let Some(ref param_value) = p_query_adjacent_to {
         req_builder = req_builder.query(&[("adjacentTo", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -429,42 +355,52 @@ pub async fn get_seasons(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn get_upcoming_episodes(configuration: &configuration::Configuration, params: GetUpcomingEpisodesParams) -> Result<models::BaseItemDtoQueryResult, Error<GetUpcomingEpisodesError>> {
+pub async fn get_upcoming_episodes(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, parent_id: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetUpcomingEpisodesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_parent_id = parent_id;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
 
     let uri_str = format!("{}/Shows/Upcoming", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

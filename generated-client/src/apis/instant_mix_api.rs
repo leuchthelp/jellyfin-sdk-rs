@@ -14,153 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_instant_mix_from_album`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromAlbumParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_artists`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromArtistsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_item`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromItemParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_music_genre_by_id`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromMusicGenreByIdParams {
-    /// The item id.
-    pub id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_music_genre_by_name`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromMusicGenreByNameParams {
-    /// The genre name.
-    pub name: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_playlist`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromPlaylistParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_instant_mix_from_song`]
-#[derive(Clone, Debug)]
-pub struct GetInstantMixFromSongParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
 
 /// struct for typed errors of method [`get_instant_mix_from_album`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -239,33 +92,42 @@ pub enum GetInstantMixFromSongError {
 }
 
 
-pub async fn get_instant_mix_from_album(configuration: &configuration::Configuration, params: GetInstantMixFromAlbumParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromAlbumError>> {
+pub async fn get_instant_mix_from_album(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromAlbumError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Albums/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Albums/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -308,33 +170,42 @@ pub async fn get_instant_mix_from_album(configuration: &configuration::Configura
     }
 }
 
-pub async fn get_instant_mix_from_artists(configuration: &configuration::Configuration, params: GetInstantMixFromArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromArtistsError>> {
+pub async fn get_instant_mix_from_artists(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromArtistsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Artists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Artists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -377,33 +248,42 @@ pub async fn get_instant_mix_from_artists(configuration: &configuration::Configu
     }
 }
 
-pub async fn get_instant_mix_from_item(configuration: &configuration::Configuration, params: GetInstantMixFromItemParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromItemError>> {
+pub async fn get_instant_mix_from_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Items/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -447,34 +327,43 @@ pub async fn get_instant_mix_from_item(configuration: &configuration::Configurat
 }
 
 #[deprecated]
-pub async fn get_instant_mix_from_music_genre_by_id(configuration: &configuration::Configuration, params: GetInstantMixFromMusicGenreByIdParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByIdError>> {
+pub async fn get_instant_mix_from_music_genre_by_id(configuration: &configuration::Configuration, id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByIdError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
     let uri_str = format!("{}/MusicGenres/InstantMix", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("id", &params.id.to_string())]);
-    if let Some(ref param_value) = params.user_id {
+    req_builder = req_builder.query(&[("id", &p_query_id.to_string())]);
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -518,33 +407,42 @@ pub async fn get_instant_mix_from_music_genre_by_id(configuration: &configuratio
 }
 
 #[deprecated]
-pub async fn get_instant_mix_from_music_genre_by_name(configuration: &configuration::Configuration, params: GetInstantMixFromMusicGenreByNameParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByNameError>> {
+pub async fn get_instant_mix_from_music_genre_by_name(configuration: &configuration::Configuration, name: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromMusicGenreByNameError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/MusicGenres/{name}/InstantMix", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/MusicGenres/{name}/InstantMix", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -587,33 +485,42 @@ pub async fn get_instant_mix_from_music_genre_by_name(configuration: &configurat
     }
 }
 
-pub async fn get_instant_mix_from_playlist(configuration: &configuration::Configuration, params: GetInstantMixFromPlaylistParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromPlaylistError>> {
+pub async fn get_instant_mix_from_playlist(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Playlists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Playlists/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -656,33 +563,42 @@ pub async fn get_instant_mix_from_playlist(configuration: &configuration::Config
     }
 }
 
-pub async fn get_instant_mix_from_song(configuration: &configuration::Configuration, params: GetInstantMixFromSongParams) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromSongError>> {
+pub async fn get_instant_mix_from_song(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetInstantMixFromSongError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Songs/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Songs/{itemId}/InstantMix", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),

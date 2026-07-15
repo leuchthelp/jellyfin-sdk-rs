@@ -14,21 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_movie_recommendations`]
-#[derive(Clone, Debug)]
-pub struct GetMovieRecommendationsParams {
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. The fields to return.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// The max number of categories to return.
-    pub category_limit: Option<i32>,
-    /// The max number of items to return per category.
-    pub item_limit: Option<i32>
-}
-
 
 /// struct for typed errors of method [`get_movie_recommendations`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -41,27 +26,33 @@ pub enum GetMovieRecommendationsError {
 }
 
 
-pub async fn get_movie_recommendations(configuration: &configuration::Configuration, params: GetMovieRecommendationsParams) -> Result<Vec<models::RecommendationDto>, Error<GetMovieRecommendationsError>> {
+pub async fn get_movie_recommendations(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, category_limit: Option<i32>, item_limit: Option<i32>) -> Result<Vec<models::RecommendationDto>, Error<GetMovieRecommendationsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_category_limit = category_limit;
+    let p_query_item_limit = item_limit;
 
     let uri_str = format!("{}/Movies/Recommendations", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.category_limit {
+    if let Some(ref param_value) = p_query_category_limit {
         req_builder = req_builder.query(&[("categoryLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.item_limit {
+    if let Some(ref param_value) = p_query_item_limit {
         req_builder = req_builder.query(&[("itemLimit", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

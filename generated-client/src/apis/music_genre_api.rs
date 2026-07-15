@@ -14,15 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_music_genre`]
-#[derive(Clone, Debug)]
-pub struct GetMusicGenreParams {
-    /// The genre name.
-    pub genre_name: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>
-}
-
 
 /// struct for typed errors of method [`get_music_genre`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,12 +27,15 @@ pub enum GetMusicGenreError {
 
 
 #[deprecated]
-pub async fn get_music_genre(configuration: &configuration::Configuration, params: GetMusicGenreParams) -> Result<models::BaseItemDto, Error<GetMusicGenreError>> {
+pub async fn get_music_genre(configuration: &configuration::Configuration, genre_name: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetMusicGenreError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_genre_name = genre_name;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/MusicGenres/{genreName}", configuration.base_path, genreName=crate::apis::urlencode(params.genre_name));
+    let uri_str = format!("{}/MusicGenres/{genreName}", configuration.base_path, genreName=crate::apis::urlencode(p_path_genre_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

@@ -14,125 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`sync_play_buffering`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayBufferingParams {
-    /// The player status.
-    pub buffer_request_dto: models::BufferRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_create_group`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayCreateGroupParams {
-    /// The settings of the new group.
-    pub new_group_request_dto: models::NewGroupRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_get_group`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayGetGroupParams {
-    /// The id of the group.
-    pub id: String
-}
-
-/// struct for passing parameters to the method [`sync_play_join_group`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayJoinGroupParams {
-    /// The group to join.
-    pub join_group_request_dto: models::JoinGroupRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_move_playlist_item`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayMovePlaylistItemParams {
-    /// The new position for the item.
-    pub move_playlist_item_request_dto: models::MovePlaylistItemRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_next_item`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayNextItemParams {
-    /// The current item information.
-    pub next_item_request_dto: models::NextItemRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_ping`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayPingParams {
-    /// The new ping.
-    pub ping_request_dto: models::PingRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_previous_item`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayPreviousItemParams {
-    /// The current item information.
-    pub previous_item_request_dto: models::PreviousItemRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_queue`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayQueueParams {
-    /// The items to add.
-    pub queue_request_dto: models::QueueRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_ready`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayReadyParams {
-    /// The player status.
-    pub ready_request_dto: models::ReadyRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_remove_from_playlist`]
-#[derive(Clone, Debug)]
-pub struct SyncPlayRemoveFromPlaylistParams {
-    /// The items to remove.
-    pub remove_from_playlist_request_dto: models::RemoveFromPlaylistRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_seek`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySeekParams {
-    /// The new playback position.
-    pub seek_request_dto: models::SeekRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_set_ignore_wait`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySetIgnoreWaitParams {
-    /// The settings to set.
-    pub ignore_wait_request_dto: models::IgnoreWaitRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_set_new_queue`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySetNewQueueParams {
-    /// The new playlist to play in the group.
-    pub play_request_dto: models::PlayRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_set_playlist_item`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySetPlaylistItemParams {
-    /// The new item to play.
-    pub set_playlist_item_request_dto: models::SetPlaylistItemRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_set_repeat_mode`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySetRepeatModeParams {
-    /// The new repeat mode.
-    pub set_repeat_mode_request_dto: models::SetRepeatModeRequestDto
-}
-
-/// struct for passing parameters to the method [`sync_play_set_shuffle_mode`]
-#[derive(Clone, Debug)]
-pub struct SyncPlaySetShuffleModeParams {
-    /// The new shuffle mode.
-    pub set_shuffle_mode_request_dto: models::SetShuffleModeRequestDto
-}
-
 
 /// struct for typed errors of method [`sync_play_buffering`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -356,7 +237,9 @@ pub enum SyncPlayUnpauseError {
 }
 
 
-pub async fn sync_play_buffering(configuration: &configuration::Configuration, params: SyncPlayBufferingParams) -> Result<(), Error<SyncPlayBufferingError>> {
+pub async fn sync_play_buffering(configuration: &configuration::Configuration, buffer_request_dto: models::BufferRequestDto) -> Result<(), Error<SyncPlayBufferingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_buffer_request_dto = buffer_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Buffering", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -372,7 +255,7 @@ pub async fn sync_play_buffering(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.buffer_request_dto);
+    req_builder = req_builder.json(&p_body_buffer_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -388,7 +271,9 @@ pub async fn sync_play_buffering(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn sync_play_create_group(configuration: &configuration::Configuration, params: SyncPlayCreateGroupParams) -> Result<models::GroupInfoDto, Error<SyncPlayCreateGroupError>> {
+pub async fn sync_play_create_group(configuration: &configuration::Configuration, new_group_request_dto: models::NewGroupRequestDto) -> Result<models::GroupInfoDto, Error<SyncPlayCreateGroupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_new_group_request_dto = new_group_request_dto;
 
     let uri_str = format!("{}/SyncPlay/New", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -404,7 +289,7 @@ pub async fn sync_play_create_group(configuration: &configuration::Configuration
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.new_group_request_dto);
+    req_builder = req_builder.json(&p_body_new_group_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -431,9 +316,11 @@ pub async fn sync_play_create_group(configuration: &configuration::Configuration
     }
 }
 
-pub async fn sync_play_get_group(configuration: &configuration::Configuration, params: SyncPlayGetGroupParams) -> Result<models::GroupInfoDto, Error<SyncPlayGetGroupError>> {
+pub async fn sync_play_get_group(configuration: &configuration::Configuration, id: &str) -> Result<models::GroupInfoDto, Error<SyncPlayGetGroupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_id = id;
 
-    let uri_str = format!("{}/SyncPlay/{id}", configuration.base_path, id=crate::apis::urlencode(params.id));
+    let uri_str = format!("{}/SyncPlay/{id}", configuration.base_path, id=crate::apis::urlencode(p_path_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -473,7 +360,7 @@ pub async fn sync_play_get_group(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn sync_play_get_groups(configuration: &configuration::Configuration) -> Result<Vec<models::GroupInfoDto>, Error<SyncPlayGetGroupsError>> {
+pub async fn sync_play_get_groups(configuration: &configuration::Configuration, ) -> Result<Vec<models::GroupInfoDto>, Error<SyncPlayGetGroupsError>> {
 
     let uri_str = format!("{}/SyncPlay/List", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -515,7 +402,9 @@ pub async fn sync_play_get_groups(configuration: &configuration::Configuration) 
     }
 }
 
-pub async fn sync_play_join_group(configuration: &configuration::Configuration, params: SyncPlayJoinGroupParams) -> Result<(), Error<SyncPlayJoinGroupError>> {
+pub async fn sync_play_join_group(configuration: &configuration::Configuration, join_group_request_dto: models::JoinGroupRequestDto) -> Result<(), Error<SyncPlayJoinGroupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_join_group_request_dto = join_group_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Join", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -531,7 +420,7 @@ pub async fn sync_play_join_group(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.join_group_request_dto);
+    req_builder = req_builder.json(&p_body_join_group_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -547,7 +436,7 @@ pub async fn sync_play_join_group(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn sync_play_leave_group(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayLeaveGroupError>> {
+pub async fn sync_play_leave_group(configuration: &configuration::Configuration, ) -> Result<(), Error<SyncPlayLeaveGroupError>> {
 
     let uri_str = format!("{}/SyncPlay/Leave", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -578,7 +467,9 @@ pub async fn sync_play_leave_group(configuration: &configuration::Configuration)
     }
 }
 
-pub async fn sync_play_move_playlist_item(configuration: &configuration::Configuration, params: SyncPlayMovePlaylistItemParams) -> Result<(), Error<SyncPlayMovePlaylistItemError>> {
+pub async fn sync_play_move_playlist_item(configuration: &configuration::Configuration, move_playlist_item_request_dto: models::MovePlaylistItemRequestDto) -> Result<(), Error<SyncPlayMovePlaylistItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_move_playlist_item_request_dto = move_playlist_item_request_dto;
 
     let uri_str = format!("{}/SyncPlay/MovePlaylistItem", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -594,7 +485,7 @@ pub async fn sync_play_move_playlist_item(configuration: &configuration::Configu
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.move_playlist_item_request_dto);
+    req_builder = req_builder.json(&p_body_move_playlist_item_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -610,7 +501,9 @@ pub async fn sync_play_move_playlist_item(configuration: &configuration::Configu
     }
 }
 
-pub async fn sync_play_next_item(configuration: &configuration::Configuration, params: SyncPlayNextItemParams) -> Result<(), Error<SyncPlayNextItemError>> {
+pub async fn sync_play_next_item(configuration: &configuration::Configuration, next_item_request_dto: models::NextItemRequestDto) -> Result<(), Error<SyncPlayNextItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_next_item_request_dto = next_item_request_dto;
 
     let uri_str = format!("{}/SyncPlay/NextItem", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -626,7 +519,7 @@ pub async fn sync_play_next_item(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.next_item_request_dto);
+    req_builder = req_builder.json(&p_body_next_item_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -642,7 +535,7 @@ pub async fn sync_play_next_item(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn sync_play_pause(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayPauseError>> {
+pub async fn sync_play_pause(configuration: &configuration::Configuration, ) -> Result<(), Error<SyncPlayPauseError>> {
 
     let uri_str = format!("{}/SyncPlay/Pause", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -673,7 +566,9 @@ pub async fn sync_play_pause(configuration: &configuration::Configuration) -> Re
     }
 }
 
-pub async fn sync_play_ping(configuration: &configuration::Configuration, params: SyncPlayPingParams) -> Result<(), Error<SyncPlayPingError>> {
+pub async fn sync_play_ping(configuration: &configuration::Configuration, ping_request_dto: models::PingRequestDto) -> Result<(), Error<SyncPlayPingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_ping_request_dto = ping_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Ping", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -689,7 +584,7 @@ pub async fn sync_play_ping(configuration: &configuration::Configuration, params
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.ping_request_dto);
+    req_builder = req_builder.json(&p_body_ping_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -705,7 +600,9 @@ pub async fn sync_play_ping(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn sync_play_previous_item(configuration: &configuration::Configuration, params: SyncPlayPreviousItemParams) -> Result<(), Error<SyncPlayPreviousItemError>> {
+pub async fn sync_play_previous_item(configuration: &configuration::Configuration, previous_item_request_dto: models::PreviousItemRequestDto) -> Result<(), Error<SyncPlayPreviousItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_previous_item_request_dto = previous_item_request_dto;
 
     let uri_str = format!("{}/SyncPlay/PreviousItem", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -721,7 +618,7 @@ pub async fn sync_play_previous_item(configuration: &configuration::Configuratio
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.previous_item_request_dto);
+    req_builder = req_builder.json(&p_body_previous_item_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -737,7 +634,9 @@ pub async fn sync_play_previous_item(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn sync_play_queue(configuration: &configuration::Configuration, params: SyncPlayQueueParams) -> Result<(), Error<SyncPlayQueueError>> {
+pub async fn sync_play_queue(configuration: &configuration::Configuration, queue_request_dto: models::QueueRequestDto) -> Result<(), Error<SyncPlayQueueError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_queue_request_dto = queue_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Queue", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -753,7 +652,7 @@ pub async fn sync_play_queue(configuration: &configuration::Configuration, param
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.queue_request_dto);
+    req_builder = req_builder.json(&p_body_queue_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -769,7 +668,9 @@ pub async fn sync_play_queue(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn sync_play_ready(configuration: &configuration::Configuration, params: SyncPlayReadyParams) -> Result<(), Error<SyncPlayReadyError>> {
+pub async fn sync_play_ready(configuration: &configuration::Configuration, ready_request_dto: models::ReadyRequestDto) -> Result<(), Error<SyncPlayReadyError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_ready_request_dto = ready_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Ready", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -785,7 +686,7 @@ pub async fn sync_play_ready(configuration: &configuration::Configuration, param
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.ready_request_dto);
+    req_builder = req_builder.json(&p_body_ready_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -801,7 +702,9 @@ pub async fn sync_play_ready(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn sync_play_remove_from_playlist(configuration: &configuration::Configuration, params: SyncPlayRemoveFromPlaylistParams) -> Result<(), Error<SyncPlayRemoveFromPlaylistError>> {
+pub async fn sync_play_remove_from_playlist(configuration: &configuration::Configuration, remove_from_playlist_request_dto: models::RemoveFromPlaylistRequestDto) -> Result<(), Error<SyncPlayRemoveFromPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_remove_from_playlist_request_dto = remove_from_playlist_request_dto;
 
     let uri_str = format!("{}/SyncPlay/RemoveFromPlaylist", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -817,7 +720,7 @@ pub async fn sync_play_remove_from_playlist(configuration: &configuration::Confi
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.remove_from_playlist_request_dto);
+    req_builder = req_builder.json(&p_body_remove_from_playlist_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -833,7 +736,9 @@ pub async fn sync_play_remove_from_playlist(configuration: &configuration::Confi
     }
 }
 
-pub async fn sync_play_seek(configuration: &configuration::Configuration, params: SyncPlaySeekParams) -> Result<(), Error<SyncPlaySeekError>> {
+pub async fn sync_play_seek(configuration: &configuration::Configuration, seek_request_dto: models::SeekRequestDto) -> Result<(), Error<SyncPlaySeekError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_seek_request_dto = seek_request_dto;
 
     let uri_str = format!("{}/SyncPlay/Seek", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -849,7 +754,7 @@ pub async fn sync_play_seek(configuration: &configuration::Configuration, params
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.seek_request_dto);
+    req_builder = req_builder.json(&p_body_seek_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -865,7 +770,9 @@ pub async fn sync_play_seek(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn sync_play_set_ignore_wait(configuration: &configuration::Configuration, params: SyncPlaySetIgnoreWaitParams) -> Result<(), Error<SyncPlaySetIgnoreWaitError>> {
+pub async fn sync_play_set_ignore_wait(configuration: &configuration::Configuration, ignore_wait_request_dto: models::IgnoreWaitRequestDto) -> Result<(), Error<SyncPlaySetIgnoreWaitError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_ignore_wait_request_dto = ignore_wait_request_dto;
 
     let uri_str = format!("{}/SyncPlay/SetIgnoreWait", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -881,7 +788,7 @@ pub async fn sync_play_set_ignore_wait(configuration: &configuration::Configurat
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.ignore_wait_request_dto);
+    req_builder = req_builder.json(&p_body_ignore_wait_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -897,7 +804,9 @@ pub async fn sync_play_set_ignore_wait(configuration: &configuration::Configurat
     }
 }
 
-pub async fn sync_play_set_new_queue(configuration: &configuration::Configuration, params: SyncPlaySetNewQueueParams) -> Result<(), Error<SyncPlaySetNewQueueError>> {
+pub async fn sync_play_set_new_queue(configuration: &configuration::Configuration, play_request_dto: models::PlayRequestDto) -> Result<(), Error<SyncPlaySetNewQueueError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_play_request_dto = play_request_dto;
 
     let uri_str = format!("{}/SyncPlay/SetNewQueue", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -913,7 +822,7 @@ pub async fn sync_play_set_new_queue(configuration: &configuration::Configuratio
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.play_request_dto);
+    req_builder = req_builder.json(&p_body_play_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -929,7 +838,9 @@ pub async fn sync_play_set_new_queue(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn sync_play_set_playlist_item(configuration: &configuration::Configuration, params: SyncPlaySetPlaylistItemParams) -> Result<(), Error<SyncPlaySetPlaylistItemError>> {
+pub async fn sync_play_set_playlist_item(configuration: &configuration::Configuration, set_playlist_item_request_dto: models::SetPlaylistItemRequestDto) -> Result<(), Error<SyncPlaySetPlaylistItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_set_playlist_item_request_dto = set_playlist_item_request_dto;
 
     let uri_str = format!("{}/SyncPlay/SetPlaylistItem", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -945,7 +856,7 @@ pub async fn sync_play_set_playlist_item(configuration: &configuration::Configur
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.set_playlist_item_request_dto);
+    req_builder = req_builder.json(&p_body_set_playlist_item_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -961,7 +872,9 @@ pub async fn sync_play_set_playlist_item(configuration: &configuration::Configur
     }
 }
 
-pub async fn sync_play_set_repeat_mode(configuration: &configuration::Configuration, params: SyncPlaySetRepeatModeParams) -> Result<(), Error<SyncPlaySetRepeatModeError>> {
+pub async fn sync_play_set_repeat_mode(configuration: &configuration::Configuration, set_repeat_mode_request_dto: models::SetRepeatModeRequestDto) -> Result<(), Error<SyncPlaySetRepeatModeError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_set_repeat_mode_request_dto = set_repeat_mode_request_dto;
 
     let uri_str = format!("{}/SyncPlay/SetRepeatMode", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -977,7 +890,7 @@ pub async fn sync_play_set_repeat_mode(configuration: &configuration::Configurat
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.set_repeat_mode_request_dto);
+    req_builder = req_builder.json(&p_body_set_repeat_mode_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -993,7 +906,9 @@ pub async fn sync_play_set_repeat_mode(configuration: &configuration::Configurat
     }
 }
 
-pub async fn sync_play_set_shuffle_mode(configuration: &configuration::Configuration, params: SyncPlaySetShuffleModeParams) -> Result<(), Error<SyncPlaySetShuffleModeError>> {
+pub async fn sync_play_set_shuffle_mode(configuration: &configuration::Configuration, set_shuffle_mode_request_dto: models::SetShuffleModeRequestDto) -> Result<(), Error<SyncPlaySetShuffleModeError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_set_shuffle_mode_request_dto = set_shuffle_mode_request_dto;
 
     let uri_str = format!("{}/SyncPlay/SetShuffleMode", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -1009,7 +924,7 @@ pub async fn sync_play_set_shuffle_mode(configuration: &configuration::Configura
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.set_shuffle_mode_request_dto);
+    req_builder = req_builder.json(&p_body_set_shuffle_mode_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -1025,7 +940,7 @@ pub async fn sync_play_set_shuffle_mode(configuration: &configuration::Configura
     }
 }
 
-pub async fn sync_play_stop(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayStopError>> {
+pub async fn sync_play_stop(configuration: &configuration::Configuration, ) -> Result<(), Error<SyncPlayStopError>> {
 
     let uri_str = format!("{}/SyncPlay/Stop", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -1056,7 +971,7 @@ pub async fn sync_play_stop(configuration: &configuration::Configuration) -> Res
     }
 }
 
-pub async fn sync_play_unpause(configuration: &configuration::Configuration) -> Result<(), Error<SyncPlayUnpauseError>> {
+pub async fn sync_play_unpause(configuration: &configuration::Configuration, ) -> Result<(), Error<SyncPlayUnpauseError>> {
 
     let uri_str = format!("{}/SyncPlay/Unpause", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);

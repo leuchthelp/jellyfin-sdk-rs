@@ -14,31 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_directory_contents`]
-#[derive(Clone, Debug)]
-pub struct GetDirectoryContentsParams {
-    /// The path.
-    pub path: String,
-    /// An optional filter to include or exclude files from the results. true/false.
-    pub include_files: Option<bool>,
-    /// An optional filter to include or exclude folders from the results. true/false.
-    pub include_directories: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_parent_path`]
-#[derive(Clone, Debug)]
-pub struct GetParentPathParams {
-    /// The path.
-    pub path: String
-}
-
-/// struct for passing parameters to the method [`validate_path`]
-#[derive(Clone, Debug)]
-pub struct ValidatePathParams {
-    /// Validate request object.
-    pub validate_path_dto: models::ValidatePathDto
-}
-
 
 /// struct for typed errors of method [`get_default_directory_browser`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -92,7 +67,7 @@ pub enum ValidatePathError {
 }
 
 
-pub async fn get_default_directory_browser(configuration: &configuration::Configuration) -> Result<models::DefaultDirectoryBrowserInfoDto, Error<GetDefaultDirectoryBrowserError>> {
+pub async fn get_default_directory_browser(configuration: &configuration::Configuration, ) -> Result<models::DefaultDirectoryBrowserInfoDto, Error<GetDefaultDirectoryBrowserError>> {
 
     let uri_str = format!("{}/Environment/DefaultDirectoryBrowser", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -134,16 +109,20 @@ pub async fn get_default_directory_browser(configuration: &configuration::Config
     }
 }
 
-pub async fn get_directory_contents(configuration: &configuration::Configuration, params: GetDirectoryContentsParams) -> Result<Vec<models::FileSystemEntryInfo>, Error<GetDirectoryContentsError>> {
+pub async fn get_directory_contents(configuration: &configuration::Configuration, path: &str, include_files: Option<bool>, include_directories: Option<bool>) -> Result<Vec<models::FileSystemEntryInfo>, Error<GetDirectoryContentsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_path = path;
+    let p_query_include_files = include_files;
+    let p_query_include_directories = include_directories;
 
     let uri_str = format!("{}/Environment/DirectoryContents", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("path", &params.path.to_string())]);
-    if let Some(ref param_value) = params.include_files {
+    req_builder = req_builder.query(&[("path", &p_query_path.to_string())]);
+    if let Some(ref param_value) = p_query_include_files {
         req_builder = req_builder.query(&[("includeFiles", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_directories {
+    if let Some(ref param_value) = p_query_include_directories {
         req_builder = req_builder.query(&[("includeDirectories", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -183,7 +162,7 @@ pub async fn get_directory_contents(configuration: &configuration::Configuration
     }
 }
 
-pub async fn get_drives(configuration: &configuration::Configuration) -> Result<Vec<models::FileSystemEntryInfo>, Error<GetDrivesError>> {
+pub async fn get_drives(configuration: &configuration::Configuration, ) -> Result<Vec<models::FileSystemEntryInfo>, Error<GetDrivesError>> {
 
     let uri_str = format!("{}/Environment/Drives", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -225,12 +204,14 @@ pub async fn get_drives(configuration: &configuration::Configuration) -> Result<
     }
 }
 
-pub async fn get_parent_path(configuration: &configuration::Configuration, params: GetParentPathParams) -> Result<String, Error<GetParentPathError>> {
+pub async fn get_parent_path(configuration: &configuration::Configuration, path: &str) -> Result<String, Error<GetParentPathError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_path = path;
 
     let uri_str = format!("{}/Environment/ParentPath", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("path", &params.path.to_string())]);
+    req_builder = req_builder.query(&[("path", &p_query_path.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -268,7 +249,9 @@ pub async fn get_parent_path(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn validate_path(configuration: &configuration::Configuration, params: ValidatePathParams) -> Result<(), Error<ValidatePathError>> {
+pub async fn validate_path(configuration: &configuration::Configuration, validate_path_dto: models::ValidatePathDto) -> Result<(), Error<ValidatePathError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_validate_path_dto = validate_path_dto;
 
     let uri_str = format!("{}/Environment/ValidatePath", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -284,7 +267,7 @@ pub async fn validate_path(configuration: &configuration::Configuration, params:
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.validate_path_dto);
+    req_builder = req_builder.json(&p_body_validate_path_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

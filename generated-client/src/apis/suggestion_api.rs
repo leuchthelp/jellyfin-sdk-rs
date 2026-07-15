@@ -14,23 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_suggestions`]
-#[derive(Clone, Debug)]
-pub struct GetSuggestionsParams {
-    /// The user id.
-    pub user_id: Option<String>,
-    /// The media types.
-    pub media_type: Option<Vec<models::MediaType>>,
-    /// The type.
-    pub r#type: Option<Vec<models::BaseItemKind>>,
-    /// Optional. The start index.
-    pub start_index: Option<i32>,
-    /// Optional. The limit.
-    pub limit: Option<i32>,
-    /// Whether to enable the total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_suggestions`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -43,33 +26,40 @@ pub enum GetSuggestionsError {
 }
 
 
-pub async fn get_suggestions(configuration: &configuration::Configuration, params: GetSuggestionsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSuggestionsError>> {
+pub async fn get_suggestions(configuration: &configuration::Configuration, user_id: Option<&str>, media_type: Option<Vec<models::MediaType>>, r#type: Option<Vec<models::BaseItemKind>>, start_index: Option<i32>, limit: Option<i32>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetSuggestionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_media_type = media_type;
+    let p_query_type = r#type;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/Items/Suggestions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_type {
+    if let Some(ref param_value) = p_query_media_type {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaType".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaType", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.r#type {
+    if let Some(ref param_value) = p_query_type {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("type".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("type", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

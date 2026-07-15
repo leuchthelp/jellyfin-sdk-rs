@@ -14,97 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`close_live_stream`]
-#[derive(Clone, Debug)]
-pub struct CloseLiveStreamParams {
-    /// The livestream id.
-    pub live_stream_id: String
-}
-
-/// struct for passing parameters to the method [`get_bitrate_test_bytes`]
-#[derive(Clone, Debug)]
-pub struct GetBitrateTestBytesParams {
-    /// The bitrate. Defaults to 102400.
-    pub size: Option<i32>
-}
-
-/// struct for passing parameters to the method [`get_playback_info`]
-#[derive(Clone, Debug)]
-pub struct GetPlaybackInfoParams {
-    /// The item id.
-    pub item_id: String,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_posted_playback_info`]
-#[derive(Clone, Debug)]
-pub struct GetPostedPlaybackInfoParams {
-    /// The item id.
-    pub item_id: String,
-    /// The user id.
-    pub user_id: Option<String>,
-    /// The maximum streaming bitrate.
-    pub max_streaming_bitrate: Option<i32>,
-    /// The start time in ticks.
-    pub start_time_ticks: Option<i64>,
-    /// The audio stream index.
-    pub audio_stream_index: Option<i32>,
-    /// The subtitle stream index.
-    pub subtitle_stream_index: Option<i32>,
-    /// The maximum number of audio channels.
-    pub max_audio_channels: Option<i32>,
-    /// The media source id.
-    pub media_source_id: Option<String>,
-    /// The livestream id.
-    pub live_stream_id: Option<String>,
-    /// Whether to auto open the livestream.
-    pub auto_open_live_stream: Option<bool>,
-    /// Whether to enable direct play. Default: true.
-    pub enable_direct_play: Option<bool>,
-    /// Whether to enable direct stream. Default: true.
-    pub enable_direct_stream: Option<bool>,
-    /// Whether to enable transcoding. Default: true.
-    pub enable_transcoding: Option<bool>,
-    /// Whether to allow to copy the video stream. Default: true.
-    pub allow_video_stream_copy: Option<bool>,
-    /// Whether to allow to copy the audio stream. Default: true.
-    pub allow_audio_stream_copy: Option<bool>,
-    /// The playback info.
-    pub playback_info_dto: Option<models::PlaybackInfoDto>
-}
-
-/// struct for passing parameters to the method [`open_live_stream`]
-#[derive(Clone, Debug)]
-pub struct OpenLiveStreamParams {
-    /// The open token.
-    pub open_token: Option<String>,
-    /// The user id.
-    pub user_id: Option<String>,
-    /// The play session id.
-    pub play_session_id: Option<String>,
-    /// The maximum streaming bitrate.
-    pub max_streaming_bitrate: Option<i32>,
-    /// The start time in ticks.
-    pub start_time_ticks: Option<i64>,
-    /// The audio stream index.
-    pub audio_stream_index: Option<i32>,
-    /// The subtitle stream index.
-    pub subtitle_stream_index: Option<i32>,
-    /// The maximum number of audio channels.
-    pub max_audio_channels: Option<i32>,
-    /// The item id.
-    pub item_id: Option<String>,
-    /// Whether to enable direct play. Default: true.
-    pub enable_direct_play: Option<bool>,
-    /// Whether to enable direct stream. Default: true.
-    pub enable_direct_stream: Option<bool>,
-    /// Always burn-in subtitle when transcoding.
-    pub always_burn_in_subtitle_when_transcoding: Option<bool>,
-    /// The open live stream dto.
-    pub open_live_stream_dto: Option<models::OpenLiveStreamDto>
-}
-
 
 /// struct for typed errors of method [`close_live_stream`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -159,12 +68,14 @@ pub enum OpenLiveStreamError {
 }
 
 
-pub async fn close_live_stream(configuration: &configuration::Configuration, params: CloseLiveStreamParams) -> Result<(), Error<CloseLiveStreamError>> {
+pub async fn close_live_stream(configuration: &configuration::Configuration, live_stream_id: &str) -> Result<(), Error<CloseLiveStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_live_stream_id = live_stream_id;
 
     let uri_str = format!("{}/LiveStreams/Close", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("liveStreamId", &params.live_stream_id.to_string())]);
+    req_builder = req_builder.query(&[("liveStreamId", &p_query_live_stream_id.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -191,12 +102,14 @@ pub async fn close_live_stream(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_bitrate_test_bytes(configuration: &configuration::Configuration, params: GetBitrateTestBytesParams) -> Result<reqwest::Response, Error<GetBitrateTestBytesError>> {
+pub async fn get_bitrate_test_bytes(configuration: &configuration::Configuration, size: Option<i32>) -> Result<reqwest::Response, Error<GetBitrateTestBytesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_size = size;
 
     let uri_str = format!("{}/Playback/BitrateTest", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.size {
+    if let Some(ref param_value) = p_query_size {
         req_builder = req_builder.query(&[("size", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -225,12 +138,15 @@ pub async fn get_bitrate_test_bytes(configuration: &configuration::Configuration
     }
 }
 
-pub async fn get_playback_info(configuration: &configuration::Configuration, params: GetPlaybackInfoParams) -> Result<models::PlaybackInfoResponse, Error<GetPlaybackInfoError>> {
+pub async fn get_playback_info(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::PlaybackInfoResponse, Error<GetPlaybackInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -271,51 +187,68 @@ pub async fn get_playback_info(configuration: &configuration::Configuration, par
 }
 
 /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
-pub async fn get_posted_playback_info(configuration: &configuration::Configuration, params: GetPostedPlaybackInfoParams) -> Result<models::PlaybackInfoResponse, Error<GetPostedPlaybackInfoError>> {
+pub async fn get_posted_playback_info(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, max_streaming_bitrate: Option<i32>, start_time_ticks: Option<i64>, audio_stream_index: Option<i32>, subtitle_stream_index: Option<i32>, max_audio_channels: Option<i32>, media_source_id: Option<&str>, live_stream_id: Option<&str>, auto_open_live_stream: Option<bool>, enable_direct_play: Option<bool>, enable_direct_stream: Option<bool>, enable_transcoding: Option<bool>, allow_video_stream_copy: Option<bool>, allow_audio_stream_copy: Option<bool>, playback_info_dto: Option<models::PlaybackInfoDto>) -> Result<models::PlaybackInfoResponse, Error<GetPostedPlaybackInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_max_streaming_bitrate = max_streaming_bitrate;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_media_source_id = media_source_id;
+    let p_query_live_stream_id = live_stream_id;
+    let p_query_auto_open_live_stream = auto_open_live_stream;
+    let p_query_enable_direct_play = enable_direct_play;
+    let p_query_enable_direct_stream = enable_direct_stream;
+    let p_query_enable_transcoding = enable_transcoding;
+    let p_query_allow_video_stream_copy = allow_video_stream_copy;
+    let p_query_allow_audio_stream_copy = allow_audio_stream_copy;
+    let p_body_playback_info_dto = playback_info_dto;
 
-    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/PlaybackInfo", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_streaming_bitrate {
+    if let Some(ref param_value) = p_query_max_streaming_bitrate {
         req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.live_stream_id {
+    if let Some(ref param_value) = p_query_live_stream_id {
         req_builder = req_builder.query(&[("liveStreamId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.auto_open_live_stream {
+    if let Some(ref param_value) = p_query_auto_open_live_stream {
         req_builder = req_builder.query(&[("autoOpenLiveStream", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_direct_play {
+    if let Some(ref param_value) = p_query_enable_direct_play {
         req_builder = req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_direct_stream {
+    if let Some(ref param_value) = p_query_enable_direct_stream {
         req_builder = req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_transcoding {
+    if let Some(ref param_value) = p_query_enable_transcoding {
         req_builder = req_builder.query(&[("enableTranscoding", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_video_stream_copy {
+    if let Some(ref param_value) = p_query_allow_video_stream_copy {
         req_builder = req_builder.query(&[("allowVideoStreamCopy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.allow_audio_stream_copy {
+    if let Some(ref param_value) = p_query_allow_audio_stream_copy {
         req_builder = req_builder.query(&[("allowAudioStreamCopy", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -329,7 +262,7 @@ pub async fn get_posted_playback_info(configuration: &configuration::Configurati
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.playback_info_dto);
+    req_builder = req_builder.json(&p_body_playback_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -356,45 +289,59 @@ pub async fn get_posted_playback_info(configuration: &configuration::Configurati
     }
 }
 
-pub async fn open_live_stream(configuration: &configuration::Configuration, params: OpenLiveStreamParams) -> Result<models::LiveStreamResponse, Error<OpenLiveStreamError>> {
+pub async fn open_live_stream(configuration: &configuration::Configuration, open_token: Option<&str>, user_id: Option<&str>, play_session_id: Option<&str>, max_streaming_bitrate: Option<i32>, start_time_ticks: Option<i64>, audio_stream_index: Option<i32>, subtitle_stream_index: Option<i32>, max_audio_channels: Option<i32>, item_id: Option<&str>, enable_direct_play: Option<bool>, enable_direct_stream: Option<bool>, always_burn_in_subtitle_when_transcoding: Option<bool>, open_live_stream_dto: Option<models::OpenLiveStreamDto>) -> Result<models::LiveStreamResponse, Error<OpenLiveStreamError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_open_token = open_token;
+    let p_query_user_id = user_id;
+    let p_query_play_session_id = play_session_id;
+    let p_query_max_streaming_bitrate = max_streaming_bitrate;
+    let p_query_start_time_ticks = start_time_ticks;
+    let p_query_audio_stream_index = audio_stream_index;
+    let p_query_subtitle_stream_index = subtitle_stream_index;
+    let p_query_max_audio_channels = max_audio_channels;
+    let p_query_item_id = item_id;
+    let p_query_enable_direct_play = enable_direct_play;
+    let p_query_enable_direct_stream = enable_direct_stream;
+    let p_query_always_burn_in_subtitle_when_transcoding = always_burn_in_subtitle_when_transcoding;
+    let p_body_open_live_stream_dto = open_live_stream_dto;
 
     let uri_str = format!("{}/LiveStreams/Open", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.open_token {
+    if let Some(ref param_value) = p_query_open_token {
         req_builder = req_builder.query(&[("openToken", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.play_session_id {
+    if let Some(ref param_value) = p_query_play_session_id {
         req_builder = req_builder.query(&[("playSessionId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_streaming_bitrate {
+    if let Some(ref param_value) = p_query_max_streaming_bitrate {
         req_builder = req_builder.query(&[("maxStreamingBitrate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_time_ticks {
+    if let Some(ref param_value) = p_query_start_time_ticks {
         req_builder = req_builder.query(&[("startTimeTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.audio_stream_index {
+    if let Some(ref param_value) = p_query_audio_stream_index {
         req_builder = req_builder.query(&[("audioStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.subtitle_stream_index {
+    if let Some(ref param_value) = p_query_subtitle_stream_index {
         req_builder = req_builder.query(&[("subtitleStreamIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_audio_channels {
+    if let Some(ref param_value) = p_query_max_audio_channels {
         req_builder = req_builder.query(&[("maxAudioChannels", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.item_id {
+    if let Some(ref param_value) = p_query_item_id {
         req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_direct_play {
+    if let Some(ref param_value) = p_query_enable_direct_play {
         req_builder = req_builder.query(&[("enableDirectPlay", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_direct_stream {
+    if let Some(ref param_value) = p_query_enable_direct_stream {
         req_builder = req_builder.query(&[("enableDirectStream", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.always_burn_in_subtitle_when_transcoding {
+    if let Some(ref param_value) = p_query_always_burn_in_subtitle_when_transcoding {
         req_builder = req_builder.query(&[("alwaysBurnInSubtitleWhenTranscoding", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -408,7 +355,7 @@ pub async fn open_live_stream(configuration: &configuration::Configuration, para
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.open_live_stream_dto);
+    req_builder = req_builder.json(&p_body_open_live_stream_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

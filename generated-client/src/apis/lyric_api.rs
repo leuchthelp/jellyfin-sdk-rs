@@ -16,53 +16,6 @@ use super::{Error, configuration, ContentType};
 use tokio::fs::File as TokioFile;
 use tokio_util::codec::{BytesCodec, FramedRead};
 
-/// struct for passing parameters to the method [`delete_lyrics`]
-#[derive(Clone, Debug)]
-pub struct DeleteLyricsParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`download_remote_lyrics`]
-#[derive(Clone, Debug)]
-pub struct DownloadRemoteLyricsParams {
-    /// The item id.
-    pub item_id: String,
-    /// The lyric id.
-    pub lyric_id: String
-}
-
-/// struct for passing parameters to the method [`get_lyrics`]
-#[derive(Clone, Debug)]
-pub struct GetLyricsParams {
-    /// Item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`get_remote_lyrics`]
-#[derive(Clone, Debug)]
-pub struct GetRemoteLyricsParams {
-    /// The remote provider item id.
-    pub lyric_id: String
-}
-
-/// struct for passing parameters to the method [`search_remote_lyrics`]
-#[derive(Clone, Debug)]
-pub struct SearchRemoteLyricsParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`upload_lyrics`]
-#[derive(Clone, Debug)]
-pub struct UploadLyricsParams {
-    /// The item the lyric belongs to.
-    pub item_id: String,
-    /// Name of the file being uploaded.
-    pub file_name: String,
-    pub body: Option<std::path::PathBuf>
-}
-
 
 /// struct for typed errors of method [`delete_lyrics`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -132,9 +85,11 @@ pub enum UploadLyricsError {
 }
 
 
-pub async fn delete_lyrics(configuration: &configuration::Configuration, params: DeleteLyricsParams) -> Result<(), Error<DeleteLyricsError>> {
+pub async fn delete_lyrics(configuration: &configuration::Configuration, item_id: &str) -> Result<(), Error<DeleteLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -163,9 +118,12 @@ pub async fn delete_lyrics(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn download_remote_lyrics(configuration: &configuration::Configuration, params: DownloadRemoteLyricsParams) -> Result<models::LyricDto, Error<DownloadRemoteLyricsError>> {
+pub async fn download_remote_lyrics(configuration: &configuration::Configuration, item_id: &str, lyric_id: &str) -> Result<models::LyricDto, Error<DownloadRemoteLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_lyric_id = lyric_id;
 
-    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics/{lyricId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), lyricId=crate::apis::urlencode(params.lyric_id));
+    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics/{lyricId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), lyricId=crate::apis::urlencode(p_path_lyric_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -205,9 +163,11 @@ pub async fn download_remote_lyrics(configuration: &configuration::Configuration
     }
 }
 
-pub async fn get_lyrics(configuration: &configuration::Configuration, params: GetLyricsParams) -> Result<models::LyricDto, Error<GetLyricsError>> {
+pub async fn get_lyrics(configuration: &configuration::Configuration, item_id: &str) -> Result<models::LyricDto, Error<GetLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -247,9 +207,11 @@ pub async fn get_lyrics(configuration: &configuration::Configuration, params: Ge
     }
 }
 
-pub async fn get_remote_lyrics(configuration: &configuration::Configuration, params: GetRemoteLyricsParams) -> Result<models::LyricDto, Error<GetRemoteLyricsError>> {
+pub async fn get_remote_lyrics(configuration: &configuration::Configuration, lyric_id: &str) -> Result<models::LyricDto, Error<GetRemoteLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_lyric_id = lyric_id;
 
-    let uri_str = format!("{}/Providers/Lyrics/{lyricId}", configuration.base_path, lyricId=crate::apis::urlencode(params.lyric_id));
+    let uri_str = format!("{}/Providers/Lyrics/{lyricId}", configuration.base_path, lyricId=crate::apis::urlencode(p_path_lyric_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -289,9 +251,11 @@ pub async fn get_remote_lyrics(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn search_remote_lyrics(configuration: &configuration::Configuration, params: SearchRemoteLyricsParams) -> Result<Vec<models::RemoteLyricInfoDto>, Error<SearchRemoteLyricsError>> {
+pub async fn search_remote_lyrics(configuration: &configuration::Configuration, item_id: &str) -> Result<Vec<models::RemoteLyricInfoDto>, Error<SearchRemoteLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/RemoteSearch/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -331,12 +295,16 @@ pub async fn search_remote_lyrics(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn upload_lyrics(configuration: &configuration::Configuration, params: UploadLyricsParams) -> Result<models::LyricDto, Error<UploadLyricsError>> {
+pub async fn upload_lyrics(configuration: &configuration::Configuration, item_id: &str, file_name: &str, body: Option<std::path::PathBuf>) -> Result<models::LyricDto, Error<UploadLyricsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_file_name = file_name;
+    let p_body_body = body;
 
-    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Audio/{itemId}/Lyrics", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    req_builder = req_builder.query(&[("fileName", &params.file_name.to_string())]);
+    req_builder = req_builder.query(&[("fileName", &p_query_file_name.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -348,7 +316,7 @@ pub async fn upload_lyrics(configuration: &configuration::Configuration, params:
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    if let Some(param_value) = params.body {
+    if let Some(param_value) = p_body_body {
         let file = TokioFile::open(param_value).await?;
         let stream = FramedRead::new(file, BytesCodec::new());
         req_builder = req_builder.body(reqwest::Body::wrap_stream(stream));

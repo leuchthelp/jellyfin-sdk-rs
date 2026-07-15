@@ -14,560 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`delete_item`]
-#[derive(Clone, Debug)]
-pub struct DeleteItemParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`delete_items`]
-#[derive(Clone, Debug)]
-pub struct DeleteItemsParams {
-    /// The item ids.
-    pub ids: Option<Vec<uuid::Uuid>>
-}
-
-/// struct for passing parameters to the method [`get_ancestors`]
-#[derive(Clone, Debug)]
-pub struct GetAncestorsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_download`]
-#[derive(Clone, Debug)]
-pub struct GetDownloadParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`get_file`]
-#[derive(Clone, Debug)]
-pub struct GetFileParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`get_intros`]
-#[derive(Clone, Debug)]
-pub struct GetIntrosParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_item`]
-#[derive(Clone, Debug)]
-pub struct GetItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_item_collections`]
-#[derive(Clone, Debug)]
-pub struct GetItemCollectionsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The index of the first record in the output.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_item_counts`]
-#[derive(Clone, Debug)]
-pub struct GetItemCountsParams {
-    /// Optional. Get counts from a specific user's library.
-    pub user_id: Option<String>,
-    /// Optional. Get counts of favorite items.
-    pub is_favorite: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_items`]
-#[derive(Clone, Debug)]
-pub struct GetItemsParams {
-    /// The user id supplied as query parameter; this is required when not using an API key.
-    pub user_id: Option<String>,
-    /// Optional filter by maximum official rating (PG, PG-13, TV-MA, etc).
-    pub max_official_rating: Option<String>,
-    /// Optional filter by items with theme songs.
-    pub has_theme_song: Option<bool>,
-    /// Optional filter by items with theme videos.
-    pub has_theme_video: Option<bool>,
-    /// Optional filter by items with subtitles.
-    pub has_subtitles: Option<bool>,
-    /// Optional filter by items with special features.
-    pub has_special_feature: Option<bool>,
-    /// Optional filter by items with trailers.
-    pub has_trailer: Option<bool>,
-    /// Optional. Return items that are siblings of a supplied item.
-    pub adjacent_to: Option<String>,
-    /// Optional filter by index number.
-    pub index_number: Option<i32>,
-    /// Optional filter by parent index number.
-    pub parent_index_number: Option<i32>,
-    /// Optional filter by items that have or do not have a parental rating.
-    pub has_parental_rating: Option<bool>,
-    /// Optional filter by items that are HD or not.
-    pub is_hd: Option<bool>,
-    /// Optional filter by items that are 4K or not.
-    pub is4_k: Option<bool>,
-    /// Optional. If specified, results will be filtered based on LocationType. This allows multiple, comma delimited.
-    pub location_types: Option<Vec<models::LocationType>>,
-    /// Optional. If specified, results will be filtered based on the LocationType. This allows multiple, comma delimited.
-    pub exclude_location_types: Option<Vec<models::LocationType>>,
-    /// Optional filter by items that are missing episodes or not.
-    pub is_missing: Option<bool>,
-    /// Optional filter by items that are unaired episodes or not.
-    pub is_unaired: Option<bool>,
-    /// Optional filter by minimum community rating.
-    pub min_community_rating: Option<f64>,
-    /// Optional filter by minimum critic rating.
-    pub min_critic_rating: Option<f64>,
-    /// Optional. The minimum premiere date. Format = ISO.
-    pub min_premiere_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. The minimum last saved date. Format = ISO.
-    pub min_date_last_saved: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. The minimum last saved date for the current user. Format = ISO.
-    pub min_date_last_saved_for_user: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. The maximum premiere date. Format = ISO.
-    pub max_premiere_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional filter by items that have an overview or not.
-    pub has_overview: Option<bool>,
-    /// Optional filter by items that have an IMDb id or not.
-    pub has_imdb_id: Option<bool>,
-    /// Optional filter by items that have a TMDb id or not.
-    pub has_tmdb_id: Option<bool>,
-    /// Optional filter by items that have a TVDb id or not.
-    pub has_tvdb_id: Option<bool>,
-    /// Optional filter for live tv movies.
-    pub is_movie: Option<bool>,
-    /// Optional filter for live tv series.
-    pub is_series: Option<bool>,
-    /// Optional filter for live tv news.
-    pub is_news: Option<bool>,
-    /// Optional filter for live tv kids.
-    pub is_kids: Option<bool>,
-    /// Optional filter for live tv sports.
-    pub is_sports: Option<bool>,
-    /// Optional. If specified, results will be filtered by excluding item ids. This allows multiple, comma delimited.
-    pub exclude_item_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// When searching within folders, this determines whether or not the search will be recursive. true/false.
-    pub recursive: Option<bool>,
-    /// Optional. Filter based on a search term.
-    pub search_term: Option<String>,
-    /// Sort Order - Ascending, Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. If specified, results will be filtered based on the item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Specify additional filters to apply. This allows multiple, comma delimited. Options: IsFolder, IsNotFolder, IsUnplayed, IsPlayed, IsFavorite, IsResumable, Likes, Dislikes.
-    pub filters: Option<Vec<models::ItemFilter>>,
-    /// Optional filter by items that are marked as favorite, or not.
-    pub is_favorite: Option<bool>,
-    /// Optional filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// Optional. If specified, results will be filtered based on those containing image types. This allows multiple, comma delimited.
-    pub image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional filter by items that are played, or not.
-    pub is_played: Option<bool>,
-    /// Optional. If specified, results will be filtered based on genre. This allows multiple, pipe delimited.
-    pub genres: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on OfficialRating. This allows multiple, pipe delimited.
-    pub official_ratings: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on tag. This allows multiple, pipe delimited.
-    pub tags: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on production year. This allows multiple, comma delimited.
-    pub years: Option<Vec<i32>>,
-    /// Optional, include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional, the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person.
-    pub person: Option<String>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person id.
-    pub person_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, along with Person, results will be filtered to include only those containing the specified person and PersonType. Allows multiple, comma-delimited.
-    pub person_types: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on studio. This allows multiple, pipe delimited.
-    pub studios: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on artists. This allows multiple, pipe delimited.
-    pub artists: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on artist id. This allows multiple, pipe delimited.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified artist id.
-    pub artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified album artist id.
-    pub album_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified contributing artist id.
-    pub contributing_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered based on album. This allows multiple, pipe delimited.
-    pub albums: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on album id. This allows multiple, pipe delimited.
-    pub album_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specific items are needed, specify a list of item id's to retrieve. This allows multiple, comma delimited.
-    pub ids: Option<Vec<uuid::Uuid>>,
-    /// Optional filter by VideoType (videofile, dvd, bluray, iso). Allows multiple, comma delimited.
-    pub video_types: Option<Vec<models::VideoType>>,
-    /// Optional filter by minimum official rating (PG, PG-13, TV-MA, etc).
-    pub min_official_rating: Option<String>,
-    /// Optional filter by items that are locked.
-    pub is_locked: Option<bool>,
-    /// Optional filter by items that are placeholders.
-    pub is_place_holder: Option<bool>,
-    /// Optional filter by items that have official ratings.
-    pub has_official_rating: Option<bool>,
-    /// Whether or not to hide items behind their boxsets.
-    pub collapse_box_set_items: Option<bool>,
-    /// Optional. Filter by the minimum width of the item.
-    pub min_width: Option<i32>,
-    /// Optional. Filter by the minimum height of the item.
-    pub min_height: Option<i32>,
-    /// Optional. Filter by the maximum width of the item.
-    pub max_width: Option<i32>,
-    /// Optional. Filter by the maximum height of the item.
-    pub max_height: Option<i32>,
-    /// Optional filter by items that are 3D, or not.
-    pub is3_d: Option<bool>,
-    /// Optional filter by Series Status. Allows multiple, comma delimited.
-    pub series_status: Option<Vec<models::SeriesStatus>>,
-    /// Optional filter by items whose name is sorted equally or greater than a given input string.
-    pub name_starts_with_or_greater: Option<String>,
-    /// Optional filter by items whose name is sorted equally than a given input string.
-    pub name_starts_with: Option<String>,
-    /// Optional filter by items whose name is equally or lesser than a given input string.
-    pub name_less_than: Option<String>,
-    /// Optional. If specified, results will be filtered based on studio id. This allows multiple, pipe delimited.
-    pub studio_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered based on genre id. This allows multiple, pipe delimited.
-    pub genre_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered based on audio language. This allows multiple, comma delimited values.
-    pub audio_languages: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on subtitle language. This allows multiple, comma delimited values.
-    pub subtitle_languages: Option<Vec<String>>,
-    /// Optional. Enable the total record count.
-    pub enable_total_record_count: Option<bool>,
-    /// Optional, include image information in output.
-    pub enable_images: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_latest_media`]
-#[derive(Clone, Debug)]
-pub struct GetLatestMediaParams {
-    /// User id.
-    pub user_id: Option<String>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Filter by items that are played, or not.
-    pub is_played: Option<bool>,
-    /// Optional. include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. include user data.
-    pub enable_user_data: Option<bool>,
-    /// Return item limit.
-    pub limit: Option<i32>,
-    /// Whether or not to group items into a parent container.
-    pub group_items: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_library_options_info`]
-#[derive(Clone, Debug)]
-pub struct GetLibraryOptionsInfoParams {
-    /// Library content type.
-    pub library_content_type: Option<String>,
-    /// Whether this is a new library.
-    pub is_new_library: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_local_trailers`]
-#[derive(Clone, Debug)]
-pub struct GetLocalTrailersParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_media_folders`]
-#[derive(Clone, Debug)]
-pub struct GetMediaFoldersParams {
-    /// Optional. Filter by folders that are marked hidden, or not.
-    pub is_hidden: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_resume_items`]
-#[derive(Clone, Debug)]
-pub struct GetResumeItemsParams {
-    /// The user id.
-    pub user_id: Option<String>,
-    /// The start index.
-    pub start_index: Option<i32>,
-    /// The item limit.
-    pub limit: Option<i32>,
-    /// The search term.
-    pub search_term: Option<String>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. If specified, results will be filtered based on the item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Enable the total record count.
-    pub enable_total_record_count: Option<bool>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Whether to exclude the currently active sessions.
-    pub exclude_active_sessions: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_root_folder`]
-#[derive(Clone, Debug)]
-pub struct GetRootFolderParams {
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_similar_albums`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarAlbumsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_similar_artists`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarArtistsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_similar_items`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarItemsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_similar_movies`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarMoviesParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_similar_shows`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarShowsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_similar_trailers`]
-#[derive(Clone, Debug)]
-pub struct GetSimilarTrailersParams {
-    /// The item id.
-    pub item_id: String,
-    /// Exclude artist ids.
-    pub exclude_artist_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output. This allows multiple, comma delimited. Options: Budget, Chapters, DateCreated, Genres, HomePageUrl, IndexOptions, MediaStreams, Overview, ParentId, Path, People, ProviderIds, PrimaryImageAspectRatio, Revenue, SortName, Studios, Taglines, TrailerUrls.
-    pub fields: Option<Vec<models::ItemFields>>
-}
-
-/// struct for passing parameters to the method [`get_special_features`]
-#[derive(Clone, Debug)]
-pub struct GetSpecialFeaturesParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_theme_media`]
-#[derive(Clone, Debug)]
-pub struct GetThemeMediaParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. Determines whether or not parent items should be searched for theme media.
-    pub inherit_from_parent: Option<bool>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional. Sort Order - Ascending, Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>
-}
-
-/// struct for passing parameters to the method [`get_theme_songs`]
-#[derive(Clone, Debug)]
-pub struct GetThemeSongsParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. Determines whether or not parent items should be searched for theme media.
-    pub inherit_from_parent: Option<bool>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional. Sort Order - Ascending, Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>
-}
-
-/// struct for passing parameters to the method [`get_theme_videos`]
-#[derive(Clone, Debug)]
-pub struct GetThemeVideosParams {
-    /// The item id.
-    pub item_id: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. Determines whether or not parent items should be searched for theme media.
-    pub inherit_from_parent: Option<bool>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Album, AlbumArtist, Artist, Budget, CommunityRating, CriticRating, DateCreated, DatePlayed, PlayCount, PremiereDate, ProductionYear, SortName, Random, Revenue, Runtime.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional. Sort Order - Ascending, Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>
-}
-
-/// struct for passing parameters to the method [`post_added_movies`]
-#[derive(Clone, Debug)]
-pub struct PostAddedMoviesParams {
-    /// The tmdbId.
-    pub tmdb_id: Option<String>,
-    /// The imdbId.
-    pub imdb_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`post_added_series`]
-#[derive(Clone, Debug)]
-pub struct PostAddedSeriesParams {
-    /// The tvdbId.
-    pub tvdb_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`post_updated_media`]
-#[derive(Clone, Debug)]
-pub struct PostUpdatedMediaParams {
-    /// The update paths.
-    pub media_update_info_dto: models::MediaUpdateInfoDto
-}
-
-/// struct for passing parameters to the method [`post_updated_movies`]
-#[derive(Clone, Debug)]
-pub struct PostUpdatedMoviesParams {
-    /// The tmdbId.
-    pub tmdb_id: Option<String>,
-    /// The imdbId.
-    pub imdb_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`post_updated_series`]
-#[derive(Clone, Debug)]
-pub struct PostUpdatedSeriesParams {
-    /// The tvdbId.
-    pub tvdb_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`refresh_item`]
-#[derive(Clone, Debug)]
-pub struct RefreshItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// (Optional) Specifies the metadata refresh mode.
-    pub metadata_refresh_mode: Option<String>,
-    /// (Optional) Specifies the image refresh mode.
-    pub image_refresh_mode: Option<String>,
-    /// (Optional) Determines if metadata should be replaced. Only applicable if mode is FullRefresh.
-    pub replace_all_metadata: Option<bool>,
-    /// (Optional) Determines if images should be replaced. Only applicable if mode is FullRefresh.
-    pub replace_all_images: Option<bool>,
-    /// (Optional) Determines if trickplay images should be replaced. Only applicable if mode is FullRefresh.
-    pub regenerate_trickplay: Option<bool>
-}
-
 
 /// struct for typed errors of method [`delete_item`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -920,9 +366,11 @@ pub enum RefreshLibraryError {
 }
 
 
-pub async fn delete_item(configuration: &configuration::Configuration, params: DeleteItemParams) -> Result<(), Error<DeleteItemError>> {
+pub async fn delete_item(configuration: &configuration::Configuration, item_id: &str) -> Result<(), Error<DeleteItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -951,12 +399,14 @@ pub async fn delete_item(configuration: &configuration::Configuration, params: D
     }
 }
 
-pub async fn delete_items(configuration: &configuration::Configuration, params: DeleteItemsParams) -> Result<(), Error<DeleteItemsError>> {
+pub async fn delete_items(configuration: &configuration::Configuration, ids: Option<Vec<uuid::Uuid>>) -> Result<(), Error<DeleteItemsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_ids = ids;
 
     let uri_str = format!("{}/Items", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.ids {
+    if let Some(ref param_value) = p_query_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -988,12 +438,15 @@ pub async fn delete_items(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_ancestors(configuration: &configuration::Configuration, params: GetAncestorsParams) -> Result<Vec<models::BaseItemDto>, Error<GetAncestorsError>> {
+pub async fn get_ancestors(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<Vec<models::BaseItemDto>, Error<GetAncestorsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}/Ancestors", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Ancestors", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1033,9 +486,11 @@ pub async fn get_ancestors(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn get_download(configuration: &configuration::Configuration, params: GetDownloadParams) -> Result<reqwest::Response, Error<GetDownloadError>> {
+pub async fn get_download(configuration: &configuration::Configuration, item_id: &str) -> Result<reqwest::Response, Error<GetDownloadError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}/Download", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Download", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1064,9 +519,11 @@ pub async fn get_download(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_file(configuration: &configuration::Configuration, params: GetFileParams) -> Result<reqwest::Response, Error<GetFileError>> {
+pub async fn get_file(configuration: &configuration::Configuration, item_id: &str) -> Result<reqwest::Response, Error<GetFileError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}/File", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/File", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1095,12 +552,15 @@ pub async fn get_file(configuration: &configuration::Configuration, params: GetF
     }
 }
 
-pub async fn get_intros(configuration: &configuration::Configuration, params: GetIntrosParams) -> Result<models::BaseItemDtoQueryResult, Error<GetIntrosError>> {
+pub async fn get_intros(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::BaseItemDtoQueryResult, Error<GetIntrosError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}/Intros", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Intros", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1140,12 +600,15 @@ pub async fn get_intros(configuration: &configuration::Configuration, params: Ge
     }
 }
 
-pub async fn get_item(configuration: &configuration::Configuration, params: GetItemParams) -> Result<models::BaseItemDto, Error<GetItemError>> {
+pub async fn get_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1185,21 +648,27 @@ pub async fn get_item(configuration: &configuration::Configuration, params: GetI
     }
 }
 
-pub async fn get_item_collections(configuration: &configuration::Configuration, params: GetItemCollectionsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetItemCollectionsError>> {
+pub async fn get_item_collections(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetItemCollectionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Items/{itemId}/Collections", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Collections", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -1242,15 +711,18 @@ pub async fn get_item_collections(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_item_counts(configuration: &configuration::Configuration, params: GetItemCountsParams) -> Result<models::ItemCounts, Error<GetItemCountsError>> {
+pub async fn get_item_counts(configuration: &configuration::Configuration, user_id: Option<&str>, is_favorite: Option<bool>) -> Result<models::ItemCounts, Error<GetItemCountsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_is_favorite = is_favorite;
 
     let uri_str = format!("{}/Items/Counts", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1290,372 +762,461 @@ pub async fn get_item_counts(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_items(configuration: &configuration::Configuration, params: GetItemsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetItemsError>> {
+pub async fn get_items(configuration: &configuration::Configuration, user_id: Option<&str>, max_official_rating: Option<&str>, has_theme_song: Option<bool>, has_theme_video: Option<bool>, has_subtitles: Option<bool>, has_special_feature: Option<bool>, has_trailer: Option<bool>, adjacent_to: Option<&str>, index_number: Option<i32>, parent_index_number: Option<i32>, has_parental_rating: Option<bool>, is_hd: Option<bool>, is4_k: Option<bool>, location_types: Option<Vec<models::LocationType>>, exclude_location_types: Option<Vec<models::LocationType>>, is_missing: Option<bool>, is_unaired: Option<bool>, min_community_rating: Option<f64>, min_critic_rating: Option<f64>, min_premiere_date: Option<chrono::DateTime<chrono::FixedOffset>>, min_date_last_saved: Option<chrono::DateTime<chrono::FixedOffset>>, min_date_last_saved_for_user: Option<chrono::DateTime<chrono::FixedOffset>>, max_premiere_date: Option<chrono::DateTime<chrono::FixedOffset>>, has_overview: Option<bool>, has_imdb_id: Option<bool>, has_tmdb_id: Option<bool>, has_tvdb_id: Option<bool>, is_movie: Option<bool>, is_series: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, exclude_item_ids: Option<Vec<uuid::Uuid>>, start_index: Option<i32>, limit: Option<i32>, recursive: Option<bool>, search_term: Option<&str>, sort_order: Option<Vec<models::SortOrder>>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, filters: Option<Vec<models::ItemFilter>>, is_favorite: Option<bool>, media_types: Option<Vec<models::MediaType>>, image_types: Option<Vec<models::ImageType>>, sort_by: Option<Vec<models::ItemSortBy>>, is_played: Option<bool>, genres: Option<Vec<String>>, official_ratings: Option<Vec<String>>, tags: Option<Vec<String>>, years: Option<Vec<i32>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, person: Option<&str>, person_ids: Option<Vec<uuid::Uuid>>, person_types: Option<Vec<String>>, studios: Option<Vec<String>>, artists: Option<Vec<String>>, exclude_artist_ids: Option<Vec<uuid::Uuid>>, artist_ids: Option<Vec<uuid::Uuid>>, album_artist_ids: Option<Vec<uuid::Uuid>>, contributing_artist_ids: Option<Vec<uuid::Uuid>>, albums: Option<Vec<String>>, album_ids: Option<Vec<uuid::Uuid>>, ids: Option<Vec<uuid::Uuid>>, video_types: Option<Vec<models::VideoType>>, min_official_rating: Option<&str>, is_locked: Option<bool>, is_place_holder: Option<bool>, has_official_rating: Option<bool>, collapse_box_set_items: Option<bool>, min_width: Option<i32>, min_height: Option<i32>, max_width: Option<i32>, max_height: Option<i32>, is3_d: Option<bool>, series_status: Option<Vec<models::SeriesStatus>>, name_starts_with_or_greater: Option<&str>, name_starts_with: Option<&str>, name_less_than: Option<&str>, studio_ids: Option<Vec<uuid::Uuid>>, genre_ids: Option<Vec<uuid::Uuid>>, audio_languages: Option<Vec<String>>, subtitle_languages: Option<Vec<String>>, enable_total_record_count: Option<bool>, enable_images: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetItemsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_max_official_rating = max_official_rating;
+    let p_query_has_theme_song = has_theme_song;
+    let p_query_has_theme_video = has_theme_video;
+    let p_query_has_subtitles = has_subtitles;
+    let p_query_has_special_feature = has_special_feature;
+    let p_query_has_trailer = has_trailer;
+    let p_query_adjacent_to = adjacent_to;
+    let p_query_index_number = index_number;
+    let p_query_parent_index_number = parent_index_number;
+    let p_query_has_parental_rating = has_parental_rating;
+    let p_query_is_hd = is_hd;
+    let p_query_is4_k = is4_k;
+    let p_query_location_types = location_types;
+    let p_query_exclude_location_types = exclude_location_types;
+    let p_query_is_missing = is_missing;
+    let p_query_is_unaired = is_unaired;
+    let p_query_min_community_rating = min_community_rating;
+    let p_query_min_critic_rating = min_critic_rating;
+    let p_query_min_premiere_date = min_premiere_date;
+    let p_query_min_date_last_saved = min_date_last_saved;
+    let p_query_min_date_last_saved_for_user = min_date_last_saved_for_user;
+    let p_query_max_premiere_date = max_premiere_date;
+    let p_query_has_overview = has_overview;
+    let p_query_has_imdb_id = has_imdb_id;
+    let p_query_has_tmdb_id = has_tmdb_id;
+    let p_query_has_tvdb_id = has_tvdb_id;
+    let p_query_is_movie = is_movie;
+    let p_query_is_series = is_series;
+    let p_query_is_news = is_news;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_exclude_item_ids = exclude_item_ids;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_recursive = recursive;
+    let p_query_search_term = search_term;
+    let p_query_sort_order = sort_order;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_include_item_types = include_item_types;
+    let p_query_filters = filters;
+    let p_query_is_favorite = is_favorite;
+    let p_query_media_types = media_types;
+    let p_query_image_types = image_types;
+    let p_query_sort_by = sort_by;
+    let p_query_is_played = is_played;
+    let p_query_genres = genres;
+    let p_query_official_ratings = official_ratings;
+    let p_query_tags = tags;
+    let p_query_years = years;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_person = person;
+    let p_query_person_ids = person_ids;
+    let p_query_person_types = person_types;
+    let p_query_studios = studios;
+    let p_query_artists = artists;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_artist_ids = artist_ids;
+    let p_query_album_artist_ids = album_artist_ids;
+    let p_query_contributing_artist_ids = contributing_artist_ids;
+    let p_query_albums = albums;
+    let p_query_album_ids = album_ids;
+    let p_query_ids = ids;
+    let p_query_video_types = video_types;
+    let p_query_min_official_rating = min_official_rating;
+    let p_query_is_locked = is_locked;
+    let p_query_is_place_holder = is_place_holder;
+    let p_query_has_official_rating = has_official_rating;
+    let p_query_collapse_box_set_items = collapse_box_set_items;
+    let p_query_min_width = min_width;
+    let p_query_min_height = min_height;
+    let p_query_max_width = max_width;
+    let p_query_max_height = max_height;
+    let p_query_is3_d = is3_d;
+    let p_query_series_status = series_status;
+    let p_query_name_starts_with_or_greater = name_starts_with_or_greater;
+    let p_query_name_starts_with = name_starts_with;
+    let p_query_name_less_than = name_less_than;
+    let p_query_studio_ids = studio_ids;
+    let p_query_genre_ids = genre_ids;
+    let p_query_audio_languages = audio_languages;
+    let p_query_subtitle_languages = subtitle_languages;
+    let p_query_enable_total_record_count = enable_total_record_count;
+    let p_query_enable_images = enable_images;
 
     let uri_str = format!("{}/Items", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_official_rating {
+    if let Some(ref param_value) = p_query_max_official_rating {
         req_builder = req_builder.query(&[("maxOfficialRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_theme_song {
+    if let Some(ref param_value) = p_query_has_theme_song {
         req_builder = req_builder.query(&[("hasThemeSong", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_theme_video {
+    if let Some(ref param_value) = p_query_has_theme_video {
         req_builder = req_builder.query(&[("hasThemeVideo", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_subtitles {
+    if let Some(ref param_value) = p_query_has_subtitles {
         req_builder = req_builder.query(&[("hasSubtitles", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_special_feature {
+    if let Some(ref param_value) = p_query_has_special_feature {
         req_builder = req_builder.query(&[("hasSpecialFeature", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_trailer {
+    if let Some(ref param_value) = p_query_has_trailer {
         req_builder = req_builder.query(&[("hasTrailer", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.adjacent_to {
+    if let Some(ref param_value) = p_query_adjacent_to {
         req_builder = req_builder.query(&[("adjacentTo", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.index_number {
+    if let Some(ref param_value) = p_query_index_number {
         req_builder = req_builder.query(&[("indexNumber", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_index_number {
+    if let Some(ref param_value) = p_query_parent_index_number {
         req_builder = req_builder.query(&[("parentIndexNumber", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_parental_rating {
+    if let Some(ref param_value) = p_query_has_parental_rating {
         req_builder = req_builder.query(&[("hasParentalRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_hd {
+    if let Some(ref param_value) = p_query_is_hd {
         req_builder = req_builder.query(&[("isHd", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is4_k {
+    if let Some(ref param_value) = p_query_is4_k {
         req_builder = req_builder.query(&[("is4K", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.location_types {
+    if let Some(ref param_value) = p_query_location_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("locationTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("locationTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_location_types {
+    if let Some(ref param_value) = p_query_exclude_location_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeLocationTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeLocationTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_missing {
+    if let Some(ref param_value) = p_query_is_missing {
         req_builder = req_builder.query(&[("isMissing", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_unaired {
+    if let Some(ref param_value) = p_query_is_unaired {
         req_builder = req_builder.query(&[("isUnaired", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_community_rating {
+    if let Some(ref param_value) = p_query_min_community_rating {
         req_builder = req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_critic_rating {
+    if let Some(ref param_value) = p_query_min_critic_rating {
         req_builder = req_builder.query(&[("minCriticRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_premiere_date {
+    if let Some(ref param_value) = p_query_min_premiere_date {
         req_builder = req_builder.query(&[("minPremiereDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_date_last_saved {
+    if let Some(ref param_value) = p_query_min_date_last_saved {
         req_builder = req_builder.query(&[("minDateLastSaved", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_date_last_saved_for_user {
+    if let Some(ref param_value) = p_query_min_date_last_saved_for_user {
         req_builder = req_builder.query(&[("minDateLastSavedForUser", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_premiere_date {
+    if let Some(ref param_value) = p_query_max_premiere_date {
         req_builder = req_builder.query(&[("maxPremiereDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_overview {
+    if let Some(ref param_value) = p_query_has_overview {
         req_builder = req_builder.query(&[("hasOverview", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_imdb_id {
+    if let Some(ref param_value) = p_query_has_imdb_id {
         req_builder = req_builder.query(&[("hasImdbId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_tmdb_id {
+    if let Some(ref param_value) = p_query_has_tmdb_id {
         req_builder = req_builder.query(&[("hasTmdbId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_tvdb_id {
+    if let Some(ref param_value) = p_query_has_tvdb_id {
         req_builder = req_builder.query(&[("hasTvdbId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.exclude_item_ids {
+    if let Some(ref param_value) = p_query_exclude_item_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.recursive {
+    if let Some(ref param_value) = p_query_recursive {
         req_builder = req_builder.query(&[("recursive", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.search_term {
+    if let Some(ref param_value) = p_query_search_term {
         req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.filters {
+    if let Some(ref param_value) = p_query_filters {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.image_types {
+    if let Some(ref param_value) = p_query_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("imageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("imageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_played {
+    if let Some(ref param_value) = p_query_is_played {
         req_builder = req_builder.query(&[("isPlayed", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.genres {
+    if let Some(ref param_value) = p_query_genres {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.official_ratings {
+    if let Some(ref param_value) = p_query_official_ratings {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.tags {
+    if let Some(ref param_value) = p_query_tags {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.years {
+    if let Some(ref param_value) = p_query_years {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person {
+    if let Some(ref param_value) = p_query_person {
         req_builder = req_builder.query(&[("person", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.person_ids {
+    if let Some(ref param_value) = p_query_person_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person_types {
+    if let Some(ref param_value) = p_query_person_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.studios {
+    if let Some(ref param_value) = p_query_studios {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.artists {
+    if let Some(ref param_value) = p_query_artists {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("artists".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("artists", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.artist_ids {
+    if let Some(ref param_value) = p_query_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("artistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("artistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.album_artist_ids {
+    if let Some(ref param_value) = p_query_album_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("albumArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("albumArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.contributing_artist_ids {
+    if let Some(ref param_value) = p_query_contributing_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("contributingArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("contributingArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.albums {
+    if let Some(ref param_value) = p_query_albums {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("albums".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("albums", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.album_ids {
+    if let Some(ref param_value) = p_query_album_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("albumIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("albumIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.ids {
+    if let Some(ref param_value) = p_query_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.video_types {
+    if let Some(ref param_value) = p_query_video_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("videoTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("videoTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.min_official_rating {
+    if let Some(ref param_value) = p_query_min_official_rating {
         req_builder = req_builder.query(&[("minOfficialRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_locked {
+    if let Some(ref param_value) = p_query_is_locked {
         req_builder = req_builder.query(&[("isLocked", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_place_holder {
+    if let Some(ref param_value) = p_query_is_place_holder {
         req_builder = req_builder.query(&[("isPlaceHolder", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_official_rating {
+    if let Some(ref param_value) = p_query_has_official_rating {
         req_builder = req_builder.query(&[("hasOfficialRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.collapse_box_set_items {
+    if let Some(ref param_value) = p_query_collapse_box_set_items {
         req_builder = req_builder.query(&[("collapseBoxSetItems", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_width {
+    if let Some(ref param_value) = p_query_min_width {
         req_builder = req_builder.query(&[("minWidth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_height {
+    if let Some(ref param_value) = p_query_min_height {
         req_builder = req_builder.query(&[("minHeight", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_width {
+    if let Some(ref param_value) = p_query_max_width {
         req_builder = req_builder.query(&[("maxWidth", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_height {
+    if let Some(ref param_value) = p_query_max_height {
         req_builder = req_builder.query(&[("maxHeight", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is3_d {
+    if let Some(ref param_value) = p_query_is3_d {
         req_builder = req_builder.query(&[("is3D", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.series_status {
+    if let Some(ref param_value) = p_query_series_status {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("seriesStatus".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("seriesStatus", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.name_starts_with_or_greater {
+    if let Some(ref param_value) = p_query_name_starts_with_or_greater {
         req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with {
+    if let Some(ref param_value) = p_query_name_starts_with {
         req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_less_than {
+    if let Some(ref param_value) = p_query_name_less_than {
         req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.studio_ids {
+    if let Some(ref param_value) = p_query_studio_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genre_ids {
+    if let Some(ref param_value) = p_query_genre_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.audio_languages {
+    if let Some(ref param_value) = p_query_audio_languages {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("audioLanguages".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("audioLanguages", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.subtitle_languages {
+    if let Some(ref param_value) = p_query_subtitle_languages {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("subtitleLanguages".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("subtitleLanguages", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1695,51 +1256,63 @@ pub async fn get_items(configuration: &configuration::Configuration, params: Get
     }
 }
 
-pub async fn get_latest_media(configuration: &configuration::Configuration, params: GetLatestMediaParams) -> Result<Vec<models::BaseItemDto>, Error<GetLatestMediaError>> {
+pub async fn get_latest_media(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, include_item_types: Option<Vec<models::BaseItemKind>>, is_played: Option<bool>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, limit: Option<i32>, group_items: Option<bool>) -> Result<Vec<models::BaseItemDto>, Error<GetLatestMediaError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_include_item_types = include_item_types;
+    let p_query_is_played = is_played;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_limit = limit;
+    let p_query_group_items = group_items;
 
     let uri_str = format!("{}/Items/Latest", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_played {
+    if let Some(ref param_value) = p_query_is_played {
         req_builder = req_builder.query(&[("isPlayed", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.group_items {
+    if let Some(ref param_value) = p_query_group_items {
         req_builder = req_builder.query(&[("groupItems", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1779,15 +1352,18 @@ pub async fn get_latest_media(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_library_options_info(configuration: &configuration::Configuration, params: GetLibraryOptionsInfoParams) -> Result<models::LibraryOptionsResultDto, Error<GetLibraryOptionsInfoError>> {
+pub async fn get_library_options_info(configuration: &configuration::Configuration, library_content_type: Option<&str>, is_new_library: Option<bool>) -> Result<models::LibraryOptionsResultDto, Error<GetLibraryOptionsInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_library_content_type = library_content_type;
+    let p_query_is_new_library = is_new_library;
 
     let uri_str = format!("{}/Libraries/AvailableOptions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.library_content_type {
+    if let Some(ref param_value) = p_query_library_content_type {
         req_builder = req_builder.query(&[("libraryContentType", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_new_library {
+    if let Some(ref param_value) = p_query_is_new_library {
         req_builder = req_builder.query(&[("isNewLibrary", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1827,12 +1403,15 @@ pub async fn get_library_options_info(configuration: &configuration::Configurati
     }
 }
 
-pub async fn get_local_trailers(configuration: &configuration::Configuration, params: GetLocalTrailersParams) -> Result<Vec<models::BaseItemDto>, Error<GetLocalTrailersError>> {
+pub async fn get_local_trailers(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<Vec<models::BaseItemDto>, Error<GetLocalTrailersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}/LocalTrailers", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/LocalTrailers", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1872,12 +1451,14 @@ pub async fn get_local_trailers(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_media_folders(configuration: &configuration::Configuration, params: GetMediaFoldersParams) -> Result<models::BaseItemDtoQueryResult, Error<GetMediaFoldersError>> {
+pub async fn get_media_folders(configuration: &configuration::Configuration, is_hidden: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetMediaFoldersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_is_hidden = is_hidden;
 
     let uri_str = format!("{}/Library/MediaFolders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.is_hidden {
+    if let Some(ref param_value) = p_query_is_hidden {
         req_builder = req_builder.query(&[("isHidden", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1917,7 +1498,7 @@ pub async fn get_media_folders(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_physical_paths(configuration: &configuration::Configuration) -> Result<Vec<String>, Error<GetPhysicalPathsError>> {
+pub async fn get_physical_paths(configuration: &configuration::Configuration, ) -> Result<Vec<String>, Error<GetPhysicalPathsError>> {
 
     let uri_str = format!("{}/Library/PhysicalPaths", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -1959,69 +1540,85 @@ pub async fn get_physical_paths(configuration: &configuration::Configuration) ->
     }
 }
 
-pub async fn get_resume_items(configuration: &configuration::Configuration, params: GetResumeItemsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetResumeItemsError>> {
+pub async fn get_resume_items(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, search_term: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, media_types: Option<Vec<models::MediaType>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, enable_total_record_count: Option<bool>, enable_images: Option<bool>, exclude_active_sessions: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetResumeItemsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_search_term = search_term;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_media_types = media_types;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_include_item_types = include_item_types;
+    let p_query_enable_total_record_count = enable_total_record_count;
+    let p_query_enable_images = enable_images;
+    let p_query_exclude_active_sessions = exclude_active_sessions;
 
     let uri_str = format!("{}/UserItems/Resume", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.search_term {
+    if let Some(ref param_value) = p_query_search_term {
         req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.exclude_active_sessions {
+    if let Some(ref param_value) = p_query_exclude_active_sessions {
         req_builder = req_builder.query(&[("excludeActiveSessions", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2061,12 +1658,14 @@ pub async fn get_resume_items(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_root_folder(configuration: &configuration::Configuration, params: GetRootFolderParams) -> Result<models::BaseItemDto, Error<GetRootFolderError>> {
+pub async fn get_root_folder(configuration: &configuration::Configuration, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetRootFolderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/Items/Root", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2106,24 +1705,30 @@ pub async fn get_root_folder(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_similar_albums(configuration: &configuration::Configuration, params: GetSimilarAlbumsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarAlbumsError>> {
+pub async fn get_similar_albums(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarAlbumsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Albums/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Albums/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2166,24 +1771,30 @@ pub async fn get_similar_albums(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_similar_artists(configuration: &configuration::Configuration, params: GetSimilarArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarArtistsError>> {
+pub async fn get_similar_artists(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarArtistsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Artists/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Artists/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2226,24 +1837,30 @@ pub async fn get_similar_artists(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn get_similar_items(configuration: &configuration::Configuration, params: GetSimilarItemsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarItemsError>> {
+pub async fn get_similar_items(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarItemsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Items/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2286,24 +1903,30 @@ pub async fn get_similar_items(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_similar_movies(configuration: &configuration::Configuration, params: GetSimilarMoviesParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarMoviesError>> {
+pub async fn get_similar_movies(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarMoviesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Movies/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Movies/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2346,24 +1969,30 @@ pub async fn get_similar_movies(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_similar_shows(configuration: &configuration::Configuration, params: GetSimilarShowsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarShowsError>> {
+pub async fn get_similar_shows(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarShowsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Shows/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Shows/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2406,24 +2035,30 @@ pub async fn get_similar_shows(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_similar_trailers(configuration: &configuration::Configuration, params: GetSimilarTrailersParams) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarTrailersError>> {
+pub async fn get_similar_trailers(configuration: &configuration::Configuration, item_id: &str, exclude_artist_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>) -> Result<models::BaseItemDtoQueryResult, Error<GetSimilarTrailersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_exclude_artist_ids = exclude_artist_ids;
+    let p_query_user_id = user_id;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
 
-    let uri_str = format!("{}/Trailers/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Trailers/{itemId}/Similar", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.exclude_artist_ids {
+    if let Some(ref param_value) = p_query_exclude_artist_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeArtistIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeArtistIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2466,12 +2101,15 @@ pub async fn get_similar_trailers(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_special_features(configuration: &configuration::Configuration, params: GetSpecialFeaturesParams) -> Result<Vec<models::BaseItemDto>, Error<GetSpecialFeaturesError>> {
+pub async fn get_special_features(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<Vec<models::BaseItemDto>, Error<GetSpecialFeaturesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Items/{itemId}/SpecialFeatures", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/SpecialFeatures", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2511,24 +2149,30 @@ pub async fn get_special_features(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_theme_media(configuration: &configuration::Configuration, params: GetThemeMediaParams) -> Result<models::AllThemeMediaResult, Error<GetThemeMediaError>> {
+pub async fn get_theme_media(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, inherit_from_parent: Option<bool>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>) -> Result<models::AllThemeMediaResult, Error<GetThemeMediaError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_inherit_from_parent = inherit_from_parent;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
 
-    let uri_str = format!("{}/Items/{itemId}/ThemeMedia", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/ThemeMedia", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.inherit_from_parent {
+    if let Some(ref param_value) = p_query_inherit_from_parent {
         req_builder = req_builder.query(&[("inheritFromParent", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2571,24 +2215,30 @@ pub async fn get_theme_media(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_theme_songs(configuration: &configuration::Configuration, params: GetThemeSongsParams) -> Result<models::ThemeMediaResult, Error<GetThemeSongsError>> {
+pub async fn get_theme_songs(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, inherit_from_parent: Option<bool>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>) -> Result<models::ThemeMediaResult, Error<GetThemeSongsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_inherit_from_parent = inherit_from_parent;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
 
-    let uri_str = format!("{}/Items/{itemId}/ThemeSongs", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/ThemeSongs", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.inherit_from_parent {
+    if let Some(ref param_value) = p_query_inherit_from_parent {
         req_builder = req_builder.query(&[("inheritFromParent", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2631,24 +2281,30 @@ pub async fn get_theme_songs(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_theme_videos(configuration: &configuration::Configuration, params: GetThemeVideosParams) -> Result<models::ThemeMediaResult, Error<GetThemeVideosError>> {
+pub async fn get_theme_videos(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, inherit_from_parent: Option<bool>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>) -> Result<models::ThemeMediaResult, Error<GetThemeVideosError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_inherit_from_parent = inherit_from_parent;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
 
-    let uri_str = format!("{}/Items/{itemId}/ThemeVideos", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/ThemeVideos", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.inherit_from_parent {
+    if let Some(ref param_value) = p_query_inherit_from_parent {
         req_builder = req_builder.query(&[("inheritFromParent", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -2691,15 +2347,18 @@ pub async fn get_theme_videos(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn post_added_movies(configuration: &configuration::Configuration, params: PostAddedMoviesParams) -> Result<(), Error<PostAddedMoviesError>> {
+pub async fn post_added_movies(configuration: &configuration::Configuration, tmdb_id: Option<&str>, imdb_id: Option<&str>) -> Result<(), Error<PostAddedMoviesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_tmdb_id = tmdb_id;
+    let p_query_imdb_id = imdb_id;
 
     let uri_str = format!("{}/Library/Movies/Added", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.tmdb_id {
+    if let Some(ref param_value) = p_query_tmdb_id {
         req_builder = req_builder.query(&[("tmdbId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.imdb_id {
+    if let Some(ref param_value) = p_query_imdb_id {
         req_builder = req_builder.query(&[("imdbId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2728,12 +2387,14 @@ pub async fn post_added_movies(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn post_added_series(configuration: &configuration::Configuration, params: PostAddedSeriesParams) -> Result<(), Error<PostAddedSeriesError>> {
+pub async fn post_added_series(configuration: &configuration::Configuration, tvdb_id: Option<&str>) -> Result<(), Error<PostAddedSeriesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_tvdb_id = tvdb_id;
 
     let uri_str = format!("{}/Library/Series/Added", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.tvdb_id {
+    if let Some(ref param_value) = p_query_tvdb_id {
         req_builder = req_builder.query(&[("tvdbId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2762,7 +2423,9 @@ pub async fn post_added_series(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn post_updated_media(configuration: &configuration::Configuration, params: PostUpdatedMediaParams) -> Result<(), Error<PostUpdatedMediaError>> {
+pub async fn post_updated_media(configuration: &configuration::Configuration, media_update_info_dto: models::MediaUpdateInfoDto) -> Result<(), Error<PostUpdatedMediaError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_media_update_info_dto = media_update_info_dto;
 
     let uri_str = format!("{}/Library/Media/Updated", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -2778,7 +2441,7 @@ pub async fn post_updated_media(configuration: &configuration::Configuration, pa
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.media_update_info_dto);
+    req_builder = req_builder.json(&p_body_media_update_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -2794,15 +2457,18 @@ pub async fn post_updated_media(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn post_updated_movies(configuration: &configuration::Configuration, params: PostUpdatedMoviesParams) -> Result<(), Error<PostUpdatedMoviesError>> {
+pub async fn post_updated_movies(configuration: &configuration::Configuration, tmdb_id: Option<&str>, imdb_id: Option<&str>) -> Result<(), Error<PostUpdatedMoviesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_tmdb_id = tmdb_id;
+    let p_query_imdb_id = imdb_id;
 
     let uri_str = format!("{}/Library/Movies/Updated", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.tmdb_id {
+    if let Some(ref param_value) = p_query_tmdb_id {
         req_builder = req_builder.query(&[("tmdbId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.imdb_id {
+    if let Some(ref param_value) = p_query_imdb_id {
         req_builder = req_builder.query(&[("imdbId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2831,12 +2497,14 @@ pub async fn post_updated_movies(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn post_updated_series(configuration: &configuration::Configuration, params: PostUpdatedSeriesParams) -> Result<(), Error<PostUpdatedSeriesError>> {
+pub async fn post_updated_series(configuration: &configuration::Configuration, tvdb_id: Option<&str>) -> Result<(), Error<PostUpdatedSeriesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_tvdb_id = tvdb_id;
 
     let uri_str = format!("{}/Library/Series/Updated", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.tvdb_id {
+    if let Some(ref param_value) = p_query_tvdb_id {
         req_builder = req_builder.query(&[("tvdbId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2865,24 +2533,31 @@ pub async fn post_updated_series(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn refresh_item(configuration: &configuration::Configuration, params: RefreshItemParams) -> Result<(), Error<RefreshItemError>> {
+pub async fn refresh_item(configuration: &configuration::Configuration, item_id: &str, metadata_refresh_mode: Option<&str>, image_refresh_mode: Option<&str>, replace_all_metadata: Option<bool>, replace_all_images: Option<bool>, regenerate_trickplay: Option<bool>) -> Result<(), Error<RefreshItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_metadata_refresh_mode = metadata_refresh_mode;
+    let p_query_image_refresh_mode = image_refresh_mode;
+    let p_query_replace_all_metadata = replace_all_metadata;
+    let p_query_replace_all_images = replace_all_images;
+    let p_query_regenerate_trickplay = regenerate_trickplay;
 
-    let uri_str = format!("{}/Items/{itemId}/Refresh", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/Refresh", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.metadata_refresh_mode {
+    if let Some(ref param_value) = p_query_metadata_refresh_mode {
         req_builder = req_builder.query(&[("metadataRefreshMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_refresh_mode {
+    if let Some(ref param_value) = p_query_image_refresh_mode {
         req_builder = req_builder.query(&[("imageRefreshMode", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.replace_all_metadata {
+    if let Some(ref param_value) = p_query_replace_all_metadata {
         req_builder = req_builder.query(&[("replaceAllMetadata", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.replace_all_images {
+    if let Some(ref param_value) = p_query_replace_all_images {
         req_builder = req_builder.query(&[("replaceAllImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.regenerate_trickplay {
+    if let Some(ref param_value) = p_query_regenerate_trickplay {
         req_builder = req_builder.query(&[("regenerateTrickplay", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2911,7 +2586,7 @@ pub async fn refresh_item(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn refresh_library(configuration: &configuration::Configuration) -> Result<(), Error<RefreshLibraryError>> {
+pub async fn refresh_library(configuration: &configuration::Configuration, ) -> Result<(), Error<RefreshLibraryError>> {
 
     let uri_str = format!("{}/Library/Refresh", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);

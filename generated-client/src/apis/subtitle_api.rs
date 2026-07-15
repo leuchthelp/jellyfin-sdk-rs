@@ -14,131 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`delete_subtitle`]
-#[derive(Clone, Debug)]
-pub struct DeleteSubtitleParams {
-    /// The item id.
-    pub item_id: String,
-    /// The index of the subtitle file.
-    pub index: i32
-}
-
-/// struct for passing parameters to the method [`download_remote_subtitles`]
-#[derive(Clone, Debug)]
-pub struct DownloadRemoteSubtitlesParams {
-    /// The item id.
-    pub item_id: String,
-    /// The subtitle id.
-    pub subtitle_id: String
-}
-
-/// struct for passing parameters to the method [`get_fallback_font`]
-#[derive(Clone, Debug)]
-pub struct GetFallbackFontParams {
-    /// The name of the fallback font file to get.
-    pub name: String
-}
-
-/// struct for passing parameters to the method [`get_remote_subtitles`]
-#[derive(Clone, Debug)]
-pub struct GetRemoteSubtitlesParams {
-    /// The item id.
-    pub subtitle_id: String
-}
-
-/// struct for passing parameters to the method [`get_subtitle`]
-#[derive(Clone, Debug)]
-pub struct GetSubtitleParams {
-    /// The (route) item id.
-    pub route_item_id: String,
-    /// The (route) media source id.
-    pub route_media_source_id: String,
-    /// The (route) subtitle stream index.
-    pub route_index: i32,
-    /// The (route) format of the returned subtitle.
-    pub route_format: String,
-    /// The item id.
-    pub item_id: Option<String>,
-    /// The media source id.
-    pub media_source_id: Option<String>,
-    /// The subtitle stream index.
-    pub index: Option<i32>,
-    /// The format of the returned subtitle.
-    pub format: Option<String>,
-    /// Optional. The end position of the subtitle in ticks.
-    pub end_position_ticks: Option<i64>,
-    /// Optional. Whether to copy the timestamps.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Whether to add a VTT time map.
-    pub add_vtt_time_map: Option<bool>,
-    /// The start position of the subtitle in ticks.
-    pub start_position_ticks: Option<i64>
-}
-
-/// struct for passing parameters to the method [`get_subtitle_playlist`]
-#[derive(Clone, Debug)]
-pub struct GetSubtitlePlaylistParams {
-    /// The item id.
-    pub item_id: String,
-    /// The subtitle stream index.
-    pub index: i32,
-    /// The media source id.
-    pub media_source_id: String,
-    /// The subtitle segment length.
-    pub segment_length: i32
-}
-
-/// struct for passing parameters to the method [`get_subtitle_with_ticks`]
-#[derive(Clone, Debug)]
-pub struct GetSubtitleWithTicksParams {
-    /// The (route) item id.
-    pub route_item_id: String,
-    /// The (route) media source id.
-    pub route_media_source_id: String,
-    /// The (route) subtitle stream index.
-    pub route_index: i32,
-    /// The (route) start position of the subtitle in ticks.
-    pub route_start_position_ticks: i64,
-    /// The (route) format of the returned subtitle.
-    pub route_format: String,
-    /// The item id.
-    pub item_id: Option<String>,
-    /// The media source id.
-    pub media_source_id: Option<String>,
-    /// The subtitle stream index.
-    pub index: Option<i32>,
-    /// The start position of the subtitle in ticks.
-    pub start_position_ticks: Option<i64>,
-    /// The format of the returned subtitle.
-    pub format: Option<String>,
-    /// Optional. The end position of the subtitle in ticks.
-    pub end_position_ticks: Option<i64>,
-    /// Optional. Whether to copy the timestamps.
-    pub copy_timestamps: Option<bool>,
-    /// Optional. Whether to add a VTT time map.
-    pub add_vtt_time_map: Option<bool>
-}
-
-/// struct for passing parameters to the method [`search_remote_subtitles`]
-#[derive(Clone, Debug)]
-pub struct SearchRemoteSubtitlesParams {
-    /// The item id.
-    pub item_id: String,
-    /// The language of the subtitles.
-    pub language: String,
-    /// Optional. Only show subtitles which are a perfect match.
-    pub is_perfect_match: Option<bool>
-}
-
-/// struct for passing parameters to the method [`upload_subtitle`]
-#[derive(Clone, Debug)]
-pub struct UploadSubtitleParams {
-    /// The item the subtitle belongs to.
-    pub item_id: String,
-    /// The request body.
-    pub upload_subtitle_dto: models::UploadSubtitleDto
-}
-
 
 /// struct for typed errors of method [`delete_subtitle`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -242,9 +117,12 @@ pub enum UploadSubtitleError {
 }
 
 
-pub async fn delete_subtitle(configuration: &configuration::Configuration, params: DeleteSubtitleParams) -> Result<(), Error<DeleteSubtitleError>> {
+pub async fn delete_subtitle(configuration: &configuration::Configuration, item_id: &str, index: i32) -> Result<(), Error<DeleteSubtitleError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_index = index;
 
-    let uri_str = format!("{}/Videos/{itemId}/Subtitles/{index}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), index=params.index);
+    let uri_str = format!("{}/Videos/{itemId}/Subtitles/{index}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), index=p_path_index);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -273,9 +151,12 @@ pub async fn delete_subtitle(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn download_remote_subtitles(configuration: &configuration::Configuration, params: DownloadRemoteSubtitlesParams) -> Result<(), Error<DownloadRemoteSubtitlesError>> {
+pub async fn download_remote_subtitles(configuration: &configuration::Configuration, item_id: &str, subtitle_id: &str) -> Result<(), Error<DownloadRemoteSubtitlesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_subtitle_id = subtitle_id;
 
-    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{subtitleId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), subtitleId=crate::apis::urlencode(params.subtitle_id));
+    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{subtitleId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), subtitleId=crate::apis::urlencode(p_path_subtitle_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -304,9 +185,11 @@ pub async fn download_remote_subtitles(configuration: &configuration::Configurat
     }
 }
 
-pub async fn get_fallback_font(configuration: &configuration::Configuration, params: GetFallbackFontParams) -> Result<reqwest::Response, Error<GetFallbackFontError>> {
+pub async fn get_fallback_font(configuration: &configuration::Configuration, name: &str) -> Result<reqwest::Response, Error<GetFallbackFontError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
 
-    let uri_str = format!("{}/FallbackFont/Fonts/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/FallbackFont/Fonts/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -335,7 +218,7 @@ pub async fn get_fallback_font(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_fallback_font_list(configuration: &configuration::Configuration) -> Result<Vec<models::FontFile>, Error<GetFallbackFontListError>> {
+pub async fn get_fallback_font_list(configuration: &configuration::Configuration, ) -> Result<Vec<models::FontFile>, Error<GetFallbackFontListError>> {
 
     let uri_str = format!("{}/FallbackFont/Fonts", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -377,9 +260,11 @@ pub async fn get_fallback_font_list(configuration: &configuration::Configuration
     }
 }
 
-pub async fn get_remote_subtitles(configuration: &configuration::Configuration, params: GetRemoteSubtitlesParams) -> Result<reqwest::Response, Error<GetRemoteSubtitlesError>> {
+pub async fn get_remote_subtitles(configuration: &configuration::Configuration, subtitle_id: &str) -> Result<reqwest::Response, Error<GetRemoteSubtitlesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_subtitle_id = subtitle_id;
 
-    let uri_str = format!("{}/Providers/Subtitles/Subtitles/{subtitleId}", configuration.base_path, subtitleId=crate::apis::urlencode(params.subtitle_id));
+    let uri_str = format!("{}/Providers/Subtitles/Subtitles/{subtitleId}", configuration.base_path, subtitleId=crate::apis::urlencode(p_path_subtitle_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -408,33 +293,46 @@ pub async fn get_remote_subtitles(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_subtitle(configuration: &configuration::Configuration, params: GetSubtitleParams) -> Result<reqwest::Response, Error<GetSubtitleError>> {
+pub async fn get_subtitle(configuration: &configuration::Configuration, route_item_id: &str, route_media_source_id: &str, route_index: i32, route_format: &str, item_id: Option<&str>, media_source_id: Option<&str>, index: Option<i32>, format: Option<&str>, end_position_ticks: Option<i64>, copy_timestamps: Option<bool>, add_vtt_time_map: Option<bool>, start_position_ticks: Option<i64>) -> Result<reqwest::Response, Error<GetSubtitleError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_route_item_id = route_item_id;
+    let p_path_route_media_source_id = route_media_source_id;
+    let p_path_route_index = route_index;
+    let p_path_route_format = route_format;
+    let p_query_item_id = item_id;
+    let p_query_media_source_id = media_source_id;
+    let p_query_index = index;
+    let p_query_format = format;
+    let p_query_end_position_ticks = end_position_ticks;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_add_vtt_time_map = add_vtt_time_map;
+    let p_query_start_position_ticks = start_position_ticks;
 
-    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(params.route_item_id), routeMediaSourceId=crate::apis::urlencode(params.route_media_source_id), routeIndex=params.route_index, routeFormat=crate::apis::urlencode(params.route_format));
+    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(p_path_route_item_id), routeMediaSourceId=crate::apis::urlencode(p_path_route_media_source_id), routeIndex=p_path_route_index, routeFormat=crate::apis::urlencode(p_path_route_format));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.item_id {
+    if let Some(ref param_value) = p_query_item_id {
         req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.index {
+    if let Some(ref param_value) = p_query_index {
         req_builder = req_builder.query(&[("index", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.format {
+    if let Some(ref param_value) = p_query_format {
         req_builder = req_builder.query(&[("format", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.end_position_ticks {
+    if let Some(ref param_value) = p_query_end_position_ticks {
         req_builder = req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.add_vtt_time_map {
+    if let Some(ref param_value) = p_query_add_vtt_time_map {
         req_builder = req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_position_ticks {
+    if let Some(ref param_value) = p_query_start_position_ticks {
         req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -455,12 +353,17 @@ pub async fn get_subtitle(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_subtitle_playlist(configuration: &configuration::Configuration, params: GetSubtitlePlaylistParams) -> Result<reqwest::Response, Error<GetSubtitlePlaylistError>> {
+pub async fn get_subtitle_playlist(configuration: &configuration::Configuration, item_id: &str, index: i32, media_source_id: &str, segment_length: i32) -> Result<reqwest::Response, Error<GetSubtitlePlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_index = index;
+    let p_path_media_source_id = media_source_id;
+    let p_query_segment_length = segment_length;
 
-    let uri_str = format!("{}/Videos/{itemId}/{mediaSourceId}/Subtitles/{index}/subtitles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), index=params.index, mediaSourceId=crate::apis::urlencode(params.media_source_id));
+    let uri_str = format!("{}/Videos/{itemId}/{mediaSourceId}/Subtitles/{index}/subtitles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), index=p_path_index, mediaSourceId=crate::apis::urlencode(p_path_media_source_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("segmentLength", &params.segment_length.to_string())]);
+    req_builder = req_builder.query(&[("segmentLength", &p_query_segment_length.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -487,33 +390,47 @@ pub async fn get_subtitle_playlist(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn get_subtitle_with_ticks(configuration: &configuration::Configuration, params: GetSubtitleWithTicksParams) -> Result<reqwest::Response, Error<GetSubtitleWithTicksError>> {
+pub async fn get_subtitle_with_ticks(configuration: &configuration::Configuration, route_item_id: &str, route_media_source_id: &str, route_index: i32, route_start_position_ticks: i64, route_format: &str, item_id: Option<&str>, media_source_id: Option<&str>, index: Option<i32>, start_position_ticks: Option<i64>, format: Option<&str>, end_position_ticks: Option<i64>, copy_timestamps: Option<bool>, add_vtt_time_map: Option<bool>) -> Result<reqwest::Response, Error<GetSubtitleWithTicksError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_route_item_id = route_item_id;
+    let p_path_route_media_source_id = route_media_source_id;
+    let p_path_route_index = route_index;
+    let p_path_route_start_position_ticks = route_start_position_ticks;
+    let p_path_route_format = route_format;
+    let p_query_item_id = item_id;
+    let p_query_media_source_id = media_source_id;
+    let p_query_index = index;
+    let p_query_start_position_ticks = start_position_ticks;
+    let p_query_format = format;
+    let p_query_end_position_ticks = end_position_ticks;
+    let p_query_copy_timestamps = copy_timestamps;
+    let p_query_add_vtt_time_map = add_vtt_time_map;
 
-    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/{routeStartPositionTicks}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(params.route_item_id), routeMediaSourceId=crate::apis::urlencode(params.route_media_source_id), routeIndex=params.route_index, routeStartPositionTicks=params.route_start_position_ticks, routeFormat=crate::apis::urlencode(params.route_format));
+    let uri_str = format!("{}/Videos/{routeItemId}/{routeMediaSourceId}/Subtitles/{routeIndex}/{routeStartPositionTicks}/Stream.{routeFormat}", configuration.base_path, routeItemId=crate::apis::urlencode(p_path_route_item_id), routeMediaSourceId=crate::apis::urlencode(p_path_route_media_source_id), routeIndex=p_path_route_index, routeStartPositionTicks=p_path_route_start_position_ticks, routeFormat=crate::apis::urlencode(p_path_route_format));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.item_id {
+    if let Some(ref param_value) = p_query_item_id {
         req_builder = req_builder.query(&[("itemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.index {
+    if let Some(ref param_value) = p_query_index {
         req_builder = req_builder.query(&[("index", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_position_ticks {
+    if let Some(ref param_value) = p_query_start_position_ticks {
         req_builder = req_builder.query(&[("startPositionTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.format {
+    if let Some(ref param_value) = p_query_format {
         req_builder = req_builder.query(&[("format", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.end_position_ticks {
+    if let Some(ref param_value) = p_query_end_position_ticks {
         req_builder = req_builder.query(&[("endPositionTicks", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.copy_timestamps {
+    if let Some(ref param_value) = p_query_copy_timestamps {
         req_builder = req_builder.query(&[("copyTimestamps", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.add_vtt_time_map {
+    if let Some(ref param_value) = p_query_add_vtt_time_map {
         req_builder = req_builder.query(&[("addVttTimeMap", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -534,12 +451,16 @@ pub async fn get_subtitle_with_ticks(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn search_remote_subtitles(configuration: &configuration::Configuration, params: SearchRemoteSubtitlesParams) -> Result<Vec<models::RemoteSubtitleInfo>, Error<SearchRemoteSubtitlesError>> {
+pub async fn search_remote_subtitles(configuration: &configuration::Configuration, item_id: &str, language: &str, is_perfect_match: Option<bool>) -> Result<Vec<models::RemoteSubtitleInfo>, Error<SearchRemoteSubtitlesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_language = language;
+    let p_query_is_perfect_match = is_perfect_match;
 
-    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{language}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), language=crate::apis::urlencode(params.language));
+    let uri_str = format!("{}/Items/{itemId}/RemoteSearch/Subtitles/{language}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), language=crate::apis::urlencode(p_path_language));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.is_perfect_match {
+    if let Some(ref param_value) = p_query_is_perfect_match {
         req_builder = req_builder.query(&[("isPerfectMatch", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -579,9 +500,12 @@ pub async fn search_remote_subtitles(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn upload_subtitle(configuration: &configuration::Configuration, params: UploadSubtitleParams) -> Result<(), Error<UploadSubtitleError>> {
+pub async fn upload_subtitle(configuration: &configuration::Configuration, item_id: &str, upload_subtitle_dto: models::UploadSubtitleDto) -> Result<(), Error<UploadSubtitleError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_body_upload_subtitle_dto = upload_subtitle_dto;
 
-    let uri_str = format!("{}/Videos/{itemId}/Subtitles", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Videos/{itemId}/Subtitles", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -595,7 +519,7 @@ pub async fn upload_subtitle(configuration: &configuration::Configuration, param
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.upload_subtitle_dto);
+    req_builder = req_builder.json(&p_body_upload_subtitle_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

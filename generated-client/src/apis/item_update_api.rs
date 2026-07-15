@@ -14,31 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_metadata_editor_info`]
-#[derive(Clone, Debug)]
-pub struct GetMetadataEditorInfoParams {
-    /// The item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`update_item`]
-#[derive(Clone, Debug)]
-pub struct UpdateItemParams {
-    /// The item id.
-    pub item_id: String,
-    /// The new item properties.
-    pub base_item_dto: models::BaseItemDto
-}
-
-/// struct for passing parameters to the method [`update_item_content_type`]
-#[derive(Clone, Debug)]
-pub struct UpdateItemContentTypeParams {
-    /// The item id.
-    pub item_id: String,
-    /// The content type of the item.
-    pub content_type: Option<String>
-}
-
 
 /// struct for typed errors of method [`get_metadata_editor_info`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,9 +49,11 @@ pub enum UpdateItemContentTypeError {
 }
 
 
-pub async fn get_metadata_editor_info(configuration: &configuration::Configuration, params: GetMetadataEditorInfoParams) -> Result<models::MetadataEditorInfo, Error<GetMetadataEditorInfoError>> {
+pub async fn get_metadata_editor_info(configuration: &configuration::Configuration, item_id: &str) -> Result<models::MetadataEditorInfo, Error<GetMetadataEditorInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}/MetadataEditor", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/MetadataEditor", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -116,9 +93,12 @@ pub async fn get_metadata_editor_info(configuration: &configuration::Configurati
     }
 }
 
-pub async fn update_item(configuration: &configuration::Configuration, params: UpdateItemParams) -> Result<(), Error<UpdateItemError>> {
+pub async fn update_item(configuration: &configuration::Configuration, item_id: &str, base_item_dto: models::BaseItemDto) -> Result<(), Error<UpdateItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_body_base_item_dto = base_item_dto;
 
-    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -132,7 +112,7 @@ pub async fn update_item(configuration: &configuration::Configuration, params: U
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.base_item_dto);
+    req_builder = req_builder.json(&p_body_base_item_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -148,12 +128,15 @@ pub async fn update_item(configuration: &configuration::Configuration, params: U
     }
 }
 
-pub async fn update_item_content_type(configuration: &configuration::Configuration, params: UpdateItemContentTypeParams) -> Result<(), Error<UpdateItemContentTypeError>> {
+pub async fn update_item_content_type(configuration: &configuration::Configuration, item_id: &str, content_type: Option<&str>) -> Result<(), Error<UpdateItemContentTypeError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_content_type = content_type;
 
-    let uri_str = format!("{}/Items/{itemId}/ContentType", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/ContentType", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.content_type {
+    if let Some(ref param_value) = p_query_content_type {
         req_builder = req_builder.query(&[("contentType", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

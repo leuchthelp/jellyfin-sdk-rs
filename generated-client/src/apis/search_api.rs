@@ -14,47 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_search_hints`]
-#[derive(Clone, Debug)]
-pub struct GetSearchHintsParams {
-    /// The search term to filter on.
-    pub search_term: String,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Supply a user id to search within a user's library or omit to search all.
-    pub user_id: Option<String>,
-    /// If specified, only results with the specified item types are returned. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// If specified, results with these item types are filtered out. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// If specified, only results with the specified media types are returned. This allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// If specified, only children of the parent are returned.
-    pub parent_id: Option<String>,
-    /// Optional filter for movies.
-    pub is_movie: Option<bool>,
-    /// Optional filter for series.
-    pub is_series: Option<bool>,
-    /// Optional filter for news.
-    pub is_news: Option<bool>,
-    /// Optional filter for kids.
-    pub is_kids: Option<bool>,
-    /// Optional filter for sports.
-    pub is_sports: Option<bool>,
-    /// Optional filter whether to include people.
-    pub include_people: Option<bool>,
-    /// Optional filter whether to include media.
-    pub include_media: Option<bool>,
-    /// Optional filter whether to include genres.
-    pub include_genres: Option<bool>,
-    /// Optional filter whether to include studios.
-    pub include_studios: Option<bool>,
-    /// Optional filter whether to include artists.
-    pub include_artists: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_search_hints`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -67,70 +26,89 @@ pub enum GetSearchHintsError {
 }
 
 
-pub async fn get_search_hints(configuration: &configuration::Configuration, params: GetSearchHintsParams) -> Result<models::SearchHintResult, Error<GetSearchHintsError>> {
+pub async fn get_search_hints(configuration: &configuration::Configuration, search_term: &str, start_index: Option<i32>, limit: Option<i32>, user_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>, parent_id: Option<&str>, is_movie: Option<bool>, is_series: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, include_people: Option<bool>, include_media: Option<bool>, include_genres: Option<bool>, include_studios: Option<bool>, include_artists: Option<bool>) -> Result<models::SearchHintResult, Error<GetSearchHintsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_search_term = search_term;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_user_id = user_id;
+    let p_query_include_item_types = include_item_types;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_media_types = media_types;
+    let p_query_parent_id = parent_id;
+    let p_query_is_movie = is_movie;
+    let p_query_is_series = is_series;
+    let p_query_is_news = is_news;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_include_people = include_people;
+    let p_query_include_media = include_media;
+    let p_query_include_genres = include_genres;
+    let p_query_include_studios = include_studios;
+    let p_query_include_artists = include_artists;
 
     let uri_str = format!("{}/Search/Hints", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    req_builder = req_builder.query(&[("searchTerm", &params.search_term.to_string())]);
-    if let Some(ref param_value) = params.include_item_types {
+    req_builder = req_builder.query(&[("searchTerm", &p_query_search_term.to_string())]);
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_people {
+    if let Some(ref param_value) = p_query_include_people {
         req_builder = req_builder.query(&[("includePeople", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_media {
+    if let Some(ref param_value) = p_query_include_media {
         req_builder = req_builder.query(&[("includeMedia", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_genres {
+    if let Some(ref param_value) = p_query_include_genres {
         req_builder = req_builder.query(&[("includeGenres", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_studios {
+    if let Some(ref param_value) = p_query_include_studios {
         req_builder = req_builder.query(&[("includeStudios", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_artists {
+    if let Some(ref param_value) = p_query_include_artists {
         req_builder = req_builder.query(&[("includeArtists", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

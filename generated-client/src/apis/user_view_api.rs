@@ -14,26 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_grouping_options`]
-#[derive(Clone, Debug)]
-pub struct GetGroupingOptionsParams {
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_user_views`]
-#[derive(Clone, Debug)]
-pub struct GetUserViewsParams {
-    /// User id.
-    pub user_id: Option<String>,
-    /// Whether or not to include external views such as channels or live tv.
-    pub include_external_content: Option<bool>,
-    /// Preset views.
-    pub preset_views: Option<Vec<models::CollectionType>>,
-    /// Whether or not to include hidden content.
-    pub include_hidden: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_grouping_options`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -57,12 +37,14 @@ pub enum GetUserViewsError {
 }
 
 
-pub async fn get_grouping_options(configuration: &configuration::Configuration, params: GetGroupingOptionsParams) -> Result<Vec<models::SpecialViewOptionDto>, Error<GetGroupingOptionsError>> {
+pub async fn get_grouping_options(configuration: &configuration::Configuration, user_id: Option<&str>) -> Result<Vec<models::SpecialViewOptionDto>, Error<GetGroupingOptionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/UserViews/GroupingOptions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -102,24 +84,29 @@ pub async fn get_grouping_options(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_user_views(configuration: &configuration::Configuration, params: GetUserViewsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetUserViewsError>> {
+pub async fn get_user_views(configuration: &configuration::Configuration, user_id: Option<&str>, include_external_content: Option<bool>, preset_views: Option<Vec<models::CollectionType>>, include_hidden: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetUserViewsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_include_external_content = include_external_content;
+    let p_query_preset_views = preset_views;
+    let p_query_include_hidden = include_hidden;
 
     let uri_str = format!("{}/UserViews", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_external_content {
+    if let Some(ref param_value) = p_query_include_external_content {
         req_builder = req_builder.query(&[("includeExternalContent", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.preset_views {
+    if let Some(ref param_value) = p_query_preset_views {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("presetViews".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("presetViews", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_hidden {
+    if let Some(ref param_value) = p_query_include_hidden {
         req_builder = req_builder.query(&[("includeHidden", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

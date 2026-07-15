@@ -14,429 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`add_listing_provider`]
-#[derive(Clone, Debug)]
-pub struct AddListingProviderParams {
-    /// Password.
-    pub pw: Option<String>,
-    /// Validate listings.
-    pub validate_listings: Option<bool>,
-    /// Validate login.
-    pub validate_login: Option<bool>,
-    /// New listings info.
-    pub listings_provider_info: Option<models::ListingsProviderInfo>
-}
-
-/// struct for passing parameters to the method [`add_tuner_host`]
-#[derive(Clone, Debug)]
-pub struct AddTunerHostParams {
-    /// New tuner host.
-    pub tuner_host_info: Option<models::TunerHostInfo>
-}
-
-/// struct for passing parameters to the method [`cancel_series_timer`]
-#[derive(Clone, Debug)]
-pub struct CancelSeriesTimerParams {
-    /// Timer id.
-    pub timer_id: String
-}
-
-/// struct for passing parameters to the method [`cancel_timer`]
-#[derive(Clone, Debug)]
-pub struct CancelTimerParams {
-    /// Timer id.
-    pub timer_id: String
-}
-
-/// struct for passing parameters to the method [`create_series_timer`]
-#[derive(Clone, Debug)]
-pub struct CreateSeriesTimerParams {
-    /// New series timer info.
-    pub series_timer_info_dto: Option<models::SeriesTimerInfoDto>
-}
-
-/// struct for passing parameters to the method [`create_timer`]
-#[derive(Clone, Debug)]
-pub struct CreateTimerParams {
-    /// New timer info.
-    pub timer_info_dto: Option<models::TimerInfoDto>
-}
-
-/// struct for passing parameters to the method [`delete_listing_provider`]
-#[derive(Clone, Debug)]
-pub struct DeleteListingProviderParams {
-    /// Listing provider id.
-    pub id: Option<String>
-}
-
-/// struct for passing parameters to the method [`delete_recording`]
-#[derive(Clone, Debug)]
-pub struct DeleteRecordingParams {
-    /// Recording id.
-    pub recording_id: String
-}
-
-/// struct for passing parameters to the method [`delete_tuner_host`]
-#[derive(Clone, Debug)]
-pub struct DeleteTunerHostParams {
-    /// Tuner host id.
-    pub id: Option<String>
-}
-
-/// struct for passing parameters to the method [`discover_tuners`]
-#[derive(Clone, Debug)]
-pub struct DiscoverTunersParams {
-    /// Only discover new tuners.
-    pub new_devices_only: Option<bool>
-}
-
-/// struct for passing parameters to the method [`discvover_tuners`]
-#[derive(Clone, Debug)]
-pub struct DiscvoverTunersParams {
-    /// Only discover new tuners.
-    pub new_devices_only: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_channel`]
-#[derive(Clone, Debug)]
-pub struct GetChannelParams {
-    /// Channel id.
-    pub channel_id: String,
-    /// Optional. Attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_channel_mapping_options`]
-#[derive(Clone, Debug)]
-pub struct GetChannelMappingOptionsParams {
-    /// Provider id.
-    pub provider_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_default_timer`]
-#[derive(Clone, Debug)]
-pub struct GetDefaultTimerParams {
-    /// Optional. To attach default values based on a program.
-    pub program_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_lineups`]
-#[derive(Clone, Debug)]
-pub struct GetLineupsParams {
-    /// Provider id.
-    pub id: Option<String>,
-    /// Provider type.
-    pub r#type: Option<String>,
-    /// Location.
-    pub location: Option<String>,
-    /// Country.
-    pub country: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_live_recording_file`]
-#[derive(Clone, Debug)]
-pub struct GetLiveRecordingFileParams {
-    /// Recording id.
-    pub recording_id: String
-}
-
-/// struct for passing parameters to the method [`get_live_stream_file`]
-#[derive(Clone, Debug)]
-pub struct GetLiveStreamFileParams {
-    /// Stream id.
-    pub stream_id: String,
-    /// Container type.
-    pub container: String
-}
-
-/// struct for passing parameters to the method [`get_live_tv_channels`]
-#[derive(Clone, Debug)]
-pub struct GetLiveTvChannelsParams {
-    /// Optional. Filter by channel type.
-    pub r#type: Option<String>,
-    /// Optional. Filter by user and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. Filter for movies.
-    pub is_movie: Option<bool>,
-    /// Optional. Filter for series.
-    pub is_series: Option<bool>,
-    /// Optional. Filter for news.
-    pub is_news: Option<bool>,
-    /// Optional. Filter for kids.
-    pub is_kids: Option<bool>,
-    /// Optional. Filter for sports.
-    pub is_sports: Option<bool>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Filter by channels that are favorites, or not.
-    pub is_favorite: Option<bool>,
-    /// Optional. Filter by channels that are liked, or not.
-    pub is_liked: Option<bool>,
-    /// Optional. Filter by channels that are disliked, or not.
-    pub is_disliked: Option<bool>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// \"Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. Key to sort by.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Optional. Sort order.
-    pub sort_order: Option<String>,
-    /// Optional. Incorporate favorite and like status into channel sorting.
-    pub enable_favorite_sorting: Option<bool>,
-    /// Optional. Adds current program info to each channel.
-    pub add_current_program: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_live_tv_programs`]
-#[derive(Clone, Debug)]
-pub struct GetLiveTvProgramsParams {
-    /// The channels to return guide information for.
-    pub channel_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Filter by user id.
-    pub user_id: Option<String>,
-    /// Optional. The minimum premiere start date.
-    pub min_start_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. Filter by programs that have completed airing, or not.
-    pub has_aired: Option<bool>,
-    /// Optional. Filter by programs that are currently airing, or not.
-    pub is_airing: Option<bool>,
-    /// Optional. The maximum premiere start date.
-    pub max_start_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. The minimum premiere end date.
-    pub min_end_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. The maximum premiere end date.
-    pub max_end_date: Option<chrono::DateTime<chrono::FixedOffset>>,
-    /// Optional. Filter for movies.
-    pub is_movie: Option<bool>,
-    /// Optional. Filter for series.
-    pub is_series: Option<bool>,
-    /// Optional. Filter for news.
-    pub is_news: Option<bool>,
-    /// Optional. Filter for kids.
-    pub is_kids: Option<bool>,
-    /// Optional. Filter for sports.
-    pub is_sports: Option<bool>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify one or more sort orders, comma delimited. Options: Name, StartDate.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Sort Order - Ascending,Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>,
-    /// The genres to return guide information for.
-    pub genres: Option<Vec<String>>,
-    /// The genre ids to return guide information for.
-    pub genre_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. Filter by series timer id.
-    pub series_timer_id: Option<String>,
-    /// Optional. Filter by library series id.
-    pub library_series_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Retrieve total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_program`]
-#[derive(Clone, Debug)]
-pub struct GetProgramParams {
-    /// Program id.
-    pub program_id: String,
-    /// Optional. Attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_programs`]
-#[derive(Clone, Debug)]
-pub struct GetProgramsParams {
-    /// Request body.
-    pub get_programs_dto: Option<models::GetProgramsDto>
-}
-
-/// struct for passing parameters to the method [`get_recommended_programs`]
-#[derive(Clone, Debug)]
-pub struct GetRecommendedProgramsParams {
-    /// Optional. filter by user id.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Filter by programs that are currently airing, or not.
-    pub is_airing: Option<bool>,
-    /// Optional. Filter by programs that have completed airing, or not.
-    pub has_aired: Option<bool>,
-    /// Optional. Filter for series.
-    pub is_series: Option<bool>,
-    /// Optional. Filter for movies.
-    pub is_movie: Option<bool>,
-    /// Optional. Filter for news.
-    pub is_news: Option<bool>,
-    /// Optional. Filter for kids.
-    pub is_kids: Option<bool>,
-    /// Optional. Filter for sports.
-    pub is_sports: Option<bool>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// The genres to return guide information for.
-    pub genre_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. include user data.
-    pub enable_user_data: Option<bool>,
-    /// Retrieve total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_recording`]
-#[derive(Clone, Debug)]
-pub struct GetRecordingParams {
-    /// Recording id.
-    pub recording_id: String,
-    /// Optional. Attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_recording_folders`]
-#[derive(Clone, Debug)]
-pub struct GetRecordingFoldersParams {
-    /// Optional. Filter by user and attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_recordings`]
-#[derive(Clone, Debug)]
-pub struct GetRecordingsParams {
-    /// Optional. Filter by channel id.
-    pub channel_id: Option<String>,
-    /// Optional. Filter by user and attach user data.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Filter by recording status.
-    pub status: Option<String>,
-    /// Optional. Filter by recordings that are in progress, or not.
-    pub is_in_progress: Option<bool>,
-    /// Optional. Filter by recordings belonging to a series timer.
-    pub series_timer_id: Option<String>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. Filter for movies.
-    pub is_movie: Option<bool>,
-    /// Optional. Filter for series.
-    pub is_series: Option<bool>,
-    /// Optional. Filter for kids.
-    pub is_kids: Option<bool>,
-    /// Optional. Filter for sports.
-    pub is_sports: Option<bool>,
-    /// Optional. Filter for news.
-    pub is_news: Option<bool>,
-    /// Optional. Filter for is library item.
-    pub is_library_item: Option<bool>,
-    /// Optional. Return total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_series_timer`]
-#[derive(Clone, Debug)]
-pub struct GetSeriesTimerParams {
-    /// Timer id.
-    pub timer_id: String
-}
-
-/// struct for passing parameters to the method [`get_series_timers`]
-#[derive(Clone, Debug)]
-pub struct GetSeriesTimersParams {
-    /// Optional. Sort by SortName or Priority.
-    pub sort_by: Option<String>,
-    /// Optional. Sort in Ascending or Descending order.
-    pub sort_order: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_timer`]
-#[derive(Clone, Debug)]
-pub struct GetTimerParams {
-    /// Timer id.
-    pub timer_id: String
-}
-
-/// struct for passing parameters to the method [`get_timers`]
-#[derive(Clone, Debug)]
-pub struct GetTimersParams {
-    /// Optional. Filter by channel id.
-    pub channel_id: Option<String>,
-    /// Optional. Filter by timers belonging to a series timer.
-    pub series_timer_id: Option<String>,
-    /// Optional. Filter by timers that are active.
-    pub is_active: Option<bool>,
-    /// Optional. Filter by timers that are scheduled.
-    pub is_scheduled: Option<bool>
-}
-
-/// struct for passing parameters to the method [`reset_tuner`]
-#[derive(Clone, Debug)]
-pub struct ResetTunerParams {
-    /// Tuner id.
-    pub tuner_id: String
-}
-
-/// struct for passing parameters to the method [`set_channel_mapping`]
-#[derive(Clone, Debug)]
-pub struct SetChannelMappingParams {
-    /// The set channel mapping dto.
-    pub set_channel_mapping_dto: models::SetChannelMappingDto
-}
-
-/// struct for passing parameters to the method [`update_series_timer`]
-#[derive(Clone, Debug)]
-pub struct UpdateSeriesTimerParams {
-    /// Timer id.
-    pub timer_id: String,
-    /// New series timer info.
-    pub series_timer_info_dto: Option<models::SeriesTimerInfoDto>
-}
-
-/// struct for passing parameters to the method [`update_timer`]
-#[derive(Clone, Debug)]
-pub struct UpdateTimerParams {
-    /// Timer id.
-    pub timer_id: String,
-    /// New timer info.
-    pub timer_info_dto: Option<models::TimerInfoDto>
-}
-
 
 /// struct for typed errors of method [`add_listing_provider`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -822,18 +399,23 @@ pub enum UpdateTimerError {
 }
 
 
-pub async fn add_listing_provider(configuration: &configuration::Configuration, params: AddListingProviderParams) -> Result<models::ListingsProviderInfo, Error<AddListingProviderError>> {
+pub async fn add_listing_provider(configuration: &configuration::Configuration, pw: Option<&str>, validate_listings: Option<bool>, validate_login: Option<bool>, listings_provider_info: Option<models::ListingsProviderInfo>) -> Result<models::ListingsProviderInfo, Error<AddListingProviderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_pw = pw;
+    let p_query_validate_listings = validate_listings;
+    let p_query_validate_login = validate_login;
+    let p_body_listings_provider_info = listings_provider_info;
 
     let uri_str = format!("{}/LiveTv/ListingProviders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.pw {
+    if let Some(ref param_value) = p_query_pw {
         req_builder = req_builder.query(&[("pw", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.validate_listings {
+    if let Some(ref param_value) = p_query_validate_listings {
         req_builder = req_builder.query(&[("validateListings", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.validate_login {
+    if let Some(ref param_value) = p_query_validate_login {
         req_builder = req_builder.query(&[("validateLogin", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -847,7 +429,7 @@ pub async fn add_listing_provider(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.listings_provider_info);
+    req_builder = req_builder.json(&p_body_listings_provider_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -874,7 +456,9 @@ pub async fn add_listing_provider(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn add_tuner_host(configuration: &configuration::Configuration, params: AddTunerHostParams) -> Result<models::TunerHostInfo, Error<AddTunerHostError>> {
+pub async fn add_tuner_host(configuration: &configuration::Configuration, tuner_host_info: Option<models::TunerHostInfo>) -> Result<models::TunerHostInfo, Error<AddTunerHostError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_tuner_host_info = tuner_host_info;
 
     let uri_str = format!("{}/LiveTv/TunerHosts", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -890,7 +474,7 @@ pub async fn add_tuner_host(configuration: &configuration::Configuration, params
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.tuner_host_info);
+    req_builder = req_builder.json(&p_body_tuner_host_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -917,9 +501,11 @@ pub async fn add_tuner_host(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn cancel_series_timer(configuration: &configuration::Configuration, params: CancelSeriesTimerParams) -> Result<(), Error<CancelSeriesTimerError>> {
+pub async fn cancel_series_timer(configuration: &configuration::Configuration, timer_id: &str) -> Result<(), Error<CancelSeriesTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
 
-    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -948,9 +534,11 @@ pub async fn cancel_series_timer(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn cancel_timer(configuration: &configuration::Configuration, params: CancelTimerParams) -> Result<(), Error<CancelTimerError>> {
+pub async fn cancel_timer(configuration: &configuration::Configuration, timer_id: &str) -> Result<(), Error<CancelTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
 
-    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -979,7 +567,9 @@ pub async fn cancel_timer(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn create_series_timer(configuration: &configuration::Configuration, params: CreateSeriesTimerParams) -> Result<(), Error<CreateSeriesTimerError>> {
+pub async fn create_series_timer(configuration: &configuration::Configuration, series_timer_info_dto: Option<models::SeriesTimerInfoDto>) -> Result<(), Error<CreateSeriesTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_series_timer_info_dto = series_timer_info_dto;
 
     let uri_str = format!("{}/LiveTv/SeriesTimers", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -995,7 +585,7 @@ pub async fn create_series_timer(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.series_timer_info_dto);
+    req_builder = req_builder.json(&p_body_series_timer_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -1011,7 +601,9 @@ pub async fn create_series_timer(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn create_timer(configuration: &configuration::Configuration, params: CreateTimerParams) -> Result<(), Error<CreateTimerError>> {
+pub async fn create_timer(configuration: &configuration::Configuration, timer_info_dto: Option<models::TimerInfoDto>) -> Result<(), Error<CreateTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_timer_info_dto = timer_info_dto;
 
     let uri_str = format!("{}/LiveTv/Timers", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -1027,7 +619,7 @@ pub async fn create_timer(configuration: &configuration::Configuration, params: 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.timer_info_dto);
+    req_builder = req_builder.json(&p_body_timer_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -1043,12 +635,14 @@ pub async fn create_timer(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn delete_listing_provider(configuration: &configuration::Configuration, params: DeleteListingProviderParams) -> Result<(), Error<DeleteListingProviderError>> {
+pub async fn delete_listing_provider(configuration: &configuration::Configuration, id: Option<&str>) -> Result<(), Error<DeleteListingProviderError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
 
     let uri_str = format!("{}/LiveTv/ListingProviders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = req_builder.query(&[("id", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1077,9 +671,11 @@ pub async fn delete_listing_provider(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn delete_recording(configuration: &configuration::Configuration, params: DeleteRecordingParams) -> Result<(), Error<DeleteRecordingError>> {
+pub async fn delete_recording(configuration: &configuration::Configuration, recording_id: &str) -> Result<(), Error<DeleteRecordingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_recording_id = recording_id;
 
-    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(p_path_recording_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1108,12 +704,14 @@ pub async fn delete_recording(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn delete_tuner_host(configuration: &configuration::Configuration, params: DeleteTunerHostParams) -> Result<(), Error<DeleteTunerHostError>> {
+pub async fn delete_tuner_host(configuration: &configuration::Configuration, id: Option<&str>) -> Result<(), Error<DeleteTunerHostError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
 
     let uri_str = format!("{}/LiveTv/TunerHosts", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = req_builder.query(&[("id", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1142,12 +740,14 @@ pub async fn delete_tuner_host(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn discover_tuners(configuration: &configuration::Configuration, params: DiscoverTunersParams) -> Result<Vec<models::TunerHostInfo>, Error<DiscoverTunersError>> {
+pub async fn discover_tuners(configuration: &configuration::Configuration, new_devices_only: Option<bool>) -> Result<Vec<models::TunerHostInfo>, Error<DiscoverTunersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_new_devices_only = new_devices_only;
 
     let uri_str = format!("{}/LiveTv/Tuners/Discover", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.new_devices_only {
+    if let Some(ref param_value) = p_query_new_devices_only {
         req_builder = req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1187,12 +787,14 @@ pub async fn discover_tuners(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn discvover_tuners(configuration: &configuration::Configuration, params: DiscvoverTunersParams) -> Result<Vec<models::TunerHostInfo>, Error<DiscvoverTunersError>> {
+pub async fn discvover_tuners(configuration: &configuration::Configuration, new_devices_only: Option<bool>) -> Result<Vec<models::TunerHostInfo>, Error<DiscvoverTunersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_new_devices_only = new_devices_only;
 
     let uri_str = format!("{}/LiveTv/Tuners/Discvover", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.new_devices_only {
+    if let Some(ref param_value) = p_query_new_devices_only {
         req_builder = req_builder.query(&[("newDevicesOnly", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1232,12 +834,15 @@ pub async fn discvover_tuners(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_channel(configuration: &configuration::Configuration, params: GetChannelParams) -> Result<models::BaseItemDto, Error<GetChannelError>> {
+pub async fn get_channel(configuration: &configuration::Configuration, channel_id: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetChannelError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_channel_id = channel_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/LiveTv/Channels/{channelId}", configuration.base_path, channelId=crate::apis::urlencode(params.channel_id));
+    let uri_str = format!("{}/LiveTv/Channels/{channelId}", configuration.base_path, channelId=crate::apis::urlencode(p_path_channel_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1277,12 +882,14 @@ pub async fn get_channel(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn get_channel_mapping_options(configuration: &configuration::Configuration, params: GetChannelMappingOptionsParams) -> Result<models::ChannelMappingOptionsDto, Error<GetChannelMappingOptionsError>> {
+pub async fn get_channel_mapping_options(configuration: &configuration::Configuration, provider_id: Option<&str>) -> Result<models::ChannelMappingOptionsDto, Error<GetChannelMappingOptionsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_provider_id = provider_id;
 
     let uri_str = format!("{}/LiveTv/ChannelMappingOptions", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.provider_id {
+    if let Some(ref param_value) = p_query_provider_id {
         req_builder = req_builder.query(&[("providerId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1322,7 +929,7 @@ pub async fn get_channel_mapping_options(configuration: &configuration::Configur
     }
 }
 
-pub async fn get_default_listing_provider(configuration: &configuration::Configuration) -> Result<models::ListingsProviderInfo, Error<GetDefaultListingProviderError>> {
+pub async fn get_default_listing_provider(configuration: &configuration::Configuration, ) -> Result<models::ListingsProviderInfo, Error<GetDefaultListingProviderError>> {
 
     let uri_str = format!("{}/LiveTv/ListingProviders/Default", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -1364,12 +971,14 @@ pub async fn get_default_listing_provider(configuration: &configuration::Configu
     }
 }
 
-pub async fn get_default_timer(configuration: &configuration::Configuration, params: GetDefaultTimerParams) -> Result<models::SeriesTimerInfoDto, Error<GetDefaultTimerError>> {
+pub async fn get_default_timer(configuration: &configuration::Configuration, program_id: Option<&str>) -> Result<models::SeriesTimerInfoDto, Error<GetDefaultTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_program_id = program_id;
 
     let uri_str = format!("{}/LiveTv/Timers/Defaults", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.program_id {
+    if let Some(ref param_value) = p_query_program_id {
         req_builder = req_builder.query(&[("programId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1409,7 +1018,7 @@ pub async fn get_default_timer(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_guide_info(configuration: &configuration::Configuration) -> Result<models::GuideInfo, Error<GetGuideInfoError>> {
+pub async fn get_guide_info(configuration: &configuration::Configuration, ) -> Result<models::GuideInfo, Error<GetGuideInfoError>> {
 
     let uri_str = format!("{}/LiveTv/GuideInfo", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -1451,21 +1060,26 @@ pub async fn get_guide_info(configuration: &configuration::Configuration) -> Res
     }
 }
 
-pub async fn get_lineups(configuration: &configuration::Configuration, params: GetLineupsParams) -> Result<Vec<models::NameIdPair>, Error<GetLineupsError>> {
+pub async fn get_lineups(configuration: &configuration::Configuration, id: Option<&str>, r#type: Option<&str>, location: Option<&str>, country: Option<&str>) -> Result<Vec<models::NameIdPair>, Error<GetLineupsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_id = id;
+    let p_query_type = r#type;
+    let p_query_location = location;
+    let p_query_country = country;
 
     let uri_str = format!("{}/LiveTv/ListingProviders/Lineups", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.id {
+    if let Some(ref param_value) = p_query_id {
         req_builder = req_builder.query(&[("id", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.r#type {
+    if let Some(ref param_value) = p_query_type {
         req_builder = req_builder.query(&[("type", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.location {
+    if let Some(ref param_value) = p_query_location {
         req_builder = req_builder.query(&[("location", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.country {
+    if let Some(ref param_value) = p_query_country {
         req_builder = req_builder.query(&[("country", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1505,9 +1119,11 @@ pub async fn get_lineups(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn get_live_recording_file(configuration: &configuration::Configuration, params: GetLiveRecordingFileParams) -> Result<reqwest::Response, Error<GetLiveRecordingFileError>> {
+pub async fn get_live_recording_file(configuration: &configuration::Configuration, recording_id: &str) -> Result<reqwest::Response, Error<GetLiveRecordingFileError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_recording_id = recording_id;
 
-    let uri_str = format!("{}/LiveTv/LiveRecordings/{recordingId}/stream", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let uri_str = format!("{}/LiveTv/LiveRecordings/{recordingId}/stream", configuration.base_path, recordingId=crate::apis::urlencode(p_path_recording_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1528,9 +1144,12 @@ pub async fn get_live_recording_file(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn get_live_stream_file(configuration: &configuration::Configuration, params: GetLiveStreamFileParams) -> Result<reqwest::Response, Error<GetLiveStreamFileError>> {
+pub async fn get_live_stream_file(configuration: &configuration::Configuration, stream_id: &str, container: &str) -> Result<reqwest::Response, Error<GetLiveStreamFileError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_stream_id = stream_id;
+    let p_path_container = container;
 
-    let uri_str = format!("{}/LiveTv/LiveStreamFiles/{streamId}/stream.{container}", configuration.base_path, streamId=crate::apis::urlencode(params.stream_id), container=crate::apis::urlencode(params.container));
+    let uri_str = format!("{}/LiveTv/LiveStreamFiles/{streamId}/stream.{container}", configuration.base_path, streamId=crate::apis::urlencode(p_path_stream_id), container=crate::apis::urlencode(p_path_container));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1551,81 +1170,103 @@ pub async fn get_live_stream_file(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_live_tv_channels(configuration: &configuration::Configuration, params: GetLiveTvChannelsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvChannelsError>> {
+pub async fn get_live_tv_channels(configuration: &configuration::Configuration, r#type: Option<&str>, user_id: Option<&str>, start_index: Option<i32>, is_movie: Option<bool>, is_series: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, limit: Option<i32>, is_favorite: Option<bool>, is_liked: Option<bool>, is_disliked: Option<bool>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, fields: Option<Vec<models::ItemFields>>, enable_user_data: Option<bool>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<&str>, enable_favorite_sorting: Option<bool>, add_current_program: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvChannelsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_type = r#type;
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_is_movie = is_movie;
+    let p_query_is_series = is_series;
+    let p_query_is_news = is_news;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_limit = limit;
+    let p_query_is_favorite = is_favorite;
+    let p_query_is_liked = is_liked;
+    let p_query_is_disliked = is_disliked;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_fields = fields;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
+    let p_query_enable_favorite_sorting = enable_favorite_sorting;
+    let p_query_add_current_program = add_current_program;
 
     let uri_str = format!("{}/LiveTv/Channels", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.r#type {
+    if let Some(ref param_value) = p_query_type {
         req_builder = req_builder.query(&[("type", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_liked {
+    if let Some(ref param_value) = p_query_is_liked {
         req_builder = req_builder.query(&[("isLiked", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_disliked {
+    if let Some(ref param_value) = p_query_is_disliked {
         req_builder = req_builder.query(&[("isDisliked", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = req_builder.query(&[("sortOrder", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_favorite_sorting {
+    if let Some(ref param_value) = p_query_enable_favorite_sorting {
         req_builder = req_builder.query(&[("enableFavoriteSorting", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.add_current_program {
+    if let Some(ref param_value) = p_query_add_current_program {
         req_builder = req_builder.query(&[("addCurrentProgram", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1665,7 +1306,7 @@ pub async fn get_live_tv_channels(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_live_tv_info(configuration: &configuration::Configuration) -> Result<models::LiveTvInfo, Error<GetLiveTvInfoError>> {
+pub async fn get_live_tv_info(configuration: &configuration::Configuration, ) -> Result<models::LiveTvInfo, Error<GetLiveTvInfoError>> {
 
     let uri_str = format!("{}/LiveTv/Info", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -1707,111 +1348,139 @@ pub async fn get_live_tv_info(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn get_live_tv_programs(configuration: &configuration::Configuration, params: GetLiveTvProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvProgramsError>> {
+pub async fn get_live_tv_programs(configuration: &configuration::Configuration, channel_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, min_start_date: Option<chrono::DateTime<chrono::FixedOffset>>, has_aired: Option<bool>, is_airing: Option<bool>, max_start_date: Option<chrono::DateTime<chrono::FixedOffset>>, min_end_date: Option<chrono::DateTime<chrono::FixedOffset>>, max_end_date: Option<chrono::DateTime<chrono::FixedOffset>>, is_movie: Option<bool>, is_series: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, start_index: Option<i32>, limit: Option<i32>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>, genres: Option<Vec<String>>, genre_ids: Option<Vec<uuid::Uuid>>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, enable_user_data: Option<bool>, series_timer_id: Option<&str>, library_series_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetLiveTvProgramsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_channel_ids = channel_ids;
+    let p_query_user_id = user_id;
+    let p_query_min_start_date = min_start_date;
+    let p_query_has_aired = has_aired;
+    let p_query_is_airing = is_airing;
+    let p_query_max_start_date = max_start_date;
+    let p_query_min_end_date = min_end_date;
+    let p_query_max_end_date = max_end_date;
+    let p_query_is_movie = is_movie;
+    let p_query_is_series = is_series;
+    let p_query_is_news = is_news;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
+    let p_query_genres = genres;
+    let p_query_genre_ids = genre_ids;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_series_timer_id = series_timer_id;
+    let p_query_library_series_id = library_series_id;
+    let p_query_fields = fields;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/LiveTv/Programs", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.channel_ids {
+    if let Some(ref param_value) = p_query_channel_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("channelIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("channelIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_start_date {
+    if let Some(ref param_value) = p_query_min_start_date {
         req_builder = req_builder.query(&[("minStartDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_aired {
+    if let Some(ref param_value) = p_query_has_aired {
         req_builder = req_builder.query(&[("hasAired", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_airing {
+    if let Some(ref param_value) = p_query_is_airing {
         req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_start_date {
+    if let Some(ref param_value) = p_query_max_start_date {
         req_builder = req_builder.query(&[("maxStartDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.min_end_date {
+    if let Some(ref param_value) = p_query_min_end_date {
         req_builder = req_builder.query(&[("minEndDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.max_end_date {
+    if let Some(ref param_value) = p_query_max_end_date {
         req_builder = req_builder.query(&[("maxEndDate", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genres {
+    if let Some(ref param_value) = p_query_genres {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genre_ids {
+    if let Some(ref param_value) = p_query_genre_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.series_timer_id {
+    if let Some(ref param_value) = p_query_series_timer_id {
         req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.library_series_id {
+    if let Some(ref param_value) = p_query_library_series_id {
         req_builder = req_builder.query(&[("librarySeriesId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1851,12 +1520,15 @@ pub async fn get_live_tv_programs(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn get_program(configuration: &configuration::Configuration, params: GetProgramParams) -> Result<models::BaseItemDto, Error<GetProgramError>> {
+pub async fn get_program(configuration: &configuration::Configuration, program_id: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetProgramError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_program_id = program_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/LiveTv/Programs/{programId}", configuration.base_path, programId=crate::apis::urlencode(params.program_id));
+    let uri_str = format!("{}/LiveTv/Programs/{programId}", configuration.base_path, programId=crate::apis::urlencode(p_path_program_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -1896,7 +1568,9 @@ pub async fn get_program(configuration: &configuration::Configuration, params: G
     }
 }
 
-pub async fn get_programs(configuration: &configuration::Configuration, params: GetProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetProgramsError>> {
+pub async fn get_programs(configuration: &configuration::Configuration, get_programs_dto: Option<models::GetProgramsDto>) -> Result<models::BaseItemDtoQueryResult, Error<GetProgramsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_get_programs_dto = get_programs_dto;
 
     let uri_str = format!("{}/LiveTv/Programs", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -1912,7 +1586,7 @@ pub async fn get_programs(configuration: &configuration::Configuration, params: 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.get_programs_dto);
+    req_builder = req_builder.json(&p_body_get_programs_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -1939,69 +1613,87 @@ pub async fn get_programs(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_recommended_programs(configuration: &configuration::Configuration, params: GetRecommendedProgramsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecommendedProgramsError>> {
+pub async fn get_recommended_programs(configuration: &configuration::Configuration, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, is_airing: Option<bool>, has_aired: Option<bool>, is_series: Option<bool>, is_movie: Option<bool>, is_news: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, genre_ids: Option<Vec<uuid::Uuid>>, fields: Option<Vec<models::ItemFields>>, enable_user_data: Option<bool>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetRecommendedProgramsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_is_airing = is_airing;
+    let p_query_has_aired = has_aired;
+    let p_query_is_series = is_series;
+    let p_query_is_movie = is_movie;
+    let p_query_is_news = is_news;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_genre_ids = genre_ids;
+    let p_query_fields = fields;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/LiveTv/Programs/Recommended", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_airing {
+    if let Some(ref param_value) = p_query_is_airing {
         req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.has_aired {
+    if let Some(ref param_value) = p_query_has_aired {
         req_builder = req_builder.query(&[("hasAired", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genre_ids {
+    if let Some(ref param_value) = p_query_genre_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2041,12 +1733,15 @@ pub async fn get_recommended_programs(configuration: &configuration::Configurati
     }
 }
 
-pub async fn get_recording(configuration: &configuration::Configuration, params: GetRecordingParams) -> Result<models::BaseItemDto, Error<GetRecordingError>> {
+pub async fn get_recording(configuration: &configuration::Configuration, recording_id: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetRecordingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_recording_id = recording_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(params.recording_id));
+    let uri_str = format!("{}/LiveTv/Recordings/{recordingId}", configuration.base_path, recordingId=crate::apis::urlencode(p_path_recording_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2086,12 +1781,14 @@ pub async fn get_recording(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn get_recording_folders(configuration: &configuration::Configuration, params: GetRecordingFoldersParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingFoldersError>> {
+pub async fn get_recording_folders(configuration: &configuration::Configuration, user_id: Option<&str>) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingFoldersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/LiveTv/Recordings/Folders", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2131,72 +1828,92 @@ pub async fn get_recording_folders(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn get_recordings(configuration: &configuration::Configuration, params: GetRecordingsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingsError>> {
+pub async fn get_recordings(configuration: &configuration::Configuration, channel_id: Option<&str>, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, status: Option<&str>, is_in_progress: Option<bool>, series_timer_id: Option<&str>, enable_images: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, fields: Option<Vec<models::ItemFields>>, enable_user_data: Option<bool>, is_movie: Option<bool>, is_series: Option<bool>, is_kids: Option<bool>, is_sports: Option<bool>, is_news: Option<bool>, is_library_item: Option<bool>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetRecordingsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_channel_id = channel_id;
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_status = status;
+    let p_query_is_in_progress = is_in_progress;
+    let p_query_series_timer_id = series_timer_id;
+    let p_query_enable_images = enable_images;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_fields = fields;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_is_movie = is_movie;
+    let p_query_is_series = is_series;
+    let p_query_is_kids = is_kids;
+    let p_query_is_sports = is_sports;
+    let p_query_is_news = is_news;
+    let p_query_is_library_item = is_library_item;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/LiveTv/Recordings", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.channel_id {
+    if let Some(ref param_value) = p_query_channel_id {
         req_builder = req_builder.query(&[("channelId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.status {
+    if let Some(ref param_value) = p_query_status {
         req_builder = req_builder.query(&[("status", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_in_progress {
+    if let Some(ref param_value) = p_query_is_in_progress {
         req_builder = req_builder.query(&[("isInProgress", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.series_timer_id {
+    if let Some(ref param_value) = p_query_series_timer_id {
         req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_library_item {
+    if let Some(ref param_value) = p_query_is_library_item {
         req_builder = req_builder.query(&[("isLibraryItem", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2236,7 +1953,7 @@ pub async fn get_recordings(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn get_schedules_direct_countries(configuration: &configuration::Configuration) -> Result<reqwest::Response, Error<GetSchedulesDirectCountriesError>> {
+pub async fn get_schedules_direct_countries(configuration: &configuration::Configuration, ) -> Result<reqwest::Response, Error<GetSchedulesDirectCountriesError>> {
 
     let uri_str = format!("{}/LiveTv/ListingProviders/SchedulesDirect/Countries", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -2267,9 +1984,11 @@ pub async fn get_schedules_direct_countries(configuration: &configuration::Confi
     }
 }
 
-pub async fn get_series_timer(configuration: &configuration::Configuration, params: GetSeriesTimerParams) -> Result<models::SeriesTimerInfoDto, Error<GetSeriesTimerError>> {
+pub async fn get_series_timer(configuration: &configuration::Configuration, timer_id: &str) -> Result<models::SeriesTimerInfoDto, Error<GetSeriesTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
 
-    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2309,15 +2028,18 @@ pub async fn get_series_timer(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_series_timers(configuration: &configuration::Configuration, params: GetSeriesTimersParams) -> Result<models::SeriesTimerInfoDtoQueryResult, Error<GetSeriesTimersError>> {
+pub async fn get_series_timers(configuration: &configuration::Configuration, sort_by: Option<&str>, sort_order: Option<&str>) -> Result<models::SeriesTimerInfoDtoQueryResult, Error<GetSeriesTimersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
 
     let uri_str = format!("{}/LiveTv/SeriesTimers", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = req_builder.query(&[("sortBy", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = req_builder.query(&[("sortOrder", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2357,9 +2079,11 @@ pub async fn get_series_timers(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_timer(configuration: &configuration::Configuration, params: GetTimerParams) -> Result<models::TimerInfoDto, Error<GetTimerError>> {
+pub async fn get_timer(configuration: &configuration::Configuration, timer_id: &str) -> Result<models::TimerInfoDto, Error<GetTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
 
-    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2399,21 +2123,26 @@ pub async fn get_timer(configuration: &configuration::Configuration, params: Get
     }
 }
 
-pub async fn get_timers(configuration: &configuration::Configuration, params: GetTimersParams) -> Result<models::TimerInfoDtoQueryResult, Error<GetTimersError>> {
+pub async fn get_timers(configuration: &configuration::Configuration, channel_id: Option<&str>, series_timer_id: Option<&str>, is_active: Option<bool>, is_scheduled: Option<bool>) -> Result<models::TimerInfoDtoQueryResult, Error<GetTimersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_channel_id = channel_id;
+    let p_query_series_timer_id = series_timer_id;
+    let p_query_is_active = is_active;
+    let p_query_is_scheduled = is_scheduled;
 
     let uri_str = format!("{}/LiveTv/Timers", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.channel_id {
+    if let Some(ref param_value) = p_query_channel_id {
         req_builder = req_builder.query(&[("channelId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.series_timer_id {
+    if let Some(ref param_value) = p_query_series_timer_id {
         req_builder = req_builder.query(&[("seriesTimerId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_active {
+    if let Some(ref param_value) = p_query_is_active {
         req_builder = req_builder.query(&[("isActive", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_scheduled {
+    if let Some(ref param_value) = p_query_is_scheduled {
         req_builder = req_builder.query(&[("isScheduled", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2453,7 +2182,7 @@ pub async fn get_timers(configuration: &configuration::Configuration, params: Ge
     }
 }
 
-pub async fn get_tuner_host_types(configuration: &configuration::Configuration) -> Result<Vec<models::NameIdPair>, Error<GetTunerHostTypesError>> {
+pub async fn get_tuner_host_types(configuration: &configuration::Configuration, ) -> Result<Vec<models::NameIdPair>, Error<GetTunerHostTypesError>> {
 
     let uri_str = format!("{}/LiveTv/TunerHosts/Types", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -2495,9 +2224,11 @@ pub async fn get_tuner_host_types(configuration: &configuration::Configuration) 
     }
 }
 
-pub async fn reset_tuner(configuration: &configuration::Configuration, params: ResetTunerParams) -> Result<(), Error<ResetTunerError>> {
+pub async fn reset_tuner(configuration: &configuration::Configuration, tuner_id: &str) -> Result<(), Error<ResetTunerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_tuner_id = tuner_id;
 
-    let uri_str = format!("{}/LiveTv/Tuners/{tunerId}/Reset", configuration.base_path, tunerId=crate::apis::urlencode(params.tuner_id));
+    let uri_str = format!("{}/LiveTv/Tuners/{tunerId}/Reset", configuration.base_path, tunerId=crate::apis::urlencode(p_path_tuner_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2526,7 +2257,9 @@ pub async fn reset_tuner(configuration: &configuration::Configuration, params: R
     }
 }
 
-pub async fn set_channel_mapping(configuration: &configuration::Configuration, params: SetChannelMappingParams) -> Result<models::TunerChannelMapping, Error<SetChannelMappingError>> {
+pub async fn set_channel_mapping(configuration: &configuration::Configuration, set_channel_mapping_dto: models::SetChannelMappingDto) -> Result<models::TunerChannelMapping, Error<SetChannelMappingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_set_channel_mapping_dto = set_channel_mapping_dto;
 
     let uri_str = format!("{}/LiveTv/ChannelMappings", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -2542,7 +2275,7 @@ pub async fn set_channel_mapping(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.set_channel_mapping_dto);
+    req_builder = req_builder.json(&p_body_set_channel_mapping_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -2569,9 +2302,12 @@ pub async fn set_channel_mapping(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn update_series_timer(configuration: &configuration::Configuration, params: UpdateSeriesTimerParams) -> Result<(), Error<UpdateSeriesTimerError>> {
+pub async fn update_series_timer(configuration: &configuration::Configuration, timer_id: &str, series_timer_info_dto: Option<models::SeriesTimerInfoDto>) -> Result<(), Error<UpdateSeriesTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
+    let p_body_series_timer_info_dto = series_timer_info_dto;
 
-    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/SeriesTimers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2585,7 +2321,7 @@ pub async fn update_series_timer(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.series_timer_info_dto);
+    req_builder = req_builder.json(&p_body_series_timer_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -2601,9 +2337,12 @@ pub async fn update_series_timer(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn update_timer(configuration: &configuration::Configuration, params: UpdateTimerParams) -> Result<(), Error<UpdateTimerError>> {
+pub async fn update_timer(configuration: &configuration::Configuration, timer_id: &str, timer_info_dto: Option<models::TimerInfoDto>) -> Result<(), Error<UpdateTimerError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_timer_id = timer_id;
+    let p_body_timer_info_dto = timer_info_dto;
 
-    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(params.timer_id));
+    let uri_str = format!("{}/LiveTv/Timers/{timerId}", configuration.base_path, timerId=crate::apis::urlencode(p_path_timer_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -2617,7 +2356,7 @@ pub async fn update_timer(configuration: &configuration::Configuration, params: 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.timer_info_dto);
+    req_builder = req_builder.json(&p_body_timer_info_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

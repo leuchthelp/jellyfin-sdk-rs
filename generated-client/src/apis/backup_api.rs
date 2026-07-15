@@ -14,27 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`create_backup`]
-#[derive(Clone, Debug)]
-pub struct CreateBackupParams {
-    /// The backup options.
-    pub backup_options_dto: Option<models::BackupOptionsDto>
-}
-
-/// struct for passing parameters to the method [`get_backup`]
-#[derive(Clone, Debug)]
-pub struct GetBackupParams {
-    /// The data to start a restore process.
-    pub path: String
-}
-
-/// struct for passing parameters to the method [`start_restore_backup`]
-#[derive(Clone, Debug)]
-pub struct StartRestoreBackupParams {
-    /// The data to start a restore process.
-    pub backup_restore_request_dto: models::BackupRestoreRequestDto
-}
-
 
 /// struct for typed errors of method [`create_backup`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -79,7 +58,9 @@ pub enum StartRestoreBackupError {
 }
 
 
-pub async fn create_backup(configuration: &configuration::Configuration, params: CreateBackupParams) -> Result<models::BackupManifestDto, Error<CreateBackupError>> {
+pub async fn create_backup(configuration: &configuration::Configuration, backup_options_dto: Option<models::BackupOptionsDto>) -> Result<models::BackupManifestDto, Error<CreateBackupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_backup_options_dto = backup_options_dto;
 
     let uri_str = format!("{}/Backup/Create", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -95,7 +76,7 @@ pub async fn create_backup(configuration: &configuration::Configuration, params:
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.backup_options_dto);
+    req_builder = req_builder.json(&p_body_backup_options_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -122,12 +103,14 @@ pub async fn create_backup(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn get_backup(configuration: &configuration::Configuration, params: GetBackupParams) -> Result<models::BackupManifestDto, Error<GetBackupError>> {
+pub async fn get_backup(configuration: &configuration::Configuration, path: &str) -> Result<models::BackupManifestDto, Error<GetBackupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_path = path;
 
     let uri_str = format!("{}/Backup/Manifest", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    req_builder = req_builder.query(&[("path", &params.path.to_string())]);
+    req_builder = req_builder.query(&[("path", &p_query_path.to_string())]);
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
     }
@@ -165,7 +148,7 @@ pub async fn get_backup(configuration: &configuration::Configuration, params: Ge
     }
 }
 
-pub async fn list_backups(configuration: &configuration::Configuration) -> Result<Vec<models::BackupManifestDto>, Error<ListBackupsError>> {
+pub async fn list_backups(configuration: &configuration::Configuration, ) -> Result<Vec<models::BackupManifestDto>, Error<ListBackupsError>> {
 
     let uri_str = format!("{}/Backup", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -207,7 +190,9 @@ pub async fn list_backups(configuration: &configuration::Configuration) -> Resul
     }
 }
 
-pub async fn start_restore_backup(configuration: &configuration::Configuration, params: StartRestoreBackupParams) -> Result<(), Error<StartRestoreBackupError>> {
+pub async fn start_restore_backup(configuration: &configuration::Configuration, backup_restore_request_dto: models::BackupRestoreRequestDto) -> Result<(), Error<StartRestoreBackupError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_backup_restore_request_dto = backup_restore_request_dto;
 
     let uri_str = format!("{}/Backup/Restore", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -223,7 +208,7 @@ pub async fn start_restore_backup(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.backup_restore_request_dto);
+    req_builder = req_builder.json(&p_body_backup_restore_request_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

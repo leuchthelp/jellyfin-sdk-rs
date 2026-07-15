@@ -14,120 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`cancel_package_installation`]
-#[derive(Clone, Debug)]
-pub struct CancelPackageInstallationParams {
-    /// Installation Id.
-    pub package_id: String
-}
-
-/// struct for passing parameters to the method [`disable_plugin`]
-#[derive(Clone, Debug)]
-pub struct DisablePluginParams {
-    /// Plugin id.
-    pub plugin_id: String,
-    /// Plugin version.
-    pub version: String
-}
-
-/// struct for passing parameters to the method [`enable_plugin`]
-#[derive(Clone, Debug)]
-pub struct EnablePluginParams {
-    /// Plugin id.
-    pub plugin_id: String,
-    /// Plugin version.
-    pub version: String
-}
-
-/// struct for passing parameters to the method [`get_configuration_pages`]
-#[derive(Clone, Debug)]
-pub struct GetConfigurationPagesParams {
-    /// Whether to enable in the main menu.
-    pub enable_in_main_menu: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_dashboard_configuration_page`]
-#[derive(Clone, Debug)]
-pub struct GetDashboardConfigurationPageParams {
-    /// The name of the page.
-    pub name: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_package_info`]
-#[derive(Clone, Debug)]
-pub struct GetPackageInfoParams {
-    /// The name of the package.
-    pub name: String,
-    /// The GUID of the associated assembly.
-    pub assembly_guid: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_plugin_configuration`]
-#[derive(Clone, Debug)]
-pub struct GetPluginConfigurationParams {
-    /// Plugin id.
-    pub plugin_id: String
-}
-
-/// struct for passing parameters to the method [`get_plugin_image`]
-#[derive(Clone, Debug)]
-pub struct GetPluginImageParams {
-    /// Plugin id.
-    pub plugin_id: String,
-    /// Plugin version.
-    pub version: String
-}
-
-/// struct for passing parameters to the method [`get_plugin_manifest`]
-#[derive(Clone, Debug)]
-pub struct GetPluginManifestParams {
-    /// Plugin id.
-    pub plugin_id: String
-}
-
-/// struct for passing parameters to the method [`install_package`]
-#[derive(Clone, Debug)]
-pub struct InstallPackageParams {
-    /// Package name.
-    pub name: String,
-    /// GUID of the associated assembly.
-    pub assembly_guid: Option<String>,
-    /// Optional version. Defaults to latest version.
-    pub version: Option<String>,
-    /// Optional. Specify the repository to install from.
-    pub repository_url: Option<String>
-}
-
-/// struct for passing parameters to the method [`set_repositories`]
-#[derive(Clone, Debug)]
-pub struct SetRepositoriesParams {
-    /// The list of package repositories.
-    pub repository_info: Vec<models::RepositoryInfo>
-}
-
-/// struct for passing parameters to the method [`uninstall_plugin`]
-#[derive(Clone, Debug)]
-pub struct UninstallPluginParams {
-    /// Plugin id.
-    pub plugin_id: String
-}
-
-/// struct for passing parameters to the method [`uninstall_plugin_by_version`]
-#[derive(Clone, Debug)]
-pub struct UninstallPluginByVersionParams {
-    /// Plugin id.
-    pub plugin_id: String,
-    /// Plugin version.
-    pub version: String
-}
-
-/// struct for passing parameters to the method [`update_plugin_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdatePluginConfigurationParams {
-    /// Plugin id.
-    pub plugin_id: String
-}
-
 
 /// struct for typed errors of method [`cancel_package_installation`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -309,9 +195,11 @@ pub enum UpdatePluginConfigurationError {
 }
 
 
-pub async fn cancel_package_installation(configuration: &configuration::Configuration, params: CancelPackageInstallationParams) -> Result<(), Error<CancelPackageInstallationError>> {
+pub async fn cancel_package_installation(configuration: &configuration::Configuration, package_id: &str) -> Result<(), Error<CancelPackageInstallationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_package_id = package_id;
 
-    let uri_str = format!("{}/Packages/Installing/{packageId}", configuration.base_path, packageId=crate::apis::urlencode(params.package_id));
+    let uri_str = format!("{}/Packages/Installing/{packageId}", configuration.base_path, packageId=crate::apis::urlencode(p_path_package_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -340,9 +228,12 @@ pub async fn cancel_package_installation(configuration: &configuration::Configur
     }
 }
 
-pub async fn disable_plugin(configuration: &configuration::Configuration, params: DisablePluginParams) -> Result<(), Error<DisablePluginError>> {
+pub async fn disable_plugin(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<DisablePluginError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
+    let p_path_version = version;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Disable", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id), version=crate::apis::urlencode(params.version));
+    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Disable", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -371,9 +262,12 @@ pub async fn disable_plugin(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn enable_plugin(configuration: &configuration::Configuration, params: EnablePluginParams) -> Result<(), Error<EnablePluginError>> {
+pub async fn enable_plugin(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<EnablePluginError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
+    let p_path_version = version;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Enable", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id), version=crate::apis::urlencode(params.version));
+    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Enable", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -402,12 +296,14 @@ pub async fn enable_plugin(configuration: &configuration::Configuration, params:
     }
 }
 
-pub async fn get_configuration_pages(configuration: &configuration::Configuration, params: GetConfigurationPagesParams) -> Result<Vec<models::ConfigurationPageInfo>, Error<GetConfigurationPagesError>> {
+pub async fn get_configuration_pages(configuration: &configuration::Configuration, enable_in_main_menu: Option<bool>) -> Result<Vec<models::ConfigurationPageInfo>, Error<GetConfigurationPagesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_enable_in_main_menu = enable_in_main_menu;
 
     let uri_str = format!("{}/web/ConfigurationPages", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.enable_in_main_menu {
+    if let Some(ref param_value) = p_query_enable_in_main_menu {
         req_builder = req_builder.query(&[("enableInMainMenu", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -447,12 +343,14 @@ pub async fn get_configuration_pages(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn get_dashboard_configuration_page(configuration: &configuration::Configuration, params: GetDashboardConfigurationPageParams) -> Result<reqwest::Response, Error<GetDashboardConfigurationPageError>> {
+pub async fn get_dashboard_configuration_page(configuration: &configuration::Configuration, name: Option<&str>) -> Result<reqwest::Response, Error<GetDashboardConfigurationPageError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
 
     let uri_str = format!("{}/web/ConfigurationPage", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -473,12 +371,15 @@ pub async fn get_dashboard_configuration_page(configuration: &configuration::Con
     }
 }
 
-pub async fn get_package_info(configuration: &configuration::Configuration, params: GetPackageInfoParams) -> Result<models::PackageInfo, Error<GetPackageInfoError>> {
+pub async fn get_package_info(configuration: &configuration::Configuration, name: &str, assembly_guid: Option<&str>) -> Result<models::PackageInfo, Error<GetPackageInfoError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
+    let p_query_assembly_guid = assembly_guid;
 
-    let uri_str = format!("{}/Packages/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/Packages/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.assembly_guid {
+    if let Some(ref param_value) = p_query_assembly_guid {
         req_builder = req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -518,7 +419,7 @@ pub async fn get_package_info(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_packages(configuration: &configuration::Configuration) -> Result<Vec<models::PackageInfo>, Error<GetPackagesError>> {
+pub async fn get_packages(configuration: &configuration::Configuration, ) -> Result<Vec<models::PackageInfo>, Error<GetPackagesError>> {
 
     let uri_str = format!("{}/Packages", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -560,9 +461,11 @@ pub async fn get_packages(configuration: &configuration::Configuration) -> Resul
     }
 }
 
-pub async fn get_plugin_configuration(configuration: &configuration::Configuration, params: GetPluginConfigurationParams) -> Result<serde_json::Value, Error<GetPluginConfigurationError>> {
+pub async fn get_plugin_configuration(configuration: &configuration::Configuration, plugin_id: &str) -> Result<serde_json::Value, Error<GetPluginConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id));
+    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -602,9 +505,12 @@ pub async fn get_plugin_configuration(configuration: &configuration::Configurati
     }
 }
 
-pub async fn get_plugin_image(configuration: &configuration::Configuration, params: GetPluginImageParams) -> Result<reqwest::Response, Error<GetPluginImageError>> {
+pub async fn get_plugin_image(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<reqwest::Response, Error<GetPluginImageError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
+    let p_path_version = version;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Image", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id), version=crate::apis::urlencode(params.version));
+    let uri_str = format!("{}/Plugins/{pluginId}/{version}/Image", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -633,9 +539,11 @@ pub async fn get_plugin_image(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn get_plugin_manifest(configuration: &configuration::Configuration, params: GetPluginManifestParams) -> Result<(), Error<GetPluginManifestError>> {
+pub async fn get_plugin_manifest(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<GetPluginManifestError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/Manifest", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id));
+    let uri_str = format!("{}/Plugins/{pluginId}/Manifest", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -664,7 +572,7 @@ pub async fn get_plugin_manifest(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn get_plugins(configuration: &configuration::Configuration) -> Result<Vec<models::PluginInfo>, Error<GetPluginsError>> {
+pub async fn get_plugins(configuration: &configuration::Configuration, ) -> Result<Vec<models::PluginInfo>, Error<GetPluginsError>> {
 
     let uri_str = format!("{}/Plugins", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -706,7 +614,7 @@ pub async fn get_plugins(configuration: &configuration::Configuration) -> Result
     }
 }
 
-pub async fn get_repositories(configuration: &configuration::Configuration) -> Result<Vec<models::RepositoryInfo>, Error<GetRepositoriesError>> {
+pub async fn get_repositories(configuration: &configuration::Configuration, ) -> Result<Vec<models::RepositoryInfo>, Error<GetRepositoriesError>> {
 
     let uri_str = format!("{}/Repositories", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -748,18 +656,23 @@ pub async fn get_repositories(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn install_package(configuration: &configuration::Configuration, params: InstallPackageParams) -> Result<(), Error<InstallPackageError>> {
+pub async fn install_package(configuration: &configuration::Configuration, name: &str, assembly_guid: Option<&str>, version: Option<&str>, repository_url: Option<&str>) -> Result<(), Error<InstallPackageError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
+    let p_query_assembly_guid = assembly_guid;
+    let p_query_version = version;
+    let p_query_repository_url = repository_url;
 
-    let uri_str = format!("{}/Packages/Installed/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/Packages/Installed/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.assembly_guid {
+    if let Some(ref param_value) = p_query_assembly_guid {
         req_builder = req_builder.query(&[("assemblyGuid", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.version {
+    if let Some(ref param_value) = p_query_version {
         req_builder = req_builder.query(&[("version", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.repository_url {
+    if let Some(ref param_value) = p_query_repository_url {
         req_builder = req_builder.query(&[("repositoryUrl", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -788,7 +701,9 @@ pub async fn install_package(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn set_repositories(configuration: &configuration::Configuration, params: SetRepositoriesParams) -> Result<(), Error<SetRepositoriesError>> {
+pub async fn set_repositories(configuration: &configuration::Configuration, repository_info: Vec<models::RepositoryInfo>) -> Result<(), Error<SetRepositoriesError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_repository_info = repository_info;
 
     let uri_str = format!("{}/Repositories", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -804,7 +719,7 @@ pub async fn set_repositories(configuration: &configuration::Configuration, para
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.repository_info);
+    req_builder = req_builder.json(&p_body_repository_info);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -820,9 +735,11 @@ pub async fn set_repositories(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn uninstall_plugin(configuration: &configuration::Configuration, params: UninstallPluginParams) -> Result<(), Error<UninstallPluginError>> {
+pub async fn uninstall_plugin(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<UninstallPluginError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
 
-    let uri_str = format!("{}/Plugins/{pluginId}", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id));
+    let uri_str = format!("{}/Plugins/{pluginId}", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -851,9 +768,12 @@ pub async fn uninstall_plugin(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn uninstall_plugin_by_version(configuration: &configuration::Configuration, params: UninstallPluginByVersionParams) -> Result<(), Error<UninstallPluginByVersionError>> {
+pub async fn uninstall_plugin_by_version(configuration: &configuration::Configuration, plugin_id: &str, version: &str) -> Result<(), Error<UninstallPluginByVersionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
+    let p_path_version = version;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/{version}", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id), version=crate::apis::urlencode(params.version));
+    let uri_str = format!("{}/Plugins/{pluginId}/{version}", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id), version=crate::apis::urlencode(p_path_version));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -883,9 +803,11 @@ pub async fn uninstall_plugin_by_version(configuration: &configuration::Configur
 }
 
 /// Accepts plugin configuration as JSON body.
-pub async fn update_plugin_configuration(configuration: &configuration::Configuration, params: UpdatePluginConfigurationParams) -> Result<(), Error<UpdatePluginConfigurationError>> {
+pub async fn update_plugin_configuration(configuration: &configuration::Configuration, plugin_id: &str) -> Result<(), Error<UpdatePluginConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_plugin_id = plugin_id;
 
-    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(params.plugin_id));
+    let uri_str = format!("{}/Plugins/{pluginId}/Configuration", configuration.base_path, pluginId=crate::apis::urlencode(p_path_plugin_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {

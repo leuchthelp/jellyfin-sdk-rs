@@ -14,129 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`add_item_to_playlist`]
-#[derive(Clone, Debug)]
-pub struct AddItemToPlaylistParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// Item id, comma delimited.
-    pub ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. 0-based index where to place the items or at the end if `null`.
-    pub position: Option<i32>,
-    /// The userId.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`create_playlist`]
-#[derive(Clone, Debug)]
-pub struct CreatePlaylistParams {
-    /// The playlist name.
-    pub name: Option<String>,
-    /// The item ids.
-    pub ids: Option<Vec<uuid::Uuid>>,
-    /// The user id.
-    pub user_id: Option<String>,
-    /// The media type.
-    pub media_type: Option<String>,
-    /// The create playlist payload.
-    pub create_playlist_dto: Option<models::CreatePlaylistDto>
-}
-
-/// struct for passing parameters to the method [`get_playlist`]
-#[derive(Clone, Debug)]
-pub struct GetPlaylistParams {
-    /// The playlist id.
-    pub playlist_id: String
-}
-
-/// struct for passing parameters to the method [`get_playlist_items`]
-#[derive(Clone, Debug)]
-pub struct GetPlaylistItemsParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Include image information in output.
-    pub enable_images: Option<bool>,
-    /// Optional. Include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional. The max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>
-}
-
-/// struct for passing parameters to the method [`get_playlist_user`]
-#[derive(Clone, Debug)]
-pub struct GetPlaylistUserParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`get_playlist_users`]
-#[derive(Clone, Debug)]
-pub struct GetPlaylistUsersParams {
-    /// The playlist id.
-    pub playlist_id: String
-}
-
-/// struct for passing parameters to the method [`move_item`]
-#[derive(Clone, Debug)]
-pub struct MoveItemParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The item id.
-    pub item_id: String,
-    /// The new index.
-    pub new_index: i32
-}
-
-/// struct for passing parameters to the method [`remove_item_from_playlist`]
-#[derive(Clone, Debug)]
-pub struct RemoveItemFromPlaylistParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The item ids, comma delimited.
-    pub entry_ids: Option<Vec<String>>
-}
-
-/// struct for passing parameters to the method [`remove_user_from_playlist`]
-#[derive(Clone, Debug)]
-pub struct RemoveUserFromPlaylistParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`update_playlist`]
-#[derive(Clone, Debug)]
-pub struct UpdatePlaylistParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The Jellyfin.Api.Models.PlaylistDtos.UpdatePlaylistDto id.
-    pub update_playlist_dto: models::UpdatePlaylistDto
-}
-
-/// struct for passing parameters to the method [`update_playlist_user`]
-#[derive(Clone, Debug)]
-pub struct UpdatePlaylistUserParams {
-    /// The playlist id.
-    pub playlist_id: String,
-    /// The user id.
-    pub user_id: String,
-    /// The Jellyfin.Api.Models.PlaylistDtos.UpdatePlaylistUserDto.
-    pub update_playlist_user_dto: models::UpdatePlaylistUserDto
-}
-
 
 /// struct for typed errors of method [`add_item_to_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -259,21 +136,26 @@ pub enum UpdatePlaylistUserError {
 }
 
 
-pub async fn add_item_to_playlist(configuration: &configuration::Configuration, params: AddItemToPlaylistParams) -> Result<(), Error<AddItemToPlaylistError>> {
+pub async fn add_item_to_playlist(configuration: &configuration::Configuration, playlist_id: &str, ids: Option<Vec<uuid::Uuid>>, position: Option<i32>, user_id: Option<&str>) -> Result<(), Error<AddItemToPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_query_ids = ids;
+    let p_query_position = position;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.ids {
+    if let Some(ref param_value) = p_query_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.position {
+    if let Some(ref param_value) = p_query_position {
         req_builder = req_builder.query(&[("position", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -303,24 +185,30 @@ pub async fn add_item_to_playlist(configuration: &configuration::Configuration, 
 }
 
 /// For backwards compatibility parameters can be sent via Query or Body, with Query having higher precedence. Query parameters are obsolete.
-pub async fn create_playlist(configuration: &configuration::Configuration, params: CreatePlaylistParams) -> Result<models::PlaylistCreationResult, Error<CreatePlaylistError>> {
+pub async fn create_playlist(configuration: &configuration::Configuration, name: Option<&str>, ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, media_type: Option<&str>, create_playlist_dto: Option<models::CreatePlaylistDto>) -> Result<models::PlaylistCreationResult, Error<CreatePlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_ids = ids;
+    let p_query_user_id = user_id;
+    let p_query_media_type = media_type;
+    let p_body_create_playlist_dto = create_playlist_dto;
 
     let uri_str = format!("{}/Playlists", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.ids {
+    if let Some(ref param_value) = p_query_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_type {
+    if let Some(ref param_value) = p_query_media_type {
         req_builder = req_builder.query(&[("mediaType", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -334,7 +222,7 @@ pub async fn create_playlist(configuration: &configuration::Configuration, param
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.create_playlist_dto);
+    req_builder = req_builder.json(&p_body_create_playlist_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -361,9 +249,11 @@ pub async fn create_playlist(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn get_playlist(configuration: &configuration::Configuration, params: GetPlaylistParams) -> Result<models::PlaylistDto, Error<GetPlaylistError>> {
+pub async fn get_playlist(configuration: &configuration::Configuration, playlist_id: &str) -> Result<models::PlaylistDto, Error<GetPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
 
-    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -403,36 +293,46 @@ pub async fn get_playlist(configuration: &configuration::Configuration, params: 
     }
 }
 
-pub async fn get_playlist_items(configuration: &configuration::Configuration, params: GetPlaylistItemsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetPlaylistItemsError>> {
+pub async fn get_playlist_items(configuration: &configuration::Configuration, playlist_id: &str, user_id: Option<&str>, start_index: Option<i32>, limit: Option<i32>, fields: Option<Vec<models::ItemFields>>, enable_images: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>) -> Result<models::BaseItemDtoQueryResult, Error<GetPlaylistItemsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_query_user_id = user_id;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_fields = fields;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -475,9 +375,12 @@ pub async fn get_playlist_items(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn get_playlist_user(configuration: &configuration::Configuration, params: GetPlaylistUserParams) -> Result<models::PlaylistUserPermissions, Error<GetPlaylistUserError>> {
+pub async fn get_playlist_user(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str) -> Result<models::PlaylistUserPermissions, Error<GetPlaylistUserError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id), userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -517,9 +420,11 @@ pub async fn get_playlist_user(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_playlist_users(configuration: &configuration::Configuration, params: GetPlaylistUsersParams) -> Result<Vec<models::PlaylistUserPermissions>, Error<GetPlaylistUsersError>> {
+pub async fn get_playlist_users(configuration: &configuration::Configuration, playlist_id: &str) -> Result<Vec<models::PlaylistUserPermissions>, Error<GetPlaylistUsersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Users", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Users", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -559,9 +464,13 @@ pub async fn get_playlist_users(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn move_item(configuration: &configuration::Configuration, params: MoveItemParams) -> Result<(), Error<MoveItemError>> {
+pub async fn move_item(configuration: &configuration::Configuration, playlist_id: &str, item_id: &str, new_index: i32) -> Result<(), Error<MoveItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_path_item_id = item_id;
+    let p_path_new_index = new_index;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id), itemId=crate::apis::urlencode(params.item_id), newIndex=params.new_index);
+    let uri_str = format!("{}/Playlists/{playlistId}/Items/{itemId}/Move/{newIndex}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), itemId=crate::apis::urlencode(p_path_item_id), newIndex=p_path_new_index);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -590,12 +499,15 @@ pub async fn move_item(configuration: &configuration::Configuration, params: Mov
     }
 }
 
-pub async fn remove_item_from_playlist(configuration: &configuration::Configuration, params: RemoveItemFromPlaylistParams) -> Result<(), Error<RemoveItemFromPlaylistError>> {
+pub async fn remove_item_from_playlist(configuration: &configuration::Configuration, playlist_id: &str, entry_ids: Option<Vec<String>>) -> Result<(), Error<RemoveItemFromPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_query_entry_ids = entry_ids;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Items", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.entry_ids {
+    if let Some(ref param_value) = p_query_entry_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("entryIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("entryIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
@@ -627,9 +539,12 @@ pub async fn remove_item_from_playlist(configuration: &configuration::Configurat
     }
 }
 
-pub async fn remove_user_from_playlist(configuration: &configuration::Configuration, params: RemoveUserFromPlaylistParams) -> Result<(), Error<RemoveUserFromPlaylistError>> {
+pub async fn remove_user_from_playlist(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str) -> Result<(), Error<RemoveUserFromPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id), userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -658,9 +573,12 @@ pub async fn remove_user_from_playlist(configuration: &configuration::Configurat
     }
 }
 
-pub async fn update_playlist(configuration: &configuration::Configuration, params: UpdatePlaylistParams) -> Result<(), Error<UpdatePlaylistError>> {
+pub async fn update_playlist(configuration: &configuration::Configuration, playlist_id: &str, update_playlist_dto: models::UpdatePlaylistDto) -> Result<(), Error<UpdatePlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_body_update_playlist_dto = update_playlist_dto;
 
-    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id));
+    let uri_str = format!("{}/Playlists/{playlistId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -674,7 +592,7 @@ pub async fn update_playlist(configuration: &configuration::Configuration, param
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_playlist_dto);
+    req_builder = req_builder.json(&p_body_update_playlist_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -690,9 +608,13 @@ pub async fn update_playlist(configuration: &configuration::Configuration, param
     }
 }
 
-pub async fn update_playlist_user(configuration: &configuration::Configuration, params: UpdatePlaylistUserParams) -> Result<(), Error<UpdatePlaylistUserError>> {
+pub async fn update_playlist_user(configuration: &configuration::Configuration, playlist_id: &str, user_id: &str, update_playlist_user_dto: models::UpdatePlaylistUserDto) -> Result<(), Error<UpdatePlaylistUserError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_playlist_id = playlist_id;
+    let p_path_user_id = user_id;
+    let p_body_update_playlist_user_dto = update_playlist_user_dto;
 
-    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(params.playlist_id), userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Playlists/{playlistId}/Users/{userId}", configuration.base_path, playlistId=crate::apis::urlencode(p_path_playlist_id), userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -706,7 +628,7 @@ pub async fn update_playlist_user(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_playlist_user_dto);
+    req_builder = req_builder.json(&p_body_update_playlist_user_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

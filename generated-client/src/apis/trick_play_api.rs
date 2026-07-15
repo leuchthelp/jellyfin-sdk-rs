@@ -14,30 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_trickplay_hls_playlist`]
-#[derive(Clone, Debug)]
-pub struct GetTrickplayHlsPlaylistParams {
-    /// The item id.
-    pub item_id: String,
-    /// The width of a single tile.
-    pub width: i32,
-    /// The media version id, if using an alternate version.
-    pub media_source_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_trickplay_tile_image`]
-#[derive(Clone, Debug)]
-pub struct GetTrickplayTileImageParams {
-    /// The item id.
-    pub item_id: String,
-    /// The width of a single tile.
-    pub width: i32,
-    /// The index of the desired tile.
-    pub index: i32,
-    /// The media version id, if using an alternate version.
-    pub media_source_id: Option<String>
-}
-
 
 /// struct for typed errors of method [`get_trickplay_hls_playlist`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -62,12 +38,16 @@ pub enum GetTrickplayTileImageError {
 }
 
 
-pub async fn get_trickplay_hls_playlist(configuration: &configuration::Configuration, params: GetTrickplayHlsPlaylistParams) -> Result<reqwest::Response, Error<GetTrickplayHlsPlaylistError>> {
+pub async fn get_trickplay_hls_playlist(configuration: &configuration::Configuration, item_id: &str, width: i32, media_source_id: Option<&str>) -> Result<reqwest::Response, Error<GetTrickplayHlsPlaylistError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_width = width;
+    let p_query_media_source_id = media_source_id;
 
-    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/tiles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), width=params.width);
+    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/tiles.m3u8", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), width=p_path_width);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -96,12 +76,17 @@ pub async fn get_trickplay_hls_playlist(configuration: &configuration::Configura
     }
 }
 
-pub async fn get_trickplay_tile_image(configuration: &configuration::Configuration, params: GetTrickplayTileImageParams) -> Result<reqwest::Response, Error<GetTrickplayTileImageError>> {
+pub async fn get_trickplay_tile_image(configuration: &configuration::Configuration, item_id: &str, width: i32, index: i32, media_source_id: Option<&str>) -> Result<reqwest::Response, Error<GetTrickplayTileImageError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_path_width = width;
+    let p_path_index = index;
+    let p_query_media_source_id = media_source_id;
 
-    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/{index}.jpg", configuration.base_path, itemId=crate::apis::urlencode(params.item_id), width=params.width, index=params.index);
+    let uri_str = format!("{}/Videos/{itemId}/Trickplay/{width}/{index}.jpg", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id), width=p_path_width, index=p_path_index);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.media_source_id {
+    if let Some(ref param_value) = p_query_media_source_id {
         req_builder = req_builder.query(&[("mediaSourceId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

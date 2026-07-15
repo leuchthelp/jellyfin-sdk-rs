@@ -14,44 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_query_filters`]
-#[derive(Clone, Debug)]
-pub struct GetQueryFiltersParams {
-    /// Optional. User id.
-    pub user_id: Option<String>,
-    /// Optional. Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Is item airing.
-    pub is_airing: Option<bool>,
-    /// Optional. Is item movie.
-    pub is_movie: Option<bool>,
-    /// Optional. Is item sports.
-    pub is_sports: Option<bool>,
-    /// Optional. Is item kids.
-    pub is_kids: Option<bool>,
-    /// Optional. Is item news.
-    pub is_news: Option<bool>,
-    /// Optional. Is item series.
-    pub is_series: Option<bool>,
-    /// Optional. Search recursive.
-    pub recursive: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_query_filters_legacy`]
-#[derive(Clone, Debug)]
-pub struct GetQueryFiltersLegacyParams {
-    /// Optional. User id.
-    pub user_id: Option<String>,
-    /// Optional. Parent id.
-    pub parent_id: Option<String>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>
-}
-
 
 /// struct for typed errors of method [`get_query_filters`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -74,42 +36,53 @@ pub enum GetQueryFiltersLegacyError {
 }
 
 
-pub async fn get_query_filters(configuration: &configuration::Configuration, params: GetQueryFiltersParams) -> Result<models::QueryFilters, Error<GetQueryFiltersError>> {
+pub async fn get_query_filters(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, is_airing: Option<bool>, is_movie: Option<bool>, is_sports: Option<bool>, is_kids: Option<bool>, is_news: Option<bool>, is_series: Option<bool>, recursive: Option<bool>) -> Result<models::QueryFilters, Error<GetQueryFiltersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_parent_id = parent_id;
+    let p_query_include_item_types = include_item_types;
+    let p_query_is_airing = is_airing;
+    let p_query_is_movie = is_movie;
+    let p_query_is_sports = is_sports;
+    let p_query_is_kids = is_kids;
+    let p_query_is_news = is_news;
+    let p_query_is_series = is_series;
+    let p_query_recursive = recursive;
 
     let uri_str = format!("{}/Items/Filters2", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_airing {
+    if let Some(ref param_value) = p_query_is_airing {
         req_builder = req_builder.query(&[("isAiring", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_movie {
+    if let Some(ref param_value) = p_query_is_movie {
         req_builder = req_builder.query(&[("isMovie", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_sports {
+    if let Some(ref param_value) = p_query_is_sports {
         req_builder = req_builder.query(&[("isSports", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_kids {
+    if let Some(ref param_value) = p_query_is_kids {
         req_builder = req_builder.query(&[("isKids", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_news {
+    if let Some(ref param_value) = p_query_is_news {
         req_builder = req_builder.query(&[("isNews", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_series {
+    if let Some(ref param_value) = p_query_is_series {
         req_builder = req_builder.query(&[("isSeries", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.recursive {
+    if let Some(ref param_value) = p_query_recursive {
         req_builder = req_builder.query(&[("recursive", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -149,24 +122,29 @@ pub async fn get_query_filters(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn get_query_filters_legacy(configuration: &configuration::Configuration, params: GetQueryFiltersLegacyParams) -> Result<models::QueryFiltersLegacy, Error<GetQueryFiltersLegacyError>> {
+pub async fn get_query_filters_legacy(configuration: &configuration::Configuration, user_id: Option<&str>, parent_id: Option<&str>, include_item_types: Option<Vec<models::BaseItemKind>>, media_types: Option<Vec<models::MediaType>>) -> Result<models::QueryFiltersLegacy, Error<GetQueryFiltersLegacyError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_user_id = user_id;
+    let p_query_parent_id = parent_id;
+    let p_query_include_item_types = include_item_types;
+    let p_query_media_types = media_types;
 
     let uri_str = format!("{}/Items/Filters", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),

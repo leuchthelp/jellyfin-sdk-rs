@@ -14,153 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_album_artists`]
-#[derive(Clone, Debug)]
-pub struct GetAlbumArtistsParams {
-    /// Optional filter by minimum community rating.
-    pub min_community_rating: Option<f64>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Search term.
-    pub search_term: Option<String>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. If specified, results will be filtered out based on item type. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Specify additional filters to apply.
-    pub filters: Option<Vec<models::ItemFilter>>,
-    /// Optional filter by items that are marked as favorite, or not.
-    pub is_favorite: Option<bool>,
-    /// Optional filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// Optional. If specified, results will be filtered based on genre. This allows multiple, pipe delimited.
-    pub genres: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on genre id. This allows multiple, pipe delimited.
-    pub genre_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered based on OfficialRating. This allows multiple, pipe delimited.
-    pub official_ratings: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on tag. This allows multiple, pipe delimited.
-    pub tags: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on production year. This allows multiple, comma delimited.
-    pub years: Option<Vec<i32>>,
-    /// Optional, include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional, the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person.
-    pub person: Option<String>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person ids.
-    pub person_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, along with Person, results will be filtered to include only those containing the specified person and PersonType. Allows multiple, comma-delimited.
-    pub person_types: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on studio. This allows multiple, pipe delimited.
-    pub studios: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on studio id. This allows multiple, pipe delimited.
-    pub studio_ids: Option<Vec<uuid::Uuid>>,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Optional filter by items whose name is sorted equally or greater than a given input string.
-    pub name_starts_with_or_greater: Option<String>,
-    /// Optional filter by items whose name is sorted equally than a given input string.
-    pub name_starts_with: Option<String>,
-    /// Optional filter by items whose name is equally or lesser than a given input string.
-    pub name_less_than: Option<String>,
-    /// Optional. Specify one or more sort orders, comma delimited.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Sort Order - Ascending,Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>,
-    /// Optional, include image information in output.
-    pub enable_images: Option<bool>,
-    /// Total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_artist_by_name`]
-#[derive(Clone, Debug)]
-pub struct GetArtistByNameParams {
-    /// Studio name.
-    pub name: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_artists`]
-#[derive(Clone, Debug)]
-pub struct GetArtistsParams {
-    /// Optional filter by minimum community rating.
-    pub min_community_rating: Option<f64>,
-    /// Optional. The record index to start at. All items with a lower index will be dropped from the results.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// Optional. Search term.
-    pub search_term: Option<String>,
-    /// Specify this to localize the search to a specific item or folder. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. If specified, results will be filtered out based on item type. This allows multiple, comma delimited.
-    pub exclude_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. If specified, results will be filtered based on item type. This allows multiple, comma delimited.
-    pub include_item_types: Option<Vec<models::BaseItemKind>>,
-    /// Optional. Specify additional filters to apply.
-    pub filters: Option<Vec<models::ItemFilter>>,
-    /// Optional filter by items that are marked as favorite, or not.
-    pub is_favorite: Option<bool>,
-    /// Optional filter by MediaType. Allows multiple, comma delimited.
-    pub media_types: Option<Vec<models::MediaType>>,
-    /// Optional. If specified, results will be filtered based on genre. This allows multiple, pipe delimited.
-    pub genres: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on genre id. This allows multiple, pipe delimited.
-    pub genre_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, results will be filtered based on OfficialRating. This allows multiple, pipe delimited.
-    pub official_ratings: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on tag. This allows multiple, pipe delimited.
-    pub tags: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on production year. This allows multiple, comma delimited.
-    pub years: Option<Vec<i32>>,
-    /// Optional, include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional, the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person.
-    pub person: Option<String>,
-    /// Optional. If specified, results will be filtered to include only those containing the specified person ids.
-    pub person_ids: Option<Vec<uuid::Uuid>>,
-    /// Optional. If specified, along with Person, results will be filtered to include only those containing the specified person and PersonType. Allows multiple, comma-delimited.
-    pub person_types: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on studio. This allows multiple, pipe delimited.
-    pub studios: Option<Vec<String>>,
-    /// Optional. If specified, results will be filtered based on studio id. This allows multiple, pipe delimited.
-    pub studio_ids: Option<Vec<uuid::Uuid>>,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Optional filter by items whose name is sorted equally or greater than a given input string.
-    pub name_starts_with_or_greater: Option<String>,
-    /// Optional filter by items whose name is sorted equally than a given input string.
-    pub name_starts_with: Option<String>,
-    /// Optional filter by items whose name is equally or lesser than a given input string.
-    pub name_less_than: Option<String>,
-    /// Optional. Specify one or more sort orders, comma delimited.
-    pub sort_by: Option<Vec<models::ItemSortBy>>,
-    /// Sort Order - Ascending,Descending.
-    pub sort_order: Option<Vec<models::SortOrder>>,
-    /// Optional, include image information in output.
-    pub enable_images: Option<bool>,
-    /// Total record count.
-    pub enable_total_record_count: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_album_artists`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -194,156 +47,189 @@ pub enum GetArtistsError {
 
 
 #[deprecated]
-pub async fn get_album_artists(configuration: &configuration::Configuration, params: GetAlbumArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetAlbumArtistsError>> {
+pub async fn get_album_artists(configuration: &configuration::Configuration, min_community_rating: Option<f64>, start_index: Option<i32>, limit: Option<i32>, search_term: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, filters: Option<Vec<models::ItemFilter>>, is_favorite: Option<bool>, media_types: Option<Vec<models::MediaType>>, genres: Option<Vec<String>>, genre_ids: Option<Vec<uuid::Uuid>>, official_ratings: Option<Vec<String>>, tags: Option<Vec<String>>, years: Option<Vec<i32>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, person: Option<&str>, person_ids: Option<Vec<uuid::Uuid>>, person_types: Option<Vec<String>>, studios: Option<Vec<String>>, studio_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, name_starts_with_or_greater: Option<&str>, name_starts_with: Option<&str>, name_less_than: Option<&str>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>, enable_images: Option<bool>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetAlbumArtistsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_min_community_rating = min_community_rating;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_search_term = search_term;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_include_item_types = include_item_types;
+    let p_query_filters = filters;
+    let p_query_is_favorite = is_favorite;
+    let p_query_media_types = media_types;
+    let p_query_genres = genres;
+    let p_query_genre_ids = genre_ids;
+    let p_query_official_ratings = official_ratings;
+    let p_query_tags = tags;
+    let p_query_years = years;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_person = person;
+    let p_query_person_ids = person_ids;
+    let p_query_person_types = person_types;
+    let p_query_studios = studios;
+    let p_query_studio_ids = studio_ids;
+    let p_query_user_id = user_id;
+    let p_query_name_starts_with_or_greater = name_starts_with_or_greater;
+    let p_query_name_starts_with = name_starts_with;
+    let p_query_name_less_than = name_less_than;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/Artists/AlbumArtists", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.min_community_rating {
+    if let Some(ref param_value) = p_query_min_community_rating {
         req_builder = req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.search_term {
+    if let Some(ref param_value) = p_query_search_term {
         req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.filters {
+    if let Some(ref param_value) = p_query_filters {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genres {
+    if let Some(ref param_value) = p_query_genres {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genre_ids {
+    if let Some(ref param_value) = p_query_genre_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.official_ratings {
+    if let Some(ref param_value) = p_query_official_ratings {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.tags {
+    if let Some(ref param_value) = p_query_tags {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.years {
+    if let Some(ref param_value) = p_query_years {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person {
+    if let Some(ref param_value) = p_query_person {
         req_builder = req_builder.query(&[("person", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.person_ids {
+    if let Some(ref param_value) = p_query_person_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person_types {
+    if let Some(ref param_value) = p_query_person_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.studios {
+    if let Some(ref param_value) = p_query_studios {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.studio_ids {
+    if let Some(ref param_value) = p_query_studio_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with_or_greater {
+    if let Some(ref param_value) = p_query_name_starts_with_or_greater {
         req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with {
+    if let Some(ref param_value) = p_query_name_starts_with {
         req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_less_than {
+    if let Some(ref param_value) = p_query_name_less_than {
         req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -384,12 +270,15 @@ pub async fn get_album_artists(configuration: &configuration::Configuration, par
 }
 
 #[deprecated]
-pub async fn get_artist_by_name(configuration: &configuration::Configuration, params: GetArtistByNameParams) -> Result<models::BaseItemDto, Error<GetArtistByNameError>> {
+pub async fn get_artist_by_name(configuration: &configuration::Configuration, name: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetArtistByNameError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Artists/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/Artists/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -430,156 +319,189 @@ pub async fn get_artist_by_name(configuration: &configuration::Configuration, pa
 }
 
 #[deprecated]
-pub async fn get_artists(configuration: &configuration::Configuration, params: GetArtistsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetArtistsError>> {
+pub async fn get_artists(configuration: &configuration::Configuration, min_community_rating: Option<f64>, start_index: Option<i32>, limit: Option<i32>, search_term: Option<&str>, parent_id: Option<&str>, fields: Option<Vec<models::ItemFields>>, exclude_item_types: Option<Vec<models::BaseItemKind>>, include_item_types: Option<Vec<models::BaseItemKind>>, filters: Option<Vec<models::ItemFilter>>, is_favorite: Option<bool>, media_types: Option<Vec<models::MediaType>>, genres: Option<Vec<String>>, genre_ids: Option<Vec<uuid::Uuid>>, official_ratings: Option<Vec<String>>, tags: Option<Vec<String>>, years: Option<Vec<i32>>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, person: Option<&str>, person_ids: Option<Vec<uuid::Uuid>>, person_types: Option<Vec<String>>, studios: Option<Vec<String>>, studio_ids: Option<Vec<uuid::Uuid>>, user_id: Option<&str>, name_starts_with_or_greater: Option<&str>, name_starts_with: Option<&str>, name_less_than: Option<&str>, sort_by: Option<Vec<models::ItemSortBy>>, sort_order: Option<Vec<models::SortOrder>>, enable_images: Option<bool>, enable_total_record_count: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetArtistsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_min_community_rating = min_community_rating;
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_search_term = search_term;
+    let p_query_parent_id = parent_id;
+    let p_query_fields = fields;
+    let p_query_exclude_item_types = exclude_item_types;
+    let p_query_include_item_types = include_item_types;
+    let p_query_filters = filters;
+    let p_query_is_favorite = is_favorite;
+    let p_query_media_types = media_types;
+    let p_query_genres = genres;
+    let p_query_genre_ids = genre_ids;
+    let p_query_official_ratings = official_ratings;
+    let p_query_tags = tags;
+    let p_query_years = years;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_person = person;
+    let p_query_person_ids = person_ids;
+    let p_query_person_types = person_types;
+    let p_query_studios = studios;
+    let p_query_studio_ids = studio_ids;
+    let p_query_user_id = user_id;
+    let p_query_name_starts_with_or_greater = name_starts_with_or_greater;
+    let p_query_name_starts_with = name_starts_with;
+    let p_query_name_less_than = name_less_than;
+    let p_query_sort_by = sort_by;
+    let p_query_sort_order = sort_order;
+    let p_query_enable_images = enable_images;
+    let p_query_enable_total_record_count = enable_total_record_count;
 
     let uri_str = format!("{}/Artists", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.min_community_rating {
+    if let Some(ref param_value) = p_query_min_community_rating {
         req_builder = req_builder.query(&[("minCommunityRating", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.search_term {
+    if let Some(ref param_value) = p_query_search_term {
         req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_item_types {
+    if let Some(ref param_value) = p_query_exclude_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.include_item_types {
+    if let Some(ref param_value) = p_query_include_item_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeItemTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeItemTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.filters {
+    if let Some(ref param_value) = p_query_filters {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.media_types {
+    if let Some(ref param_value) = p_query_media_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("mediaTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("mediaTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genres {
+    if let Some(ref param_value) = p_query_genres {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genres".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genres", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.genre_ids {
+    if let Some(ref param_value) = p_query_genre_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("genreIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("genreIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.official_ratings {
+    if let Some(ref param_value) = p_query_official_ratings {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("officialRatings".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("officialRatings", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.tags {
+    if let Some(ref param_value) = p_query_tags {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("tags".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("tags", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.years {
+    if let Some(ref param_value) = p_query_years {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("years".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("years", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person {
+    if let Some(ref param_value) = p_query_person {
         req_builder = req_builder.query(&[("person", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.person_ids {
+    if let Some(ref param_value) = p_query_person_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person_types {
+    if let Some(ref param_value) = p_query_person_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.studios {
+    if let Some(ref param_value) = p_query_studios {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studios".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studios", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.studio_ids {
+    if let Some(ref param_value) = p_query_studio_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("studioIds".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("studioIds", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with_or_greater {
+    if let Some(ref param_value) = p_query_name_starts_with_or_greater {
         req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with {
+    if let Some(ref param_value) = p_query_name_starts_with {
         req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_less_than {
+    if let Some(ref param_value) = p_query_name_less_than {
         req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.sort_by {
+    if let Some(ref param_value) = p_query_sort_by {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortBy".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortBy", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.sort_order {
+    if let Some(ref param_value) = p_query_sort_order {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("sortOrder".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("sortOrder", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_total_record_count {
+    if let Some(ref param_value) = p_query_enable_total_record_count {
         req_builder = req_builder.query(&[("enableTotalRecordCount", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

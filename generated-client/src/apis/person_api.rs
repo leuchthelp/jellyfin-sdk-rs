@@ -14,56 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_person`]
-#[derive(Clone, Debug)]
-pub struct GetPersonParams {
-    /// Person name.
-    pub name: String,
-    /// Optional. Filter by user id, and attach user data.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_persons`]
-#[derive(Clone, Debug)]
-pub struct GetPersonsParams {
-    /// Optional. All items with a lower index will be dropped from the response.
-    pub start_index: Option<i32>,
-    /// Optional. The maximum number of records to return.
-    pub limit: Option<i32>,
-    /// The search term.
-    pub search_term: Option<String>,
-    /// Optional. Filter by items whose name starts with the given input string.
-    pub name_starts_with: Option<String>,
-    /// Optional. Filter by items whose name will appear before this value when sorted alphabetically.
-    pub name_less_than: Option<String>,
-    /// Optional. Filter by items whose name will appear after this value when sorted alphabetically.
-    pub name_starts_with_or_greater: Option<String>,
-    /// Optional. Specify additional fields of information to return in the output.
-    pub fields: Option<Vec<models::ItemFields>>,
-    /// Optional. Specify additional filters to apply.
-    pub filters: Option<Vec<models::ItemFilter>>,
-    /// Optional filter by items that are marked as favorite, or not. userId is required.
-    pub is_favorite: Option<bool>,
-    /// Optional, include user data.
-    pub enable_user_data: Option<bool>,
-    /// Optional, the max number of images to return, per image type.
-    pub image_type_limit: Option<i32>,
-    /// Optional. The image types to include in the output.
-    pub enable_image_types: Option<Vec<models::ImageType>>,
-    /// Optional. If specified results will be filtered to exclude those containing the specified PersonType. Allows multiple, comma-delimited.
-    pub exclude_person_types: Option<Vec<String>>,
-    /// Optional. If specified results will be filtered to include only those containing the specified PersonType. Allows multiple, comma-delimited.
-    pub person_types: Option<Vec<String>>,
-    /// Optional. Specify this to localize the search to a specific library. Omit to use the root.
-    pub parent_id: Option<String>,
-    /// Optional. If specified, person results will be filtered on items related to said persons.
-    pub appears_in_item_id: Option<String>,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Optional, include image information in output.
-    pub enable_images: Option<bool>
-}
-
 
 /// struct for typed errors of method [`get_person`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -87,12 +37,15 @@ pub enum GetPersonsError {
 }
 
 
-pub async fn get_person(configuration: &configuration::Configuration, params: GetPersonParams) -> Result<models::BaseItemDto, Error<GetPersonError>> {
+pub async fn get_person(configuration: &configuration::Configuration, name: &str, user_id: Option<&str>) -> Result<models::BaseItemDto, Error<GetPersonError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_name = name;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/Persons/{name}", configuration.base_path, name=crate::apis::urlencode(params.name));
+    let uri_str = format!("{}/Persons/{name}", configuration.base_path, name=crate::apis::urlencode(p_path_name));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -132,78 +85,97 @@ pub async fn get_person(configuration: &configuration::Configuration, params: Ge
     }
 }
 
-pub async fn get_persons(configuration: &configuration::Configuration, params: GetPersonsParams) -> Result<models::BaseItemDtoQueryResult, Error<GetPersonsError>> {
+pub async fn get_persons(configuration: &configuration::Configuration, start_index: Option<i32>, limit: Option<i32>, search_term: Option<&str>, name_starts_with: Option<&str>, name_less_than: Option<&str>, name_starts_with_or_greater: Option<&str>, fields: Option<Vec<models::ItemFields>>, filters: Option<Vec<models::ItemFilter>>, is_favorite: Option<bool>, enable_user_data: Option<bool>, image_type_limit: Option<i32>, enable_image_types: Option<Vec<models::ImageType>>, exclude_person_types: Option<Vec<String>>, person_types: Option<Vec<String>>, parent_id: Option<&str>, appears_in_item_id: Option<&str>, user_id: Option<&str>, enable_images: Option<bool>) -> Result<models::BaseItemDtoQueryResult, Error<GetPersonsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_start_index = start_index;
+    let p_query_limit = limit;
+    let p_query_search_term = search_term;
+    let p_query_name_starts_with = name_starts_with;
+    let p_query_name_less_than = name_less_than;
+    let p_query_name_starts_with_or_greater = name_starts_with_or_greater;
+    let p_query_fields = fields;
+    let p_query_filters = filters;
+    let p_query_is_favorite = is_favorite;
+    let p_query_enable_user_data = enable_user_data;
+    let p_query_image_type_limit = image_type_limit;
+    let p_query_enable_image_types = enable_image_types;
+    let p_query_exclude_person_types = exclude_person_types;
+    let p_query_person_types = person_types;
+    let p_query_parent_id = parent_id;
+    let p_query_appears_in_item_id = appears_in_item_id;
+    let p_query_user_id = user_id;
+    let p_query_enable_images = enable_images;
 
     let uri_str = format!("{}/Persons", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.start_index {
+    if let Some(ref param_value) = p_query_start_index {
         req_builder = req_builder.query(&[("startIndex", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.limit {
+    if let Some(ref param_value) = p_query_limit {
         req_builder = req_builder.query(&[("limit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.search_term {
+    if let Some(ref param_value) = p_query_search_term {
         req_builder = req_builder.query(&[("searchTerm", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with {
+    if let Some(ref param_value) = p_query_name_starts_with {
         req_builder = req_builder.query(&[("nameStartsWith", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_less_than {
+    if let Some(ref param_value) = p_query_name_less_than {
         req_builder = req_builder.query(&[("nameLessThan", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.name_starts_with_or_greater {
+    if let Some(ref param_value) = p_query_name_starts_with_or_greater {
         req_builder = req_builder.query(&[("nameStartsWithOrGreater", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.fields {
+    if let Some(ref param_value) = p_query_fields {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("fields".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("fields", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.filters {
+    if let Some(ref param_value) = p_query_filters {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("filters".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("filters", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.is_favorite {
+    if let Some(ref param_value) = p_query_is_favorite {
         req_builder = req_builder.query(&[("isFavorite", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_user_data {
+    if let Some(ref param_value) = p_query_enable_user_data {
         req_builder = req_builder.query(&[("enableUserData", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.image_type_limit {
+    if let Some(ref param_value) = p_query_image_type_limit {
         req_builder = req_builder.query(&[("imageTypeLimit", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_image_types {
+    if let Some(ref param_value) = p_query_enable_image_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("enableImageTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("enableImageTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.exclude_person_types {
+    if let Some(ref param_value) = p_query_exclude_person_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("excludePersonTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("excludePersonTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.person_types {
+    if let Some(ref param_value) = p_query_person_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("personTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("personTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.appears_in_item_id {
+    if let Some(ref param_value) = p_query_appears_in_item_id {
         req_builder = req_builder.query(&[("appearsInItemId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.enable_images {
+    if let Some(ref param_value) = p_query_enable_images {
         req_builder = req_builder.query(&[("enableImages", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

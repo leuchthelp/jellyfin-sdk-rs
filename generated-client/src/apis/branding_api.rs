@@ -40,7 +40,7 @@ pub enum GetBrandingOptionsError {
 }
 
 
-pub async fn get_branding_css(configuration: &configuration::Configuration) -> Result<String, Error<GetBrandingCssError>> {
+pub async fn get_branding_css(configuration: &configuration::Configuration, ) -> Result<String, Error<GetBrandingCssError>> {
 
     let uri_str = format!("{}/Branding/Css", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -74,7 +74,7 @@ pub async fn get_branding_css(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn get_branding_css2(configuration: &configuration::Configuration) -> Result<String, Error<GetBrandingCss2Error>> {
+pub async fn get_branding_css2(configuration: &configuration::Configuration, ) -> Result<String, Error<GetBrandingCss2Error>> {
 
     let uri_str = format!("{}/Branding/Css.css", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -108,7 +108,7 @@ pub async fn get_branding_css2(configuration: &configuration::Configuration) -> 
     }
 }
 
-pub async fn get_branding_options(configuration: &configuration::Configuration) -> Result<models::BrandingOptionsDto, Error<GetBrandingOptionsError>> {
+pub async fn get_branding_options(configuration: &configuration::Configuration, ) -> Result<models::BrandingOptionsDto, Error<GetBrandingOptionsError>> {
 
     let uri_str = format!("{}/Branding/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);

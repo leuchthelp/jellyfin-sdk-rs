@@ -14,72 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`create_user_by_name`]
-#[derive(Clone, Debug)]
-pub struct CreateUserByNameParams {
-    /// The create user by name request body.
-    pub create_user_by_name: models::CreateUserByName
-}
-
-/// struct for passing parameters to the method [`delete_user`]
-#[derive(Clone, Debug)]
-pub struct DeleteUserParams {
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`get_user_by_id`]
-#[derive(Clone, Debug)]
-pub struct GetUserByIdParams {
-    /// The user id.
-    pub user_id: String
-}
-
-/// struct for passing parameters to the method [`get_users`]
-#[derive(Clone, Debug)]
-pub struct GetUsersParams {
-    /// Optional filter by IsHidden=true or false.
-    pub is_hidden: Option<bool>,
-    /// Optional filter by IsDisabled=true or false.
-    pub is_disabled: Option<bool>
-}
-
-/// struct for passing parameters to the method [`update_user`]
-#[derive(Clone, Debug)]
-pub struct UpdateUserParams {
-    /// The updated user model.
-    pub user_dto: models::UserDto,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_user_configuration`]
-#[derive(Clone, Debug)]
-pub struct UpdateUserConfigurationParams {
-    /// The new user configuration.
-    pub user_configuration: models::UserConfiguration,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_user_password`]
-#[derive(Clone, Debug)]
-pub struct UpdateUserPasswordParams {
-    /// The M:Jellyfin.Api.Controllers.UserController.UpdateUserPassword(System.Nullable{System.Guid},Jellyfin.Api.Models.UserDtos.UpdateUserPassword) request.
-    pub update_user_password: models::UpdateUserPassword,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_user_policy`]
-#[derive(Clone, Debug)]
-pub struct UpdateUserPolicyParams {
-    /// The user id.
-    pub user_id: String,
-    /// The new user policy.
-    pub user_policy: models::UserPolicy
-}
-
 
 /// struct for typed errors of method [`create_user_by_name`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -186,7 +120,9 @@ pub enum UpdateUserPolicyError {
 }
 
 
-pub async fn create_user_by_name(configuration: &configuration::Configuration, params: CreateUserByNameParams) -> Result<models::UserDto, Error<CreateUserByNameError>> {
+pub async fn create_user_by_name(configuration: &configuration::Configuration, create_user_by_name: models::CreateUserByName) -> Result<models::UserDto, Error<CreateUserByNameError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_create_user_by_name = create_user_by_name;
 
     let uri_str = format!("{}/Users/New", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -202,7 +138,7 @@ pub async fn create_user_by_name(configuration: &configuration::Configuration, p
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.create_user_by_name);
+    req_builder = req_builder.json(&p_body_create_user_by_name);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -229,9 +165,11 @@ pub async fn create_user_by_name(configuration: &configuration::Configuration, p
     }
 }
 
-pub async fn delete_user(configuration: &configuration::Configuration, params: DeleteUserParams) -> Result<(), Error<DeleteUserError>> {
+pub async fn delete_user(configuration: &configuration::Configuration, user_id: &str) -> Result<(), Error<DeleteUserError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Users/{userId}", configuration.base_path, userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Users/{userId}", configuration.base_path, userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -260,7 +198,7 @@ pub async fn delete_user(configuration: &configuration::Configuration, params: D
     }
 }
 
-pub async fn get_current_user(configuration: &configuration::Configuration) -> Result<models::UserDto, Error<GetCurrentUserError>> {
+pub async fn get_current_user(configuration: &configuration::Configuration, ) -> Result<models::UserDto, Error<GetCurrentUserError>> {
 
     let uri_str = format!("{}/Users/Me", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -302,7 +240,7 @@ pub async fn get_current_user(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn get_public_users(configuration: &configuration::Configuration) -> Result<Vec<models::UserDto>, Error<GetPublicUsersError>> {
+pub async fn get_public_users(configuration: &configuration::Configuration, ) -> Result<Vec<models::UserDto>, Error<GetPublicUsersError>> {
 
     let uri_str = format!("{}/Users/Public", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -336,9 +274,11 @@ pub async fn get_public_users(configuration: &configuration::Configuration) -> R
     }
 }
 
-pub async fn get_user_by_id(configuration: &configuration::Configuration, params: GetUserByIdParams) -> Result<models::UserDto, Error<GetUserByIdError>> {
+pub async fn get_user_by_id(configuration: &configuration::Configuration, user_id: &str) -> Result<models::UserDto, Error<GetUserByIdError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_user_id = user_id;
 
-    let uri_str = format!("{}/Users/{userId}", configuration.base_path, userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Users/{userId}", configuration.base_path, userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -378,15 +318,18 @@ pub async fn get_user_by_id(configuration: &configuration::Configuration, params
     }
 }
 
-pub async fn get_users(configuration: &configuration::Configuration, params: GetUsersParams) -> Result<Vec<models::UserDto>, Error<GetUsersError>> {
+pub async fn get_users(configuration: &configuration::Configuration, is_hidden: Option<bool>, is_disabled: Option<bool>) -> Result<Vec<models::UserDto>, Error<GetUsersError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_is_hidden = is_hidden;
+    let p_query_is_disabled = is_disabled;
 
     let uri_str = format!("{}/Users", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.is_hidden {
+    if let Some(ref param_value) = p_query_is_hidden {
         req_builder = req_builder.query(&[("isHidden", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_disabled {
+    if let Some(ref param_value) = p_query_is_disabled {
         req_builder = req_builder.query(&[("isDisabled", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -426,12 +369,15 @@ pub async fn get_users(configuration: &configuration::Configuration, params: Get
     }
 }
 
-pub async fn update_user(configuration: &configuration::Configuration, params: UpdateUserParams) -> Result<(), Error<UpdateUserError>> {
+pub async fn update_user(configuration: &configuration::Configuration, user_dto: models::UserDto, user_id: Option<&str>) -> Result<(), Error<UpdateUserError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_user_dto = user_dto;
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/Users", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -445,7 +391,7 @@ pub async fn update_user(configuration: &configuration::Configuration, params: U
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.user_dto);
+    req_builder = req_builder.json(&p_body_user_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -461,12 +407,15 @@ pub async fn update_user(configuration: &configuration::Configuration, params: U
     }
 }
 
-pub async fn update_user_configuration(configuration: &configuration::Configuration, params: UpdateUserConfigurationParams) -> Result<(), Error<UpdateUserConfigurationError>> {
+pub async fn update_user_configuration(configuration: &configuration::Configuration, user_configuration: models::UserConfiguration, user_id: Option<&str>) -> Result<(), Error<UpdateUserConfigurationError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_user_configuration = user_configuration;
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/Users/Configuration", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -480,7 +429,7 @@ pub async fn update_user_configuration(configuration: &configuration::Configurat
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.user_configuration);
+    req_builder = req_builder.json(&p_body_user_configuration);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -496,12 +445,15 @@ pub async fn update_user_configuration(configuration: &configuration::Configurat
     }
 }
 
-pub async fn update_user_password(configuration: &configuration::Configuration, params: UpdateUserPasswordParams) -> Result<(), Error<UpdateUserPasswordError>> {
+pub async fn update_user_password(configuration: &configuration::Configuration, update_user_password: models::UpdateUserPassword, user_id: Option<&str>) -> Result<(), Error<UpdateUserPasswordError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_update_user_password = update_user_password;
+    let p_query_user_id = user_id;
 
     let uri_str = format!("{}/Users/Password", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -515,7 +467,7 @@ pub async fn update_user_password(configuration: &configuration::Configuration, 
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_user_password);
+    req_builder = req_builder.json(&p_body_update_user_password);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -531,9 +483,12 @@ pub async fn update_user_password(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn update_user_policy(configuration: &configuration::Configuration, params: UpdateUserPolicyParams) -> Result<(), Error<UpdateUserPolicyError>> {
+pub async fn update_user_policy(configuration: &configuration::Configuration, user_id: &str, user_policy: models::UserPolicy) -> Result<(), Error<UpdateUserPolicyError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_user_id = user_id;
+    let p_body_user_policy = user_policy;
 
-    let uri_str = format!("{}/Users/{userId}/Policy", configuration.base_path, userId=crate::apis::urlencode(params.user_id));
+    let uri_str = format!("{}/Users/{userId}/Policy", configuration.base_path, userId=crate::apis::urlencode(p_path_user_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -547,7 +502,7 @@ pub async fn update_user_policy(configuration: &configuration::Configuration, pa
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.user_policy);
+    req_builder = req_builder.json(&p_body_user_policy);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;

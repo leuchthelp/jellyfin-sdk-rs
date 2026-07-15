@@ -14,15 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`get_item_segments`]
-#[derive(Clone, Debug)]
-pub struct GetItemSegmentsParams {
-    /// The ItemId.
-    pub item_id: String,
-    /// Optional filter of requested segment types.
-    pub include_segment_types: Option<Vec<models::MediaSegmentType>>
-}
-
 
 /// struct for typed errors of method [`get_item_segments`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -36,12 +27,15 @@ pub enum GetItemSegmentsError {
 }
 
 
-pub async fn get_item_segments(configuration: &configuration::Configuration, params: GetItemSegmentsParams) -> Result<models::MediaSegmentDtoQueryResult, Error<GetItemSegmentsError>> {
+pub async fn get_item_segments(configuration: &configuration::Configuration, item_id: &str, include_segment_types: Option<Vec<models::MediaSegmentType>>) -> Result<models::MediaSegmentDtoQueryResult, Error<GetItemSegmentsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_include_segment_types = include_segment_types;
 
-    let uri_str = format!("{}/MediaSegments/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/MediaSegments/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.include_segment_types {
+    if let Some(ref param_value) = p_query_include_segment_types {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("includeSegmentTypes".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("includeSegmentTypes", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),

@@ -56,7 +56,7 @@ pub enum GetParentalRatingsError {
 }
 
 
-pub async fn get_countries(configuration: &configuration::Configuration) -> Result<Vec<models::CountryInfo>, Error<GetCountriesError>> {
+pub async fn get_countries(configuration: &configuration::Configuration, ) -> Result<Vec<models::CountryInfo>, Error<GetCountriesError>> {
 
     let uri_str = format!("{}/Localization/Countries", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -98,7 +98,7 @@ pub async fn get_countries(configuration: &configuration::Configuration) -> Resu
     }
 }
 
-pub async fn get_cultures(configuration: &configuration::Configuration) -> Result<Vec<models::CultureDto>, Error<GetCulturesError>> {
+pub async fn get_cultures(configuration: &configuration::Configuration, ) -> Result<Vec<models::CultureDto>, Error<GetCulturesError>> {
 
     let uri_str = format!("{}/Localization/Cultures", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -140,7 +140,7 @@ pub async fn get_cultures(configuration: &configuration::Configuration) -> Resul
     }
 }
 
-pub async fn get_localization_options(configuration: &configuration::Configuration) -> Result<Vec<models::LocalizationOption>, Error<GetLocalizationOptionsError>> {
+pub async fn get_localization_options(configuration: &configuration::Configuration, ) -> Result<Vec<models::LocalizationOption>, Error<GetLocalizationOptionsError>> {
 
     let uri_str = format!("{}/Localization/Options", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
@@ -182,7 +182,7 @@ pub async fn get_localization_options(configuration: &configuration::Configurati
     }
 }
 
-pub async fn get_parental_ratings(configuration: &configuration::Configuration) -> Result<Vec<models::ParentalRating>, Error<GetParentalRatingsError>> {
+pub async fn get_parental_ratings(configuration: &configuration::Configuration, ) -> Result<Vec<models::ParentalRating>, Error<GetParentalRatingsError>> {
 
     let uri_str = format!("{}/Localization/ParentalRatings", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);

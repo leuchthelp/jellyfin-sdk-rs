@@ -14,84 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`delete_user_item_rating`]
-#[derive(Clone, Debug)]
-pub struct DeleteUserItemRatingParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`get_item_user_data`]
-#[derive(Clone, Debug)]
-pub struct GetItemUserDataParams {
-    /// The item id.
-    pub item_id: String,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`mark_favorite_item`]
-#[derive(Clone, Debug)]
-pub struct MarkFavoriteItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`mark_played_item`]
-#[derive(Clone, Debug)]
-pub struct MarkPlayedItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Optional. The date the item was played.
-    pub date_played: Option<chrono::DateTime<chrono::FixedOffset>>
-}
-
-/// struct for passing parameters to the method [`mark_unplayed_item`]
-#[derive(Clone, Debug)]
-pub struct MarkUnplayedItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`unmark_favorite_item`]
-#[derive(Clone, Debug)]
-pub struct UnmarkFavoriteItemParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_item_user_data`]
-#[derive(Clone, Debug)]
-pub struct UpdateItemUserDataParams {
-    /// The item id.
-    pub item_id: String,
-    /// New user data object.
-    pub update_user_item_data_dto: models::UpdateUserItemDataDto,
-    /// The user id.
-    pub user_id: Option<String>
-}
-
-/// struct for passing parameters to the method [`update_user_item_rating`]
-#[derive(Clone, Debug)]
-pub struct UpdateUserItemRatingParams {
-    /// Item id.
-    pub item_id: String,
-    /// User id.
-    pub user_id: Option<String>,
-    /// Whether this M:Jellyfin.Api.Controllers.UserLibraryController.UpdateUserItemRating(System.Nullable{System.Guid},System.Guid,System.Nullable{System.Boolean}) is likes.
-    pub likes: Option<bool>
-}
-
 
 /// struct for typed errors of method [`delete_user_item_rating`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -178,12 +100,15 @@ pub enum UpdateUserItemRatingError {
 }
 
 
-pub async fn delete_user_item_rating(configuration: &configuration::Configuration, params: DeleteUserItemRatingParams) -> Result<models::UserItemDataDto, Error<DeleteUserItemRatingError>> {
+pub async fn delete_user_item_rating(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<DeleteUserItemRatingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -223,12 +148,15 @@ pub async fn delete_user_item_rating(configuration: &configuration::Configuratio
     }
 }
 
-pub async fn get_item_user_data(configuration: &configuration::Configuration, params: GetItemUserDataParams) -> Result<models::UserItemDataDto, Error<GetItemUserDataError>> {
+pub async fn get_item_user_data(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<GetItemUserDataError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -268,12 +196,15 @@ pub async fn get_item_user_data(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn mark_favorite_item(configuration: &configuration::Configuration, params: MarkFavoriteItemParams) -> Result<models::UserItemDataDto, Error<MarkFavoriteItemError>> {
+pub async fn mark_favorite_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<MarkFavoriteItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -313,15 +244,19 @@ pub async fn mark_favorite_item(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn mark_played_item(configuration: &configuration::Configuration, params: MarkPlayedItemParams) -> Result<models::UserItemDataDto, Error<MarkPlayedItemError>> {
+pub async fn mark_played_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, date_played: Option<chrono::DateTime<chrono::FixedOffset>>) -> Result<models::UserItemDataDto, Error<MarkPlayedItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_date_played = date_played;
 
-    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.date_played {
+    if let Some(ref param_value) = p_query_date_played {
         req_builder = req_builder.query(&[("datePlayed", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -361,12 +296,15 @@ pub async fn mark_played_item(configuration: &configuration::Configuration, para
     }
 }
 
-pub async fn mark_unplayed_item(configuration: &configuration::Configuration, params: MarkUnplayedItemParams) -> Result<models::UserItemDataDto, Error<MarkUnplayedItemError>> {
+pub async fn mark_unplayed_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<MarkUnplayedItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserPlayedItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -406,12 +344,15 @@ pub async fn mark_unplayed_item(configuration: &configuration::Configuration, pa
     }
 }
 
-pub async fn unmark_favorite_item(configuration: &configuration::Configuration, params: UnmarkFavoriteItemParams) -> Result<models::UserItemDataDto, Error<UnmarkFavoriteItemError>> {
+pub async fn unmark_favorite_item(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<UnmarkFavoriteItemError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserFavoriteItems/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -451,12 +392,16 @@ pub async fn unmark_favorite_item(configuration: &configuration::Configuration, 
     }
 }
 
-pub async fn update_item_user_data(configuration: &configuration::Configuration, params: UpdateItemUserDataParams) -> Result<models::UserItemDataDto, Error<UpdateItemUserDataError>> {
+pub async fn update_item_user_data(configuration: &configuration::Configuration, item_id: &str, update_user_item_data_dto: models::UpdateUserItemDataDto, user_id: Option<&str>) -> Result<models::UserItemDataDto, Error<UpdateItemUserDataError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_body_update_user_item_data_dto = update_user_item_data_dto;
+    let p_query_user_id = user_id;
 
-    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserItems/{itemId}/UserData", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -470,7 +415,7 @@ pub async fn update_item_user_data(configuration: &configuration::Configuration,
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.update_user_item_data_dto);
+    req_builder = req_builder.json(&p_body_update_user_item_data_dto);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -497,15 +442,19 @@ pub async fn update_item_user_data(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn update_user_item_rating(configuration: &configuration::Configuration, params: UpdateUserItemRatingParams) -> Result<models::UserItemDataDto, Error<UpdateUserItemRatingError>> {
+pub async fn update_user_item_rating(configuration: &configuration::Configuration, item_id: &str, user_id: Option<&str>, likes: Option<bool>) -> Result<models::UserItemDataDto, Error<UpdateUserItemRatingError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_query_user_id = user_id;
+    let p_query_likes = likes;
 
-    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/UserItems/{itemId}/Rating", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.user_id {
+    if let Some(ref param_value) = p_query_user_id {
         req_builder = req_builder.query(&[("userId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.likes {
+    if let Some(ref param_value) = p_query_likes {
         req_builder = req_builder.query(&[("likes", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {

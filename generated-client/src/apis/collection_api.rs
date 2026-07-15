@@ -14,37 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`add_to_collection`]
-#[derive(Clone, Debug)]
-pub struct AddToCollectionParams {
-    /// The collection id.
-    pub collection_id: String,
-    /// Item ids, comma delimited.
-    pub ids: Vec<uuid::Uuid>
-}
-
-/// struct for passing parameters to the method [`create_collection`]
-#[derive(Clone, Debug)]
-pub struct CreateCollectionParams {
-    /// The name of the collection.
-    pub name: Option<String>,
-    /// Item Ids to add to the collection.
-    pub ids: Option<Vec<String>>,
-    /// Optional. Create the collection within a specific folder.
-    pub parent_id: Option<String>,
-    /// Whether or not to lock the new collection.
-    pub is_locked: Option<bool>
-}
-
-/// struct for passing parameters to the method [`remove_from_collection`]
-#[derive(Clone, Debug)]
-pub struct RemoveFromCollectionParams {
-    /// The collection id.
-    pub collection_id: String,
-    /// Item ids, comma delimited.
-    pub ids: Vec<uuid::Uuid>
-}
-
 
 /// struct for typed errors of method [`add_to_collection`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -77,14 +46,17 @@ pub enum RemoveFromCollectionError {
 }
 
 
-pub async fn add_to_collection(configuration: &configuration::Configuration, params: AddToCollectionParams) -> Result<(), Error<AddToCollectionError>> {
+pub async fn add_to_collection(configuration: &configuration::Configuration, collection_id: &str, ids: Vec<uuid::Uuid>) -> Result<(), Error<AddToCollectionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_collection_id = collection_id;
+    let p_query_ids = ids;
 
-    let uri_str = format!("{}/Collections/{collectionId}/Items", configuration.base_path, collectionId=crate::apis::urlencode(params.collection_id));
+    let uri_str = format!("{}/Collections/{collectionId}/Items", configuration.base_path, collectionId=crate::apis::urlencode(p_path_collection_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
     req_builder = match "multi" {
-        "multi" => req_builder.query(&params.ids.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-        _ => req_builder.query(&[("ids", &params.ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        "multi" => req_builder.query(&p_query_ids.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+        _ => req_builder.query(&[("ids", &p_query_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
     };
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());
@@ -112,24 +84,29 @@ pub async fn add_to_collection(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn create_collection(configuration: &configuration::Configuration, params: CreateCollectionParams) -> Result<models::CollectionCreationResult, Error<CreateCollectionError>> {
+pub async fn create_collection(configuration: &configuration::Configuration, name: Option<&str>, ids: Option<Vec<String>>, parent_id: Option<&str>, is_locked: Option<bool>) -> Result<models::CollectionCreationResult, Error<CreateCollectionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_query_name = name;
+    let p_query_ids = ids;
+    let p_query_parent_id = parent_id;
+    let p_query_is_locked = is_locked;
 
     let uri_str = format!("{}/Collections", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.name {
+    if let Some(ref param_value) = p_query_name {
         req_builder = req_builder.query(&[("name", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.ids {
+    if let Some(ref param_value) = p_query_ids {
         req_builder = match "multi" {
             "multi" => req_builder.query(&param_value.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
             _ => req_builder.query(&[("ids", &param_value.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
         };
     }
-    if let Some(ref param_value) = params.parent_id {
+    if let Some(ref param_value) = p_query_parent_id {
         req_builder = req_builder.query(&[("parentId", &param_value.to_string())]);
     }
-    if let Some(ref param_value) = params.is_locked {
+    if let Some(ref param_value) = p_query_is_locked {
         req_builder = req_builder.query(&[("isLocked", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -169,14 +146,17 @@ pub async fn create_collection(configuration: &configuration::Configuration, par
     }
 }
 
-pub async fn remove_from_collection(configuration: &configuration::Configuration, params: RemoveFromCollectionParams) -> Result<(), Error<RemoveFromCollectionError>> {
+pub async fn remove_from_collection(configuration: &configuration::Configuration, collection_id: &str, ids: Vec<uuid::Uuid>) -> Result<(), Error<RemoveFromCollectionError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_collection_id = collection_id;
+    let p_query_ids = ids;
 
-    let uri_str = format!("{}/Collections/{collectionId}/Items", configuration.base_path, collectionId=crate::apis::urlencode(params.collection_id));
+    let uri_str = format!("{}/Collections/{collectionId}/Items", configuration.base_path, collectionId=crate::apis::urlencode(p_path_collection_id));
     let mut req_builder = configuration.client.request(reqwest::Method::DELETE, &uri_str);
 
     req_builder = match "multi" {
-        "multi" => req_builder.query(&params.ids.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
-        _ => req_builder.query(&[("ids", &params.ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
+        "multi" => req_builder.query(&p_query_ids.into_iter().map(|p| ("ids".to_owned(), p.to_string())).collect::<Vec<(std::string::String, std::string::String)>>()),
+        _ => req_builder.query(&[("ids", &p_query_ids.into_iter().map(|p| p.to_string()).collect::<Vec<String>>().join(",").to_string())]),
     };
     if let Some(ref user_agent) = configuration.user_agent {
         req_builder = req_builder.header(reqwest::header::USER_AGENT, user_agent.clone());

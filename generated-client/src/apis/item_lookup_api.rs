@@ -14,87 +14,6 @@ use serde::{Deserialize, Serialize, de::Error as _};
 use crate::{apis::ResponseContent, models};
 use super::{Error, configuration, ContentType};
 
-/// struct for passing parameters to the method [`apply_search_criteria`]
-#[derive(Clone, Debug)]
-pub struct ApplySearchCriteriaParams {
-    /// Item id.
-    pub item_id: String,
-    /// The remote search result.
-    pub remote_search_result: models::RemoteSearchResult,
-    /// Optional. Whether or not to replace all images. Default: True.
-    pub replace_all_images: Option<bool>
-}
-
-/// struct for passing parameters to the method [`get_book_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetBookRemoteSearchResultsParams {
-    /// Remote search query.
-    pub book_info_remote_search_query: models::BookInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_box_set_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetBoxSetRemoteSearchResultsParams {
-    /// Remote search query.
-    pub box_set_info_remote_search_query: models::BoxSetInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_external_id_infos`]
-#[derive(Clone, Debug)]
-pub struct GetExternalIdInfosParams {
-    /// Item id.
-    pub item_id: String
-}
-
-/// struct for passing parameters to the method [`get_movie_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetMovieRemoteSearchResultsParams {
-    /// Remote search query.
-    pub movie_info_remote_search_query: models::MovieInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_music_album_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetMusicAlbumRemoteSearchResultsParams {
-    /// Remote search query.
-    pub album_info_remote_search_query: models::AlbumInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_music_artist_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetMusicArtistRemoteSearchResultsParams {
-    /// Remote search query.
-    pub artist_info_remote_search_query: models::ArtistInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_music_video_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetMusicVideoRemoteSearchResultsParams {
-    /// Remote search query.
-    pub music_video_info_remote_search_query: models::MusicVideoInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_person_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetPersonRemoteSearchResultsParams {
-    /// Remote search query.
-    pub person_lookup_info_remote_search_query: models::PersonLookupInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_series_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetSeriesRemoteSearchResultsParams {
-    /// Remote search query.
-    pub series_info_remote_search_query: models::SeriesInfoRemoteSearchQuery
-}
-
-/// struct for passing parameters to the method [`get_trailer_remote_search_results`]
-#[derive(Clone, Debug)]
-pub struct GetTrailerRemoteSearchResultsParams {
-    /// Remote search query.
-    pub trailer_info_remote_search_query: models::TrailerInfoRemoteSearchQuery
-}
-
 
 /// struct for typed errors of method [`apply_search_criteria`]
 #[derive(Debug, Clone, Serialize, Deserialize)]
@@ -209,12 +128,16 @@ pub enum GetTrailerRemoteSearchResultsError {
 }
 
 
-pub async fn apply_search_criteria(configuration: &configuration::Configuration, params: ApplySearchCriteriaParams) -> Result<(), Error<ApplySearchCriteriaError>> {
+pub async fn apply_search_criteria(configuration: &configuration::Configuration, item_id: &str, remote_search_result: models::RemoteSearchResult, replace_all_images: Option<bool>) -> Result<(), Error<ApplySearchCriteriaError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
+    let p_body_remote_search_result = remote_search_result;
+    let p_query_replace_all_images = replace_all_images;
 
-    let uri_str = format!("{}/Items/RemoteSearch/Apply/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/RemoteSearch/Apply/{itemId}", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
 
-    if let Some(ref param_value) = params.replace_all_images {
+    if let Some(ref param_value) = p_query_replace_all_images {
         req_builder = req_builder.query(&[("replaceAllImages", &param_value.to_string())]);
     }
     if let Some(ref user_agent) = configuration.user_agent {
@@ -228,7 +151,7 @@ pub async fn apply_search_criteria(configuration: &configuration::Configuration,
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.remote_search_result);
+    req_builder = req_builder.json(&p_body_remote_search_result);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -244,7 +167,9 @@ pub async fn apply_search_criteria(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn get_book_remote_search_results(configuration: &configuration::Configuration, params: GetBookRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetBookRemoteSearchResultsError>> {
+pub async fn get_book_remote_search_results(configuration: &configuration::Configuration, book_info_remote_search_query: models::BookInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetBookRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_book_info_remote_search_query = book_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/Book", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -260,7 +185,7 @@ pub async fn get_book_remote_search_results(configuration: &configuration::Confi
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.book_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_book_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -287,7 +212,9 @@ pub async fn get_book_remote_search_results(configuration: &configuration::Confi
     }
 }
 
-pub async fn get_box_set_remote_search_results(configuration: &configuration::Configuration, params: GetBoxSetRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetBoxSetRemoteSearchResultsError>> {
+pub async fn get_box_set_remote_search_results(configuration: &configuration::Configuration, box_set_info_remote_search_query: models::BoxSetInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetBoxSetRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_box_set_info_remote_search_query = box_set_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/BoxSet", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -303,7 +230,7 @@ pub async fn get_box_set_remote_search_results(configuration: &configuration::Co
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.box_set_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_box_set_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -330,9 +257,11 @@ pub async fn get_box_set_remote_search_results(configuration: &configuration::Co
     }
 }
 
-pub async fn get_external_id_infos(configuration: &configuration::Configuration, params: GetExternalIdInfosParams) -> Result<Vec<models::ExternalIdInfo>, Error<GetExternalIdInfosError>> {
+pub async fn get_external_id_infos(configuration: &configuration::Configuration, item_id: &str) -> Result<Vec<models::ExternalIdInfo>, Error<GetExternalIdInfosError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_path_item_id = item_id;
 
-    let uri_str = format!("{}/Items/{itemId}/ExternalIdInfos", configuration.base_path, itemId=crate::apis::urlencode(params.item_id));
+    let uri_str = format!("{}/Items/{itemId}/ExternalIdInfos", configuration.base_path, itemId=crate::apis::urlencode(p_path_item_id));
     let mut req_builder = configuration.client.request(reqwest::Method::GET, &uri_str);
 
     if let Some(ref user_agent) = configuration.user_agent {
@@ -372,7 +301,9 @@ pub async fn get_external_id_infos(configuration: &configuration::Configuration,
     }
 }
 
-pub async fn get_movie_remote_search_results(configuration: &configuration::Configuration, params: GetMovieRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMovieRemoteSearchResultsError>> {
+pub async fn get_movie_remote_search_results(configuration: &configuration::Configuration, movie_info_remote_search_query: models::MovieInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetMovieRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_movie_info_remote_search_query = movie_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/Movie", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -388,7 +319,7 @@ pub async fn get_movie_remote_search_results(configuration: &configuration::Conf
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.movie_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_movie_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -415,7 +346,9 @@ pub async fn get_movie_remote_search_results(configuration: &configuration::Conf
     }
 }
 
-pub async fn get_music_album_remote_search_results(configuration: &configuration::Configuration, params: GetMusicAlbumRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicAlbumRemoteSearchResultsError>> {
+pub async fn get_music_album_remote_search_results(configuration: &configuration::Configuration, album_info_remote_search_query: models::AlbumInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicAlbumRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_album_info_remote_search_query = album_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/MusicAlbum", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -431,7 +364,7 @@ pub async fn get_music_album_remote_search_results(configuration: &configuration
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.album_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_album_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -458,7 +391,9 @@ pub async fn get_music_album_remote_search_results(configuration: &configuration
     }
 }
 
-pub async fn get_music_artist_remote_search_results(configuration: &configuration::Configuration, params: GetMusicArtistRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicArtistRemoteSearchResultsError>> {
+pub async fn get_music_artist_remote_search_results(configuration: &configuration::Configuration, artist_info_remote_search_query: models::ArtistInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicArtistRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_artist_info_remote_search_query = artist_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/MusicArtist", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -474,7 +409,7 @@ pub async fn get_music_artist_remote_search_results(configuration: &configuratio
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.artist_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_artist_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -501,7 +436,9 @@ pub async fn get_music_artist_remote_search_results(configuration: &configuratio
     }
 }
 
-pub async fn get_music_video_remote_search_results(configuration: &configuration::Configuration, params: GetMusicVideoRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicVideoRemoteSearchResultsError>> {
+pub async fn get_music_video_remote_search_results(configuration: &configuration::Configuration, music_video_info_remote_search_query: models::MusicVideoInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetMusicVideoRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_music_video_info_remote_search_query = music_video_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/MusicVideo", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -517,7 +454,7 @@ pub async fn get_music_video_remote_search_results(configuration: &configuration
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.music_video_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_music_video_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -544,7 +481,9 @@ pub async fn get_music_video_remote_search_results(configuration: &configuration
     }
 }
 
-pub async fn get_person_remote_search_results(configuration: &configuration::Configuration, params: GetPersonRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetPersonRemoteSearchResultsError>> {
+pub async fn get_person_remote_search_results(configuration: &configuration::Configuration, person_lookup_info_remote_search_query: models::PersonLookupInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetPersonRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_person_lookup_info_remote_search_query = person_lookup_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/Person", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -560,7 +499,7 @@ pub async fn get_person_remote_search_results(configuration: &configuration::Con
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.person_lookup_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_person_lookup_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -587,7 +526,9 @@ pub async fn get_person_remote_search_results(configuration: &configuration::Con
     }
 }
 
-pub async fn get_series_remote_search_results(configuration: &configuration::Configuration, params: GetSeriesRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetSeriesRemoteSearchResultsError>> {
+pub async fn get_series_remote_search_results(configuration: &configuration::Configuration, series_info_remote_search_query: models::SeriesInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetSeriesRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_series_info_remote_search_query = series_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/Series", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -603,7 +544,7 @@ pub async fn get_series_remote_search_results(configuration: &configuration::Con
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.series_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_series_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
@@ -630,7 +571,9 @@ pub async fn get_series_remote_search_results(configuration: &configuration::Con
     }
 }
 
-pub async fn get_trailer_remote_search_results(configuration: &configuration::Configuration, params: GetTrailerRemoteSearchResultsParams) -> Result<Vec<models::RemoteSearchResult>, Error<GetTrailerRemoteSearchResultsError>> {
+pub async fn get_trailer_remote_search_results(configuration: &configuration::Configuration, trailer_info_remote_search_query: models::TrailerInfoRemoteSearchQuery) -> Result<Vec<models::RemoteSearchResult>, Error<GetTrailerRemoteSearchResultsError>> {
+    // add a prefix to parameters to efficiently prevent name collisions
+    let p_body_trailer_info_remote_search_query = trailer_info_remote_search_query;
 
     let uri_str = format!("{}/Items/RemoteSearch/Trailer", configuration.base_path);
     let mut req_builder = configuration.client.request(reqwest::Method::POST, &uri_str);
@@ -646,7 +589,7 @@ pub async fn get_trailer_remote_search_results(configuration: &configuration::Co
         };
         req_builder = req_builder.header("Authorization", value);
     };
-    req_builder = req_builder.json(&params.trailer_info_remote_search_query);
+    req_builder = req_builder.json(&p_body_trailer_info_remote_search_query);
 
     let req = req_builder.build()?;
     let resp = configuration.client.execute(req).await?;
