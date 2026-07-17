@@ -10,7 +10,7 @@ use crate::{
 
 #[bon::builder]
 pub fn configure(
-    base_url: Url,
+    base_url: &Url,
     client_info: &ClientInfo,
     device_info: &DeviceInfo,
     access_token: &Option<String>,
