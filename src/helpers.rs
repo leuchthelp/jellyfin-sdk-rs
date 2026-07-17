@@ -13,7 +13,7 @@ pub fn configure(
     base_url: &Url,
     client_info: &ClientInfo,
     device_info: &DeviceInfo,
-    access_token: &Option<String>,
+    access_token: Option<String>,
     basic_auth: Option<BasicAuth>,
     oauth_access_token: Option<String>,
     bearer_access_token: Option<String>,
@@ -21,12 +21,7 @@ pub fn configure(
 ) -> Result<Configuration, Box<dyn std::error::Error>> {
     let user_agent = format!("{}: {}", client_info.name, client_info.version);
 
-    let auth_header = get_authorization_header()
-        .client_info(client_info)
-        .device_info(device_info)
-        .access_token(access_token)
-        .call()
-        .unwrap();
+    let auth_header = get_authorization_header(client_info, device_info, access_token)?;
 
     let mut headers = HeaderMap::new();
     headers.append(AUTHORIZATION_HEADER, HeaderValue::from_str(&auth_header)?);
@@ -41,8 +36,7 @@ pub fn configure(
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
-        .build()
-        .unwrap();
+        .build()?;
 
     let config = Configuration {
         base_path: base_url.to_string(),
