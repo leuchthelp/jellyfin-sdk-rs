@@ -13,7 +13,7 @@ pub fn configure(
     base_url: &Url,
     client_info: &ClientInfo,
     device_info: &DeviceInfo,
-    access_token: Option<String>,
+    access_token: Option<&String>,
     basic_auth: Option<BasicAuth>,
     oauth_access_token: Option<String>,
     bearer_access_token: Option<String>,
