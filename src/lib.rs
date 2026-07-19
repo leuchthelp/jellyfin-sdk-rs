@@ -6,3 +6,5 @@ pub mod required;
 pub use helpers::configure as configure;
 pub use jellyfin_generated_client::apis as apis;
 pub use jellyfin_generated_client::models as models;
+pub use helpers::JellyfinSDKError as JellyfinSDKError;
+pub use utils::authentication::AuthHeaderError as AuthHeaderError;
