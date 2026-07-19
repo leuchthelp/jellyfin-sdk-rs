@@ -1,11 +1,18 @@
 use crate::required::{ClientInfo, DeviceInfo};
 use std::fmt::Write as _;
+use thiserror::Error;
+
+#[derive(Error, Debug)]
+pub enum AuthHeaderError {
+    #[error(transparent)]
+    FailedHeaderConstructionError(#[from] std::fmt::Error),
+}
 
 pub fn get_authorization_header(
     client_info: &ClientInfo,
     device_info: &DeviceInfo,
     access_token: Option<&String>,
-) -> Result<String, Box<dyn std::error::Error>> {
+) -> Result<String, AuthHeaderError> {
     let mut header = String::from("MediaBrowser ");
 
     write!(&mut header, r#"Client="{}", "#, client_info.name)?;

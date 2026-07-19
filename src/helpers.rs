@@ -1,12 +1,23 @@
 use jellyfin_generated_client::apis::configuration::{ApiKey, BasicAuth, Configuration};
-use reqwest::header::{HeaderMap, HeaderValue};
+use reqwest::header::{HeaderMap, HeaderValue, InvalidHeaderValue};
+use thiserror::Error;
 use url::Url;
 
 use crate::{
     constants::headers::{ACCEPT_LANGUAGE_HEADER, AUTHORIZATION_HEADER},
     required::{ClientInfo, DeviceInfo},
-    utils::authentication::get_authorization_header,
+    utils::authentication::{AuthHeaderError, get_authorization_header},
 };
+
+#[derive(Error, Debug)]
+pub enum JellyfinSDKError {
+    #[error(transparent)]
+    InvalidHeaderValueError(#[from] InvalidHeaderValue),
+    #[error(transparent)]
+    FailedClientBuildError(#[from] reqwest::Error),
+    #[error(transparent)]
+    AuthHeaderError(#[from] AuthHeaderError),
+}
 
 #[bon::builder]
 pub fn configure(
@@ -18,7 +29,7 @@ pub fn configure(
     oauth_access_token: Option<String>,
     bearer_access_token: Option<String>,
     api_key: Option<ApiKey>,
-) -> Result<Configuration, Box<dyn std::error::Error>> {
+) -> Result<Configuration, JellyfinSDKError> {
     let user_agent = format!("{}: {}", client_info.name, client_info.version);
 
     let auth_header = get_authorization_header(client_info, device_info, access_token)?;
