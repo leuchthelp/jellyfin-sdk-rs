@@ -1,3 +1,4 @@
+#[derive(Eq, PartialEq)]
 #[derive(Debug, Clone)]
 pub struct DeviceInfo {
     pub id: String,
