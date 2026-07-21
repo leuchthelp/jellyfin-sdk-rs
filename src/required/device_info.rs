@@ -1,5 +1,4 @@
-#[derive(Eq, PartialEq)]
-#[derive(Debug, Clone)]
+#[derive(Eq, PartialEq, Debug, Clone)]
 pub struct DeviceInfo {
     pub id: String,
     pub name: String,
