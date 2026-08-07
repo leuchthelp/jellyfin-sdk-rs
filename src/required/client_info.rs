@@ -1,5 +1,5 @@
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub struct ClientInfo {
-    pub name: String,
-    pub version: String,
+    pub name: &'static str,
+    pub version: &'static str,
 }

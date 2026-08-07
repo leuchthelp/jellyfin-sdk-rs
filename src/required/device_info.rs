@@ -1,6 +1,6 @@
 #[derive(Eq, PartialEq, Debug, Clone)]
 pub struct DeviceInfo {
-    pub id: String,
-    pub name: String,
-    pub languages: Option<Vec<String>>,
+    pub id: &'static str,
+    pub name: &'static str,
+    pub languages: Option<Vec<&'static str>>,
 }
