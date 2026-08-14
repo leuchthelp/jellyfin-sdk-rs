@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BoxSetInfoRemoteSearchQuery {
+    /// The lookup info for box sets.
     #[serde(rename = "SearchInfo", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub search_info: Option<Option<Box<models::BoxSetInfo>>>,
     #[serde(rename = "ItemId", skip_serializing_if = "Option::is_none")]

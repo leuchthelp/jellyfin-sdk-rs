@@ -17,7 +17,7 @@ pub struct QueueRequestDto {
     /// Gets or sets the items to enqueue.
     #[serde(rename = "ItemIds", skip_serializing_if = "Option::is_none")]
     pub item_ids: Option<Vec<uuid::Uuid>>,
-    /// Enum GroupQueueMode.
+    /// Gets or sets the mode in which to add the new items.
     #[serde(rename = "Mode", skip_serializing_if = "Option::is_none")]
     pub mode: Option<models::GroupQueueMode>,
 }

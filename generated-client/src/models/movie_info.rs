@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// MovieInfo : The lookup info for movies.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MovieInfo {
     /// Gets or sets the name.
@@ -45,6 +46,7 @@ pub struct MovieInfo {
 }
 
 impl MovieInfo {
+    /// The lookup info for movies.
     pub fn new() -> MovieInfo {
         MovieInfo {
             name: None,

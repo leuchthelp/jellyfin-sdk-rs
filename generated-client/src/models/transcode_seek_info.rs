@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// TranscodeSeekInfo : The transcode seek info.
+/// The transcode seek info.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum TranscodeSeekInfo {
     #[serde(rename = "Auto")]

@@ -4,8 +4,8 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**user** | Option<[**models::UserDto**](UserDto.md)> | Class UserDto. | [optional]
-**session_info** | Option<[**models::SessionInfoDto**](SessionInfoDto.md)> | Session info DTO. | [optional]
+**user** | Option<[**models::UserDto**](UserDto.md)> | Gets or sets the user. | [optional]
+**session_info** | Option<[**models::SessionInfoDto**](SessionInfoDto.md)> | Gets or sets the session info. | [optional]
 **access_token** | Option<**String**> | Gets or sets the access token. | [optional]
 **server_id** | Option<**String**> | Gets or sets the server id. | [optional]
 

@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// TrailerInfo : The lookup info for trailers.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct TrailerInfo {
     /// Gets or sets the name.
@@ -45,6 +46,7 @@ pub struct TrailerInfo {
 }
 
 impl TrailerInfo {
+    /// The lookup info for trailers.
     pub fn new() -> TrailerInfo {
         TrailerInfo {
             name: None,

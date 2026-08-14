@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// ImageSavingConvention : The convention used for naming saved images.
+/// The convention used for naming saved images.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum ImageSavingConvention {
     #[serde(rename = "Legacy")]

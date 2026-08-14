@@ -23,14 +23,14 @@ pub struct BaseItemPerson {
     /// Gets or sets the role.
     #[serde(rename = "Role", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub role: Option<Option<String>>,
-    /// The person kind.
+    /// Gets or sets the type.
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<models::PersonKind>,
     /// Gets or sets the primary image tag.
     #[serde(rename = "PrimaryImageTag", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub primary_image_tag: Option<Option<String>>,
     #[serde(rename = "ImageBlurHashes", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
-    pub image_blur_hashes: Option<Option<Box<models::BaseItemDtoImageBlurHashes>>>,
+    pub image_blur_hashes: Option<Option<Box<models::BaseItemPersonImageBlurHashes>>>,
 }
 
 impl BaseItemPerson {

@@ -11,17 +11,22 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// MessageCommand : A command to display a message on a client.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MessageCommand {
+    /// Gets or sets the message header.
     #[serde(rename = "Header", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub header: Option<Option<String>>,
+    /// Gets or sets the message text.
     #[serde(rename = "Text")]
     pub text: String,
+    /// Gets or sets the timeout in milliseconds after which the message should be dismissed.
     #[serde(rename = "TimeoutMs", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub timeout_ms: Option<Option<i64>>,
 }
 
 impl MessageCommand {
+    /// A command to display a message on a client.
     pub fn new(text: String) -> MessageCommand {
         MessageCommand {
             header: None,

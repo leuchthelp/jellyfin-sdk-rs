@@ -15,7 +15,7 @@ Name | Type | Description | Notes
 **parent_index_number** | Option<**i32**> |  | [optional]
 **premiere_date** | Option<**chrono::DateTime<chrono::FixedOffset>**> |  | [optional]
 **is_automated** | Option<**bool**> |  | [optional]
-**series_name** | Option<**String**> |  | [optional]
+**series_name** | Option<**String**> | Gets or sets the name of the series the book belongs to. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

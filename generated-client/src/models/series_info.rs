@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// SeriesInfo : The lookup info for series.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SeriesInfo {
     /// Gets or sets the name.
@@ -45,6 +46,7 @@ pub struct SeriesInfo {
 }
 
 impl SeriesInfo {
+    /// The lookup info for series.
     pub fn new() -> SeriesInfo {
         SeriesInfo {
             name: None,

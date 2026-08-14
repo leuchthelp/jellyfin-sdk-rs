@@ -76,16 +76,16 @@ pub struct MediaStream {
     pub title: Option<Option<String>>,
     #[serde(rename = "Hdr10PlusPresentFlag", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub hdr10_plus_present_flag: Option<Option<bool>>,
-    /// An enum representing video ranges.
+    /// Gets the video range.
     #[serde(rename = "VideoRange", skip_serializing_if = "Option::is_none")]
     pub video_range: Option<models::VideoRange>,
-    /// An enum representing types of video ranges.
+    /// Gets the video range type.
     #[serde(rename = "VideoRangeType", skip_serializing_if = "Option::is_none")]
     pub video_range_type: Option<models::VideoRangeType>,
     /// Gets the video dovi title.
     #[serde(rename = "VideoDoViTitle", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub video_do_vi_title: Option<Option<String>>,
-    /// An enum representing formats of spatial audio.
+    /// Gets the audio spatial format.
     #[serde(rename = "AudioSpatialFormat", skip_serializing_if = "Option::is_none")]
     pub audio_spatial_format: Option<models::AudioSpatialFormat>,
     #[serde(rename = "LocalizedUndefined", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]

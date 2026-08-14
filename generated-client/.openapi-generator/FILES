@@ -32,6 +32,7 @@ docs/BaseItemDtoImageBlurHashes.md
 docs/BaseItemDtoQueryResult.md
 docs/BaseItemKind.md
 docs/BaseItemPerson.md
+docs/BaseItemPersonImageBlurHashes.md
 docs/BookInfo.md
 docs/BookInfoRemoteSearchQuery.md
 docs/BoxSetInfo.md
@@ -481,6 +482,7 @@ src/models/base_item_dto_image_blur_hashes.rs
 src/models/base_item_dto_query_result.rs
 src/models/base_item_kind.rs
 src/models/base_item_person.rs
+src/models/base_item_person_image_blur_hashes.rs
 src/models/book_info.rs
 src/models/book_info_remote_search_query.rs
 src/models/box_set_info.rs

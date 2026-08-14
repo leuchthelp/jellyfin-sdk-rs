@@ -8,7 +8,7 @@ Name | Type | Description | Notes
 **r#type** | Option<[**models::DlnaProfileType**](DlnaProfileType.md)> | Gets or sets the DLNA profile type. | [optional]
 **video_codec** | Option<**String**> | Gets or sets the video codec. | [optional]
 **audio_codec** | Option<**String**> | Gets or sets the audio codec. | [optional]
-**protocol** | Option<[**models::MediaStreamProtocol**](MediaStreamProtocol.md)> | Media streaming protocol. Lowercase for backwards compatibility. | [optional]
+**protocol** | Option<[**models::MediaStreamProtocol**](MediaStreamProtocol.md)> | Gets or sets the protocol. | [optional]
 **estimate_content_length** | Option<**bool**> | Gets or sets a value indicating whether the content length should be estimated. | [optional][default to false]
 **enable_mpegts_m2_ts_mode** | Option<**bool**> | Gets or sets a value indicating whether M2TS mode is enabled. | [optional][default to false]
 **transcode_seek_info** | Option<[**models::TranscodeSeekInfo**](TranscodeSeekInfo.md)> | Gets or sets the transcoding seek info mode. | [optional][default to Auto]

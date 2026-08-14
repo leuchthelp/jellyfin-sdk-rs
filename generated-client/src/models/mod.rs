@@ -50,6 +50,8 @@ pub mod base_item_kind;
 pub use self::base_item_kind::BaseItemKind;
 pub mod base_item_person;
 pub use self::base_item_person::BaseItemPerson;
+pub mod base_item_person_image_blur_hashes;
+pub use self::base_item_person_image_blur_hashes::BaseItemPersonImageBlurHashes;
 pub mod book_info;
 pub use self::book_info::BookInfo;
 pub mod book_info_remote_search_query;

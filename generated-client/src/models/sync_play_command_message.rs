@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// SyncPlayCommandMessage : Sync play command.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SyncPlayCommandMessage {
-    /// Class SendCommand.
+    /// Gets or sets the data.
     #[serde(rename = "Data", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub data: Option<Option<Box<models::SendCommand>>>,
     /// Gets or sets the message id.

@@ -6,7 +6,7 @@ Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
 **id** | Option<**uuid::Uuid**> | Gets or sets the id of the media segment. | [optional]
 **item_id** | Option<**uuid::Uuid**> | Gets or sets the id of the associated item. | [optional]
-**r#type** | Option<[**models::MediaSegmentType**](MediaSegmentType.md)> | Defines the types of content an individual Jellyfin.Database.Implementations.Entities.MediaSegment represents. | [optional][default to Unknown]
+**r#type** | Option<[**models::MediaSegmentType**](MediaSegmentType.md)> | Gets or sets the type of content this segment defines. | [optional][default to Unknown]
 **start_ticks** | Option<**i64**> | Gets or sets the start of the segment. | [optional]
 **end_ticks** | Option<**i64**> | Gets or sets the end of the segment. | [optional]
 

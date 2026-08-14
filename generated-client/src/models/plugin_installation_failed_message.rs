@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// PluginInstallationFailedMessage : Plugin installation failed message.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PluginInstallationFailedMessage {
-    /// Class InstallationInfo.
+    /// Gets or sets the data.
     #[serde(rename = "Data", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub data: Option<Option<Box<models::InstallationInfo>>>,
     /// Gets or sets the message id.

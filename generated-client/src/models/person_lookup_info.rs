@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// PersonLookupInfo : The lookup info for persons.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PersonLookupInfo {
     /// Gets or sets the name.
@@ -45,6 +46,7 @@ pub struct PersonLookupInfo {
 }
 
 impl PersonLookupInfo {
+    /// The lookup info for persons.
     pub fn new() -> PersonLookupInfo {
         PersonLookupInfo {
             name: None,

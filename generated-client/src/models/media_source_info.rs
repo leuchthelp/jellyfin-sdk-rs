@@ -23,6 +23,7 @@ pub struct MediaSourceInfo {
     pub encoder_path: Option<Option<String>>,
     #[serde(rename = "EncoderProtocol", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub encoder_protocol: Option<Option<models::MediaProtocol>>,
+    /// The type of a media source.
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<models::MediaSourceType>,
     #[serde(rename = "Container", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]

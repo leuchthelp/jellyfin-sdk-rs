@@ -14,10 +14,10 @@ use serde::{Deserialize, Serialize};
 /// AuthenticationResult : A class representing an authentication result.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct AuthenticationResult {
-    /// Class UserDto.
+    /// Gets or sets the user.
     #[serde(rename = "User", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub user: Option<Option<Box<models::UserDto>>>,
-    /// Session info DTO.
+    /// Gets or sets the session info.
     #[serde(rename = "SessionInfo", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub session_info: Option<Option<Box<models::SessionInfoDto>>>,
     /// Gets or sets the access token.

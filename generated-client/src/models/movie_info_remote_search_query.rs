@@ -13,6 +13,7 @@ use serde::{Deserialize, Serialize};
 
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct MovieInfoRemoteSearchQuery {
+    /// The lookup info for movies.
     #[serde(rename = "SearchInfo", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub search_info: Option<Option<Box<models::MovieInfo>>>,
     #[serde(rename = "ItemId", skip_serializing_if = "Option::is_none")]

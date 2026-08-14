@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// PlaybackErrorCode : The playback error code.
+/// The playback error code.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum PlaybackErrorCode {
     #[serde(rename = "NotAllowed")]

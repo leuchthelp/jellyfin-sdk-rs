@@ -38,7 +38,7 @@ pub struct DisplayPreferencesDto {
     /// Gets or sets the custom prefs.
     #[serde(rename = "CustomPrefs", skip_serializing_if = "Option::is_none")]
     pub custom_prefs: Option<std::collections::HashMap<String, String>>,
-    /// An enum representing the axis that should be scrolled.
+    /// Gets or sets the scroll direction.
     #[serde(rename = "ScrollDirection", skip_serializing_if = "Option::is_none")]
     pub scroll_direction: Option<models::ScrollDirection>,
     /// Gets or sets a value indicating whether to show backdrops on this item.
@@ -47,7 +47,7 @@ pub struct DisplayPreferencesDto {
     /// Gets or sets a value indicating whether [remember sorting].
     #[serde(rename = "RememberSorting", skip_serializing_if = "Option::is_none")]
     pub remember_sorting: Option<bool>,
-    /// An enum representing the sorting order.
+    /// Gets or sets the sort order.
     #[serde(rename = "SortOrder", skip_serializing_if = "Option::is_none")]
     pub sort_order: Option<models::SortOrder>,
     /// Gets or sets a value indicating whether [show sidebar].

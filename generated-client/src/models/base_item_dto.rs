@@ -158,7 +158,7 @@ pub struct BaseItemDto {
     /// Gets or sets the parent id.
     #[serde(rename = "ParentId", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub parent_id: Option<Option<uuid::Uuid>>,
-    /// The base item kind.
+    /// Gets or sets the type.
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<models::BaseItemKind>,
     /// Gets or sets the people.
@@ -314,7 +314,7 @@ pub struct BaseItemDto {
     /// Gets or sets the type of the iso.
     #[serde(rename = "IsoType", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub iso_type: Option<Option<models::IsoType>>,
-    /// Media types.
+    /// Gets or sets the type of the media.
     #[serde(rename = "MediaType", skip_serializing_if = "Option::is_none")]
     pub media_type: Option<models::MediaType>,
     /// Gets or sets the end date.

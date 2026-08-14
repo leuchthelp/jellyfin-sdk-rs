@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | Option<[**models::PluginInfo**](PluginInfo.md)> | This is a serializable stub class that is used by the api to provide information about installed plugins. | [optional]
+**data** | Option<[**models::PluginInfo**](PluginInfo.md)> | Gets or sets the data. | [optional]
 **message_id** | Option<**uuid::Uuid**> | Gets or sets the message id. | [optional]
 **message_type** | Option<[**models::SessionMessageType**](SessionMessageType.md)> | The different kinds of messages that are used in the WebSocket api. | [optional][readonly][default to PackageUninstalled]
 

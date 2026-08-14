@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// BookInfo : The lookup info for books.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BookInfo {
     /// Gets or sets the name.
@@ -42,11 +43,13 @@ pub struct BookInfo {
     pub premiere_date: Option<Option<chrono::DateTime<chrono::FixedOffset>>>,
     #[serde(rename = "IsAutomated", skip_serializing_if = "Option::is_none")]
     pub is_automated: Option<bool>,
+    /// Gets or sets the name of the series the book belongs to.
     #[serde(rename = "SeriesName", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub series_name: Option<Option<String>>,
 }
 
 impl BookInfo {
+    /// The lookup info for books.
     pub fn new() -> BookInfo {
         BookInfo {
             name: None,

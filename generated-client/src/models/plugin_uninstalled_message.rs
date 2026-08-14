@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// PluginUninstalledMessage : Plugin uninstalled message.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PluginUninstalledMessage {
-    /// This is a serializable stub class that is used by the api to provide information about installed plugins.
+    /// Gets or sets the data.
     #[serde(rename = "Data", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub data: Option<Option<Box<models::PluginInfo>>>,
     /// Gets or sets the message id.

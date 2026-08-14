@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// DayPattern : The day pattern of a recurring timer.
+/// The day pattern of a recurring timer.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum DayPattern {
     #[serde(rename = "Daily")]

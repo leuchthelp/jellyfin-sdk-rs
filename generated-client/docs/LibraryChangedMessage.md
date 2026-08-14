@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**data** | Option<[**models::LibraryUpdateInfo**](LibraryUpdateInfo.md)> | Class LibraryUpdateInfo. | [optional]
+**data** | Option<[**models::LibraryUpdateInfo**](LibraryUpdateInfo.md)> | Gets or sets the data. | [optional]
 **message_id** | Option<**uuid::Uuid**> | Gets or sets the message id. | [optional]
 **message_type** | Option<[**models::SessionMessageType**](SessionMessageType.md)> | The different kinds of messages that are used in the WebSocket api. | [optional][readonly][default to LibraryChanged]
 

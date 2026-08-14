@@ -4,7 +4,7 @@
 
 Name | Type | Description | Notes
 ------------ | ------------- | ------------- | -------------
-**search_info** | Option<[**models::SeriesInfo**](SeriesInfo.md)> |  | [optional]
+**search_info** | Option<[**models::SeriesInfo**](SeriesInfo.md)> | The lookup info for series. | [optional]
 **item_id** | Option<**uuid::Uuid**> |  | [optional]
 **search_provider_name** | Option<**String**> | Gets or sets the provider name to search within if set. | [optional]
 **include_disabled_providers** | Option<**bool**> | Gets or sets a value indicating whether disabled providers should be included. | [optional]

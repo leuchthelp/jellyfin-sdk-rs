@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// TransportStreamTimestamp : The type of timestamps used in a transport stream.
+/// The type of timestamps used in a transport stream.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum TransportStreamTimestamp {
     #[serde(rename = "None")]

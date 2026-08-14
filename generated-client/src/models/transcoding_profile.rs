@@ -26,7 +26,7 @@ pub struct TranscodingProfile {
     /// Gets or sets the audio codec.
     #[serde(rename = "AudioCodec", skip_serializing_if = "Option::is_none")]
     pub audio_codec: Option<String>,
-    /// Media streaming protocol. Lowercase for backwards compatibility.
+    /// Gets or sets the protocol.
     #[serde(rename = "Protocol", skip_serializing_if = "Option::is_none")]
     pub protocol: Option<models::MediaStreamProtocol>,
     /// Gets or sets a value indicating whether the content length should be estimated.

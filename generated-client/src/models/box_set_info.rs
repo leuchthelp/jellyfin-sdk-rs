@@ -11,6 +11,7 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
+/// BoxSetInfo : The lookup info for box sets.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct BoxSetInfo {
     /// Gets or sets the name.
@@ -45,6 +46,7 @@ pub struct BoxSetInfo {
 }
 
 impl BoxSetInfo {
+    /// The lookup info for box sets.
     pub fn new() -> BoxSetInfo {
         BoxSetInfo {
             name: None,

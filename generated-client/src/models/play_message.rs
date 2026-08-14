@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// PlayMessage : Play command websocket message.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct PlayMessage {
-    /// Class PlayRequest.
+    /// Gets or sets the data.
     #[serde(rename = "Data", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub data: Option<Option<Box<models::PlayRequest>>>,
     /// Gets or sets the message id.

@@ -11,7 +11,8 @@
 use crate::models;
 use serde::{Deserialize, Serialize};
 
-/// 
+/// RepeatMode : The repeat mode of a play queue.
+/// The repeat mode of a play queue.
 #[derive(Clone, Copy, Debug, Eq, PartialEq, Ord, PartialOrd, Hash, Serialize, Deserialize)]
 pub enum RepeatMode {
     #[serde(rename = "RepeatNone")]

@@ -9,7 +9,7 @@ Name | Type | Description | Notes
 **path** | Option<**String**> |  | [optional]
 **encoder_path** | Option<**String**> |  | [optional]
 **encoder_protocol** | Option<[**models::MediaProtocol**](MediaProtocol.md)> |  | [optional]
-**r#type** | Option<[**models::MediaSourceType**](MediaSourceType.md)> |  | [optional]
+**r#type** | Option<[**models::MediaSourceType**](MediaSourceType.md)> | The type of a media source. | [optional]
 **container** | Option<**String**> |  | [optional]
 **size** | Option<**i64**> |  | [optional]
 **name** | Option<**String**> |  | [optional]
