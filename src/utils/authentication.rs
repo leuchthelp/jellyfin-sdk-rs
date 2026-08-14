@@ -1,4 +1,5 @@
 use crate::required::{ClientInfo, DeviceInfo};
+use serde::Serialize;
 use std::fmt::Write as _;
 use thiserror::Error;
 
@@ -6,6 +7,15 @@ use thiserror::Error;
 pub enum AuthHeaderError {
     #[error(transparent)]
     FailedHeaderConstructionError(#[from] std::fmt::Error),
+}
+
+impl Serialize for AuthHeaderError {
+    fn serialize<S>(&self, serializer: S) -> Result<S::Ok, S::Error>
+    where
+        S: serde::ser::Serializer,
+    {
+        serializer.serialize_str(self.to_string().as_ref())
+    }
 }
 
 pub fn get_authorization_header(

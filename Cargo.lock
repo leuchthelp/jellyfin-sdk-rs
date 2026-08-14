@@ -777,6 +777,8 @@ dependencies = [
  "bon",
  "jellyfin-generated-client",
  "reqwest",
+ "serde",
+ "serde_json",
  "thiserror",
  "url",
  "uuid",
