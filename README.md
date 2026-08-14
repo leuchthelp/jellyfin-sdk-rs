@@ -5,7 +5,7 @@ generate using the python cli of [openapi-generator-cli](https://pypi.org/projec
 to regenerate run:
 
 ```bash
-uv run openapi-generator-cli generate -i jellyfin-openapi-<version>.json -g rust -o generated-client
+uv run openapi-generator-cli generate -i jellyfin-openapi-<version>.json -g rust -o generated-client --config openapi-config.yaml
 ```
 
 ## Usage
