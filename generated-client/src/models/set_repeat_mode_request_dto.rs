@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// SetRepeatModeRequestDto : Class SetRepeatModeRequestDto.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SetRepeatModeRequestDto {
-    /// Gets or sets the repeat mode.
+    /// Enum GroupRepeatMode.
     #[serde(rename = "Mode", skip_serializing_if = "Option::is_none")]
     pub mode: Option<models::GroupRepeatMode>,
 }

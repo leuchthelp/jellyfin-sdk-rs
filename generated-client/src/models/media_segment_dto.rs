@@ -20,7 +20,7 @@ pub struct MediaSegmentDto {
     /// Gets or sets the id of the associated item.
     #[serde(rename = "ItemId", skip_serializing_if = "Option::is_none")]
     pub item_id: Option<uuid::Uuid>,
-    /// Gets or sets the type of content this segment defines.
+    /// Defines the types of content an individual Jellyfin.Database.Implementations.Entities.MediaSegment represents.
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<models::MediaSegmentType>,
     /// Gets or sets the start of the segment.

@@ -107,7 +107,7 @@ pub struct UserPolicy {
     pub authentication_provider_id: String,
     #[serde(rename = "PasswordResetProviderId")]
     pub password_reset_provider_id: String,
-    /// Gets or sets a value indicating what SyncPlay features the user can access.
+    /// Enum SyncPlayUserAccessType.
     #[serde(rename = "SyncPlayAccess", skip_serializing_if = "Option::is_none")]
     pub sync_play_access: Option<models::SyncPlayUserAccessType>,
 }
