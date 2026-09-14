@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// UserDataChangedMessage : User data changed message.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct UserDataChangedMessage {
-    /// Gets or sets the data.
+    /// Class UserDataChangeInfo.
     #[serde(rename = "Data", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub data: Option<Option<Box<models::UserDataChangeInfo>>>,
     /// Gets or sets the message id.

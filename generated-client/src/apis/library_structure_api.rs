@@ -70,6 +70,7 @@ pub enum RemoveVirtualFolderError {
 #[derive(Debug, Clone, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum RenameVirtualFolderError {
+    Status400(models::ProblemDetails),
     Status404(models::ProblemDetails),
     Status409(models::ProblemDetails),
     Status503(),

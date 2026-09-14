@@ -23,7 +23,7 @@ pub struct BaseItemPerson {
     /// Gets or sets the role.
     #[serde(rename = "Role", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub role: Option<Option<String>>,
-    /// Gets or sets the type.
+    /// The person kind.
     #[serde(rename = "Type", skip_serializing_if = "Option::is_none")]
     pub r#type: Option<models::PersonKind>,
     /// Gets or sets the primary image tag.

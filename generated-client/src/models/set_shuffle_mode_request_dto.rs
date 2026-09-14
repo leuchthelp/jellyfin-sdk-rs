@@ -14,7 +14,7 @@ use serde::{Deserialize, Serialize};
 /// SetShuffleModeRequestDto : Class SetShuffleModeRequestDto.
 #[derive(Clone, Default, Debug, PartialEq, Serialize, Deserialize)]
 pub struct SetShuffleModeRequestDto {
-    /// Enum GroupShuffleMode.
+    /// Gets or sets the shuffle mode.
     #[serde(rename = "Mode", skip_serializing_if = "Option::is_none")]
     pub mode: Option<models::GroupShuffleMode>,
 }

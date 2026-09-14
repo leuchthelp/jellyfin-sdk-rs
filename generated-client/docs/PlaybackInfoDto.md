@@ -12,7 +12,7 @@ Name | Type | Description | Notes
 **max_audio_channels** | Option<**i32**> | Gets or sets the max audio channels. | [optional]
 **media_source_id** | Option<**String**> | Gets or sets the media source id. | [optional]
 **live_stream_id** | Option<**String**> | Gets or sets the live stream id. | [optional]
-**device_profile** | Option<[**models::DeviceProfile**](DeviceProfile.md)> | A MediaBrowser.Model.Dlna.DeviceProfile represents a set of metadata which determines which content a certain device is able to play.   Specifically, it defines the supported <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.ContainerProfiles\">containers</see> and <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.CodecProfiles\">codecs</see> (video and/or audio, including codec profiles and levels) the device is able to direct play (without transcoding or remuxing), as well as which <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.TranscodingProfiles\">containers/codecs to transcode to</see> in case it isn't. | [optional]
+**device_profile** | Option<[**models::DeviceProfile**](DeviceProfile.md)> | Gets or sets the device profile. | [optional]
 **enable_direct_play** | Option<**bool**> | Gets or sets a value indicating whether to enable direct play. | [optional]
 **enable_direct_stream** | Option<**bool**> | Gets or sets a value indicating whether to enable direct stream. | [optional]
 **enable_transcoding** | Option<**bool**> | Gets or sets a value indicating whether to enable transcoding. | [optional]

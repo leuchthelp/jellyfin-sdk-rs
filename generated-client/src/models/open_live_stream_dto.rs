@@ -50,7 +50,7 @@ pub struct OpenLiveStreamDto {
     /// Gets or sets a value indicating whether always burn in subtitles when transcoding.
     #[serde(rename = "AlwaysBurnInSubtitleWhenTranscoding", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub always_burn_in_subtitle_when_transcoding: Option<Option<bool>>,
-    /// A MediaBrowser.Model.Dlna.DeviceProfile represents a set of metadata which determines which content a certain device is able to play.   Specifically, it defines the supported <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.ContainerProfiles\">containers</see> and <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.CodecProfiles\">codecs</see> (video and/or audio, including codec profiles and levels) the device is able to direct play (without transcoding or remuxing), as well as which <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.TranscodingProfiles\">containers/codecs to transcode to</see> in case it isn't.
+    /// Gets or sets the device profile.
     #[serde(rename = "DeviceProfile", default, with = "::serde_with::rust::double_option", skip_serializing_if = "Option::is_none")]
     pub device_profile: Option<Option<Box<models::DeviceProfile>>>,
     /// Gets or sets the device play protocols.
