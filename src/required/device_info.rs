@@ -1,6 +1,6 @@
 use uuid::Uuid;
 
-#[derive(Eq, PartialEq, Debug, Clone)]
+#[derive(Default, Eq, PartialEq, Debug, Clone)]
 pub struct DeviceInfo {
     pub id: Uuid,
     pub name: String,
