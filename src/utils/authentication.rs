@@ -30,9 +30,8 @@ pub fn get_authorization_header(
     write!(&mut header, r#"DeviceId="{}", "#, device_info.id)?;
     write!(&mut header, r#"Version="{}", "#, client_info.version)?;
 
-    match access_token {
-        Some(token) => write!(&mut header, "Token=\"{}\"", token)?,
-        _ => {}
+    if let Some(token) = access_token {
+        write!(&mut header, "Token=\"{}\"", token)?;
     }
 
     Ok(header)

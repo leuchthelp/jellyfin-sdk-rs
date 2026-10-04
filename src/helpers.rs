@@ -47,13 +47,12 @@ pub fn configure(
     let mut headers = HeaderMap::new();
     headers.append(AUTHORIZATION_HEADER, HeaderValue::from_str(&auth_header)?);
 
-    let _ = match &device_info.languages {
-        Some(languages) => headers.append(
+    if let Some(languages) = &device_info.languages {
+        headers.append(
             ACCEPT_LANGUAGE_HEADER,
             HeaderValue::from_str(&languages.join(", "))?,
-        ),
-        _ => false,
-    };
+        );
+    }
 
     let client = reqwest::Client::builder()
         .default_headers(headers)
