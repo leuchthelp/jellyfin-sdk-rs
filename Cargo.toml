@@ -13,7 +13,7 @@ default = ["with_bon"]
 with_bon = ["dep:bon"]
 
 [dependencies]
-jellyfin-generated-client = { path = "generated-client" }
+jellyfin-generated-client = { path = "generated-client", features = ["rustls"] }
 reqwest = { version = "0.13", features = ["json"] }
 url = "2"
 thiserror = "2"
