@@ -22,6 +22,8 @@ the sdk reexports the `apis` & `models` found in the [generated-client](generate
 use jellyfin_sdk_rs::configure;
 
 fn config() {
+
+    // Without feature = "with_bon"
     let config = configure(
             base_url,
             client_info,
@@ -32,6 +34,18 @@ fn config() {
             bearer_access_token,
             api_key,
         );
+
+    // With feature = "with_bon" <- this is the default
+    let config = configure()
+            .base_url(base_url)
+            .client_info(client_info)
+            .device_info(device_info)
+            .access_token(access_token)
+            .basic_auth(basic_auth)
+            .oauth_access_token(oauth_access_token)
+            .bearer_access_token(bearer_access_token)
+            .api_key(api_key)
+            .call()
 }
 ```
 

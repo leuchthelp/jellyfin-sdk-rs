@@ -29,7 +29,7 @@ impl Serialize for JellyfinSDKError {
     }
 }
 
-#[bon::builder]
+#[cfg_attr(any(feature = "with_bon"), bon::builder)]
 pub fn configure(
     base_url: &Url,
     client_info: &ClientInfo,
