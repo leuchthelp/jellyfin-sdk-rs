@@ -9,7 +9,7 @@ repository = "https://github.com/leuchthelp/jellyfin-sdk-rs"
 license-file = "LICENSE"
 
 [features]
-default = []
+default = ["with_bon"]
 with_bon = ["dep:bon"]
 
 [dependencies]
