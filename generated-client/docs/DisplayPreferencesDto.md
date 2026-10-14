@@ -12,10 +12,10 @@ Name | Type | Description | Notes
 **primary_image_height** | Option<**i32**> | Gets or sets the height of the primary image. | [optional]
 **primary_image_width** | Option<**i32**> | Gets or sets the width of the primary image. | [optional]
 **custom_prefs** | Option<**std::collections::HashMap<String, String>**> | Gets or sets the custom prefs. | [optional]
-**scroll_direction** | Option<[**models::ScrollDirection**](ScrollDirection.md)> | An enum representing the axis that should be scrolled. | [optional]
+**scroll_direction** | Option<[**models::ScrollDirection**](ScrollDirection.md)> | Gets or sets the scroll direction. | [optional]
 **show_backdrop** | Option<**bool**> | Gets or sets a value indicating whether to show backdrops on this item. | [optional]
 **remember_sorting** | Option<**bool**> | Gets or sets a value indicating whether [remember sorting]. | [optional]
-**sort_order** | Option<[**models::SortOrder**](SortOrder.md)> | An enum representing the sorting order. | [optional]
+**sort_order** | Option<[**models::SortOrder**](SortOrder.md)> | Gets or sets the sort order. | [optional]
 **show_sidebar** | Option<**bool**> | Gets or sets a value indicating whether [show sidebar]. | [optional]
 **client** | Option<**String**> | Gets or sets the client. | [optional]
 

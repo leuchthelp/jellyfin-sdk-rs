@@ -47,7 +47,7 @@ Name | Type | Description | Notes
 **remote_client_bitrate_limit** | Option<**i32**> |  | [optional]
 **authentication_provider_id** | **String** |  | 
 **password_reset_provider_id** | **String** |  | 
-**sync_play_access** | Option<[**models::SyncPlayUserAccessType**](SyncPlayUserAccessType.md)> | Enum SyncPlayUserAccessType. | [optional]
+**sync_play_access** | Option<[**models::SyncPlayUserAccessType**](SyncPlayUserAccessType.md)> | Gets or sets a value indicating what SyncPlay features the user can access. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
 

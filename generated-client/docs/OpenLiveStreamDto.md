@@ -16,7 +16,7 @@ Name | Type | Description | Notes
 **enable_direct_play** | Option<**bool**> | Gets or sets a value indicating whether to enable direct play. | [optional]
 **enable_direct_stream** | Option<**bool**> | Gets or sets a value indicating whether to enable direct stream. | [optional]
 **always_burn_in_subtitle_when_transcoding** | Option<**bool**> | Gets or sets a value indicating whether always burn in subtitles when transcoding. | [optional]
-**device_profile** | Option<[**models::DeviceProfile**](DeviceProfile.md)> | Gets or sets the device profile. | [optional]
+**device_profile** | Option<[**models::DeviceProfile**](DeviceProfile.md)> | A MediaBrowser.Model.Dlna.DeviceProfile represents a set of metadata which determines which content a certain device is able to play.   Specifically, it defines the supported <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.ContainerProfiles\">containers</see> and <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.CodecProfiles\">codecs</see> (video and/or audio, including codec profiles and levels) the device is able to direct play (without transcoding or remuxing), as well as which <see cref=\"P:MediaBrowser.Model.Dlna.DeviceProfile.TranscodingProfiles\">containers/codecs to transcode to</see> in case it isn't. | [optional]
 **direct_play_protocols** | Option<[**Vec<models::MediaProtocol>**](MediaProtocol.md)> | Gets or sets the device play protocols. | [optional]
 
 [[Back to Model list]](../README.md#documentation-for-models) [[Back to API list]](../README.md#documentation-for-api-endpoints) [[Back to README]](../README.md)
